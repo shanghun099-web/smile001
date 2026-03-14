@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>출입코드 노트</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+KR:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f10;
+    --surface: #18181b;
+    --surface2: #1f1f24;
+    --border: #2a2a32;
+    --accent: #f59e0b;
+    --accent2: #fbbf24;
+    --text: #e4e4e7;
+    --text-dim: #71717a;
+    --text-muted: #3f3f46;
+    --code-bg: #0a0a0b;
+    --green: #4ade80;
+    --blue: #60a5fa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-icon {
+    font-size: 22px;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  header span {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Search */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px 12px 40px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input:focus {
+    border-color: var(--accent);
+  }
+
+  .search-wrap input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+
+  /* Complex Card */
+  .complex {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .complex:hover {
+    border-color: #3a3a44;
+  }
+
+  .complex-header {
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .complex-star {
+    color: var(--accent);
+    font-size: 13px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .complex-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .complex-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .complex-addr {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .toggle-icon {
+    color: var(--text-muted);
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    margin-top: 3px;
+  }
+
+  .complex.open .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .complex-body {
+    display: none;
+    padding: 0 12px 12px;
+  }
+
+  .complex.open .complex-body {
+    display: block;
+  }
+
+  /* Code entries */
+  .code-section {
+    margin-bottom: 8px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    padding-top: 8px;
+  }
+
+  .code-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 10px 12px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .code-row:active, .code-row.copied {
+    border-color: var(--accent);
+    background: #1a1500;
+  }
+
+  .code-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    flex: 1;
+    line-height: 1.5;
+    min-width: 0;
+  }
+
+  .code-label strong {
+    color: var(--blue);
+    font-weight: 600;
+    display: block;
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+
+  .code-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--green);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .copy-hint {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .code-row.copied .copy-hint {
+    opacity: 1;
+  }
+
+  /* Global codes (no section) */
+  .global-code {
+    background: #1a1a0a;
+    border-color: #3a3520;
+  }
+
+  .global-code .code-value {
+    color: var(--accent2);
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0;
+  }
+
+  /* Single address lines */
+  .addr-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+
+  .addr-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* No results */
+  .no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    display: none;
+  }
+
+  /* Count badge */
+  .count {
+    font-size: 10px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    padding: 1px 6px;
+    border-radius: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="header-icon">🔑</span>
+  <h1>출입코드 노트</h1>
+  <span>tap = 복사</span>
+</header>
+
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" id="searchInput" placeholder="단지명 또는 주소 검색..." autocomplete="off">
+</div>
+
+<div id="content">
+
+  <div class="complex" data-keywords="대치현대 삼성로64길5">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star">★</span>
+      <div class="complex-info">
+        <div class="complex-name">대치현대</div>
+        <div class="complex-addr">삼성로64길 5</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+      <div class="code-row global-code" onclick="copyCode(this, '##9077')">
+        <div class="code-label">공동 현관</div>
+        <div class="code-value">##9077</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row global-code" onclick="copyCode(this, '##2580')">
+        <div class="code-label">공동 현관 (101동·105동)</div>
+        <div class="code-value">##2580</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="complex" data-keywords="세영팔레스 영동대로65길57">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star">★</span>
+      <div class="complex-info">
+        <div class="complex-name">세영팔레스A</div>
+        <div class="complex-addr">영동대로65길 57</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+      <div class="section-label">🔐 열경 1657</div>
+      <div class="code-row" onclick="copyCode(this, '101동 1005호 / 열경1657')">
+        <div class="code-label"><strong>101동 1005호</strong>열경 1657</div>
+        <div class="code-value">열경1657</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '101동 1102호 / 열경1657')">
+        <div class="code-label"><strong>101동 1102호</strong>열경 1657</div>
+        <div class="code-value">열경1657</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '101동 1203호 / 열경1657')">
+        <div class="code-label"><strong>101동 1203호</strong>열경 1657</div>
+        <div class="code-value">열경1657</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="complex" data-keywords="대치푸르지오써밋 삼성로72길12">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star">★</span>
+      <div class="complex-info">
+        <div class="complex-name">대치푸르지오 써밋</div>
+        <div class="complex-addr">삼성로72길 12</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+      <div class="code-row" onclick="copyCode(this, '201#0320#')">
+        <div class="code-label"><strong>101동 1~3라인</strong></div>
+        <div class="code-value">201#0320#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '305#3006#')">
+        <div class="code-label"><strong>101동 4~5라인</strong></div>
+        <div class="code-value">305#3006#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '702#1543#')">
+        <div class="code-label"><strong>102동 1~2라인</strong></div>
+        <div class="code-value">702#1543#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '702#0009#')">
+        <div class="code-label"><strong>103동 1~2라인</strong></div>
+        <div class="code-value">702#0009#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '104#8080#')">
+        <div class="code-label"><strong>104동 1~4라인</strong></div>
+        <div class="code-value">104#8080#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '703#8899#')">
+        <div class="code-label"><strong>105동 3~5라인</strong></div>
+        <div class="code-value">703#8899#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '1003#1004#')">
+        <div class="code-label"><strong>106동 3~5라인</strong></div>
+        <div class="code-value">1003#1004#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '1102#0607#')">
+        <div class="code-label"><strong>107동 1~2라인</strong></div>
+        <div class="code-value">1102#0607#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '1202#6699#')">
+        <div class="code-label"><strong>108동 1~2라인</strong></div>
+        <div class="code-value">1202#6699#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '601#6733')">
+        <div class="code-label"><strong>109동 1~2라인</strong></div>
+        <div class="code-value">601#6733</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '103#4545#')">
+        <div class="code-label"><strong>109동 3~5라인</strong></div>
+        <div class="code-value">103#4545#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="complex" data-keywords="디에이치에델루이 역삼로532">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star">★</span>
+      <div class="complex-info">
+        <div class="complex-name">디에이치 에델루이</div>
+        <div class="complex-addr">역삼로 532</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+      <div class="code-row global-code" onclick="copyCode(this, '##0282 / ##1478')">
+        <div class="code-label">공동 현관</div>
+        <div class="code-value">##0282 / ##1478</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <hr class="divider">
+      <div class="code-row" onclick="copyCode(this, '#105#1053#')">
+        <div class="code-label"><strong>101동 1~5라인</strong></div>
+        <div class="code-value">#105#1053#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#403#1212#')">
+        <div class="code-label"><strong>102동 1~5라인</strong></div>
+        <div class="code-value">#403#1212#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#1102#8533')">
+        <div class="code-label"><strong>103동 1~2라인</strong></div>
+        <div class="code-value">#1102#8533</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#9101#0423')">
+        <div class="code-label"><strong>106동 1~2라인</strong></div>
+        <div class="code-value">#9101#0423</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#1303#1234')">
+        <div class="code-label"><strong>공통 (##0282 / ##1478)</strong></div>
+        <div class="code-value">#1303#1234</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="complex" data-keywords="대치르엘 도곡93길23">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star">★</span>
+      <div class="complex-info">
+        <div class="complex-name">대치르엘</div>
+        <div class="complex-addr">도곡93길 23</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+      <div class="code-row" onclick="copyCode(this, '602#7777#')">
+        <div class="code-label"><strong>101동 1~3라인</strong></div>
+        <div class="code-value">602#7777#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '공동2730')">
+        <div class="code-label"><strong>102동 1~2라인</strong></div>
+        <div class="code-value">공동 2730</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '404#0645#')">
+        <div class="code-label"><strong>102동 3~4라인</strong></div>
+        <div class="code-value">404#0645#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '101#9309#')">
+        <div class="code-label"><strong>103동 1~2라인</strong></div>
+        <div class="code-value">101#9309#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '503#7777 / 0000')">
+        <div class="code-label"><strong>103동 3~5라인</strong></div>
+        <div class="code-value">503#7777 / 0000</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '601#0407#')">
+        <div class="code-label"><strong>104동 1~2라인</strong></div>
+        <div class="code-value">601#0407#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '801#5104#')">
+        <div class="code-label"><strong>105동 1~2라인</strong></div>
+        <div class="code-value">801#5104#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '803#1006#')">
+        <div class="code-label"><strong>106동 1~4라인</strong></div>
+        <div class="code-value">803#1006#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '1504#9569#')">
+        <div class="code-label"><strong>106동 (보조)</strong></div>
+        <div class="code-value">1504#9569#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="complex" data-keywords="래미하이스턴 도곡93길12">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star">★</span>
+      <div class="complex-info">
+        <div class="complex-name">래미하이스턴</div>
+        <div class="complex-addr">도곡93길 12</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+      <div class="code-row global-code" onclick="copyCode(this, '#*1122#')">
+        <div class="code-label">201동·202동·203동·206동 전체 / 202동 3~5라인·6~7라인</div>
+        <div class="code-value">#*1122#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <hr class="divider">
+      <div class="code-row" onclick="copyCode(this, '#0202 0917')">
+        <div class="code-label"><strong>205동 1~2라인 (1)</strong></div>
+        <div class="code-value">#0202 0917</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#*5173#')">
+        <div class="code-label"><strong>205동 1~2라인 (2)</strong></div>
+        <div class="code-value">#*5173#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#*5273#')">
+        <div class="code-label"><strong>205동 3~5라인</strong></div>
+        <div class="code-value">#*5273#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="complex" data-keywords="풍림아이원3차 영동대로330 영동대로72길10">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star" style="color:var(--blue)">◆</span>
+      <div class="complex-info">
+        <div class="complex-name">풍림아이원 3차</div>
+        <div class="complex-addr">영동대로330-7 / 영동대로72길 10</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+      <div class="code-row" onclick="copyCode(this, '401동603호 / 열쇠603엔터1003')">
+        <div class="code-label"><strong>401동 603호</strong>열쇠 603 → 엔터 → 1003</div>
+        <div class="code-value">603 → 1003</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '401동1001호 / 열쇠1001엔터8018')">
+        <div class="code-label"><strong>401동 1001호</strong>열쇠 1001 → 엔터 → 8018</div>
+        <div class="code-value">1001 → 8018</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '301동1202호 / 열쇠1202엔터9684')">
+        <div class="code-label"><strong>301동 1202호</strong>열쇠 1202 → 엔터 → 9684</div>
+        <div class="code-value">1202 → 9684</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="complex" data-keywords="영동대로 삼성로 역삼로 테헤란로 하이캐슬 바실리체 아이파크 대치2차">
+    <div class="complex-header" onclick="toggle(this)">
+      <span class="complex-star" style="color:var(--text-dim)">≡</span>
+      <div class="complex-info">
+        <div class="complex-name">개별 주소 코드</div>
+        <div class="complex-addr">영동대로 · 삼성로 · 역삼로 · 테헤란로</div>
+      </div>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="complex-body">
+
+      <div class="section-label">영동대로</div>
+      <div class="code-row" onclick="copyCode(this, '종7124')">
+        <div class="code-label"><strong>영동대로71길 24</strong></div>
+        <div class="code-value">종 7124</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종1234')">
+        <div class="code-label"><strong>영동대로71길 42</strong></div>
+        <div class="code-value">종 1234</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#904*0008#')">
+        <div class="code-label"><strong>영동대로85길20 대치3차아이파크</strong></div>
+        <div class="code-value">#904*0008#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#506*1122#')">
+        <div class="code-label"><strong>영동대로85길20 대치3차아이파크</strong></div>
+        <div class="code-value">#506*1122#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#818*2580#')">
+        <div class="code-label"><strong>영동대로85길20 대치3차아이파크</strong></div>
+        <div class="code-value">#818*2580#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#1011*2580#')">
+        <div class="code-label"><strong>영동대로85길20 대치3차아이파크</strong></div>
+        <div class="code-value">#1011*2580#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '**2580#')">
+        <div class="code-label"><strong>영동대로85길34 대치2차</strong></div>
+        <div class="code-value">**2580#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+
+      <div class="section-label">삼성로</div>
+      <div class="code-row" onclick="copyCode(this, '##9077 / ##2580')">
+        <div class="code-label"><strong>삼성로64길5 대치현대</strong></div>
+        <div class="code-value">##9077 / ##2580</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종5543')">
+        <div class="code-label"><strong>삼성로64길40 하이캐슬</strong></div>
+        <div class="code-value">종 5543</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '경열3721종')">
+        <div class="code-label"><strong>삼성로76길5-6</strong></div>
+        <div class="code-value">경열3721종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '경비열쇠2525종')">
+        <div class="code-label"><strong>삼성로76길5-11</strong></div>
+        <div class="code-value">경비열쇠2525종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종2846')">
+        <div class="code-label"><strong>삼성로76길23-11</strong></div>
+        <div class="code-value">종 2846</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종1127')">
+        <div class="code-label"><strong>삼성로76길23-12</strong></div>
+        <div class="code-value">종 1127</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '열쇠6902종')">
+        <div class="code-label"><strong>삼성로82길30</strong></div>
+        <div class="code-value">열쇠6902종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종4468')">
+        <div class="code-label"><strong>삼성로83길6</strong></div>
+        <div class="code-value">종 4468</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종3080')">
+        <div class="code-label"><strong>삼성로84길12</strong></div>
+        <div class="code-value">종 3080</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '654321*')">
+        <div class="code-label"><strong>삼성로 414</strong></div>
+        <div class="code-value">654321*</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '1403#1010')">
+        <div class="code-label"><strong>삼성로436 바실리체</strong></div>
+        <div class="code-value">1403#1010</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+
+      <div class="section-label">역삼로</div>
+      <div class="code-row" onclick="copyCode(this, '열쇠1234종')">
+        <div class="code-label"><strong>역삼로81길25</strong></div>
+        <div class="code-value">열쇠1234종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#2145종')">
+        <div class="code-label"><strong>역삼로83길7</strong></div>
+        <div class="code-value">#2145종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '*8652통화')">
+        <div class="code-label"><strong>역삼로83길12-7</strong></div>
+        <div class="code-value">*8652통화</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '*7849*')">
+        <div class="code-label"><strong>역삼로83길18</strong></div>
+        <div class="code-value">*7849*</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '406#0301#')">
+        <div class="code-label"><strong>역삼로83길22</strong></div>
+        <div class="code-value">406#0301#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '2004')">
+        <div class="code-label"><strong>역삼로85길17-7</strong></div>
+        <div class="code-value">2004</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#2145')">
+        <div class="code-label"><strong>역삼로87길7</strong></div>
+        <div class="code-value">#2145</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '경열7856종')">
+        <div class="code-label"><strong>역삼로87길13</strong></div>
+        <div class="code-value">경열7856종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '1096*')">
+        <div class="code-label"><strong>역삼로87길15</strong></div>
+        <div class="code-value">1096*</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '2456*')">
+        <div class="code-label"><strong>역삼로87길23</strong></div>
+        <div class="code-value">2456*</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종2580')">
+        <div class="code-label"><strong>역삼로87길25</strong></div>
+        <div class="code-value">종 2580</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종1234')">
+        <div class="code-label"><strong>역삼로88길9</strong></div>
+        <div class="code-value">종 1234</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '열쇠50종')">
+        <div class="code-label"><strong>역삼로90길26</strong></div>
+        <div class="code-value">열쇠50종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '970411#')">
+        <div class="code-label"><strong>역삼로92길12</strong></div>
+        <div class="code-value">970411#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '939495*')">
+        <div class="code-label"><strong>역삼로92길17</strong></div>
+        <div class="code-value">939495*</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#1210')">
+        <div class="code-label"><strong>역삼로92길34</strong></div>
+        <div class="code-value">#1210</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '#1303#1234 (##0282)')">
+        <div class="code-label"><strong>역삼로532 대치에델루이</strong></div>
+        <div class="code-value">#1303#1234</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '3040310종')">
+        <div class="code-label"><strong>역삼로551-5</strong></div>
+        <div class="code-value">3040310종</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+      <div class="code-row" onclick="copyCode(this, '종1379')">
+        <div class="code-label"><strong>역삼로555 W타워</strong></div>
+        <div class="code-value">종 1379</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+
+      <div class="section-label">테헤란로</div>
+      <div class="code-row" onclick="copyCode(this, '3355#')">
+        <div class="code-label"><strong>테헤란로92길43</strong></div>
+        <div class="code-value">3355#</div>
+        <span class="copy-hint">복사됨</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="no-results" id="noResults">🔍 검색 결과가 없습니다</div>
+
+<script>
+function toggle(header) {
+  const card = header.closest('.complex');
+  card.classList.toggle('open');
+}
+
+function copyCode(el, text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  el.classList.add('copied');
+  setTimeout(() => el.classList.remove('copied'), 1200);
+}
+
+const searchInput = document.getElementById('searchInput');
+const complexes = document.querySelectorAll('.complex');
+const noResults = document.getElementById('noResults');
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  let found = 0;
+
+  complexes.forEach(card => {
+    const keywords = (card.dataset.keywords || '').toLowerCase();
+    const name = card.querySelector('.complex-name')?.textContent.toLowerCase() || '';
+    const addr = card.querySelector('.complex-addr')?.textContent.toLowerCase() || '';
+    const labels = [...card.querySelectorAll('.code-label')].map(el => el.textContent.toLowerCase()).join(' ');
+    const haystack = keywords + name + addr + labels;
+
+    const match = !q || haystack.includes(q);
+    card.style.display = match ? '' : 'none';
+    if (match) {
+      found++;
+      if (q) card.classList.add('open');
+      else card.classList.remove('open');
+    }
+  });
+
+  noResults.style.display = found === 0 ? 'block' : 'none';
+});
+</script>
+</body>
+</html>
