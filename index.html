@@ -475,7 +475,9 @@ function won(n){ return Number(n).toLocaleString()+'원'; }
 function workMin(s,e){
   if(!s||!e) return 0;
   const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
-  const t=(eh*60+em)-(sh*60+sm); return t>0?t:0;
+  let t=(eh*60+em)-(sh*60+sm);
+  if(t < 0) t += 1440;
+  return t>0?t:0;
 }
 function durStr(s,e){
   const t=workMin(s,e); if(!t) return '-';
