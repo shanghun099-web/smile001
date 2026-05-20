@@ -347,15 +347,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       <div class="header-date" id="todayDate">2026년 5월 10일 일요일</div>
     </div>
     <div class="header-actions">
-<div class="header-icon-btn kakao" onclick="openReportSheet()" title="카톡 공유"
-     style="display: flex; align-items: center; justify-content: center; padding: 0;">
-  <img 
-    src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"
-    srcset="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png 1x,
-            https://developers.kakao.com/assets/img/about/logos/kakaotalk/kakaotalk_512.png 2x"
-    width="36" height="36"
-    alt="카카오톡 공유"
-    style="display: block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
+<div class="header-icon-btn kakao" onclick="openReportSheet()" title="카톡 공유" style="display: flex; align-items: center; justify-content: center; padding: 0;">
+  <svg viewBox="0 0 100 100" width="22" height="22" style="display: block;">
+    <path fill="#371E1E" d="M50,15 C22.4,15 0,32.9 0,55 C0,69 8.7,81.3 21.8,88.5 L16.1,109.1 C15.7,110.5 17.2,111.6 18.3,110.8 L42.3,94.3 C44.8,94.7 47.4,95 50,95 C77.6,95 100,77.1 100,55 C100,32.9 77.6,15 50,15 Z"/>
+    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="33" fill="#FEE500" text-anchor="middle" letter-spacing="-1.5">TALK</text>
+  </svg>
 </div>
       <div class="header-icon-btn" onclick="openPriceSheet()" title="단가 설정">⚙️</div>
       <div class="header-icon-btn" onclick="openBackupSheet()" title="백업">💾</div>
