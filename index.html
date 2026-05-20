@@ -349,8 +349,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <div class="header-actions">
 <div class="header-icon-btn kakao" onclick="openReportSheet()" title="카톡 공유"
      style="display: flex; align-items: center; justify-content: center; padding: 0;">
-  <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png"
-       width="26" height="26" alt="카카오톡 공유" style="display: block;">
+  <img 
+    src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"
+    srcset="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png 1x,
+            https://developers.kakao.com/assets/img/about/logos/kakaotalk/kakaotalk_512.png 2x"
+    width="36" height="36"
+    alt="카카오톡 공유"
+    style="display: block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
 </div>
       <div class="header-icon-btn" onclick="openPriceSheet()" title="단가 설정">⚙️</div>
       <div class="header-icon-btn" onclick="openBackupSheet()" title="백업">💾</div>
