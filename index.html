@@ -8,34 +8,9 @@
 <link rel="apple-touch-icon" id="touch-icon" href="">
 <link rel="icon" id="fav-icon" type="image/png" href="">
 <link rel="manifest" id="pwa-manifest" href="">
-<script>
-(function(){
-  var S=512,c=document.createElement('canvas');c.width=c.height=S;
-  var ctx=c.getContext('2d'),r=100;
-  ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(S-r,0);ctx.quadraticCurveTo(S,0,S,r);
-  ctx.lineTo(S,S-r);ctx.quadraticCurveTo(S,S,S-r,S);ctx.lineTo(r,S);ctx.quadraticCurveTo(0,S,0,S-r);
-  ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
-  var g=ctx.createLinearGradient(0,0,S,S);g.addColorStop(0,'#FF8C00');g.addColorStop(1,'#FF5500');
-  ctx.fillStyle=g;ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.strokeStyle='rgba(200,100,0,0.6)';ctx.lineWidth=10;
-  ctx.beginPath();ctx.roundRect(105,240,302,155,12);ctx.fill();ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,1)';
-  ctx.beginPath();ctx.moveTo(125,240);ctx.lineTo(387,240);ctx.lineTo(407,185);ctx.lineTo(105,185);ctx.closePath();
-  ctx.fill();ctx.stroke();
-  ctx.strokeStyle='rgba(220,130,30,0.5)';ctx.lineWidth=6;
-  ctx.beginPath();ctx.moveTo(256,185);ctx.lineTo(256,240);ctx.stroke();
-  ctx.fillStyle='rgba(255,210,50,0.85)';ctx.fillRect(238,185,36,210);
-  ctx.fillStyle='rgba(255,200,40,0.7)';ctx.fillRect(105,237,302,16);
-  var url=c.toDataURL('image/png');
-  document.getElementById('touch-icon').setAttribute('href',url);
-  document.getElementById('fav-icon').setAttribute('href',url);
-  var manifest=JSON.stringify({name:'배송기록',short_name:'배송기록',start_url:'./',display:'standalone',
-    background_color:'#FF6B00',theme_color:'#FF6B00',orientation:'portrait',
-    icons:[{src:url,sizes:'512x512',type:'image/png',purpose:'any maskable'}]});
-  var blob=new Blob([manifest],{type:'application/manifest+json'});
-  document.getElementById('pwa-manifest').setAttribute('href',URL.createObjectURL(blob));
-})();
-</script>
+<link rel="apple-touch-icon" id="touch-icon" href="icon-193.png">
+<link rel="icon" id="fav-icon" type="image/png" href="icon-193.png">
+<link rel="manifest" id="pwa-manifest" href="">
 <title>📦 배송 기록</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
