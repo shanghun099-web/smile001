@@ -1501,37 +1501,64 @@ function setReportFormat(fmt) {
 
 function generateReportText() {
   const ym = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
-  const mr = records.filter(r => r.date.startsWith(ym)).sort((a, b) => a.date.localeCompare(b.date)); 
-  
+  const mr = records.filter(r => r.date.startsWith(ym)).sort((a, b) => a.date.localeCompare(b.date));
+
   if (mr.length === 0) return `📭 ${reportYear}년 ${reportMonth + 1}월 배송 기록이 없습니다.`;
 
   const s = statsFor(mr);
+  // 물품별 집계 (이름·단가·수량·금액)
+  const items = [
+    { name: nameA, qty: s.A, price: PA, amt: s.A * PA, emoji: '🅰' },
+    { name: nameB, qty: s.B, price: PB, amt: s.B * PB, emoji: '🅱' },
+    { name: nameC, qty: s.C, price: PC, amt: s.C * PC, emoji: '🅲' },
+    { name: nameD, qty: s.D, price: PD, amt: s.D * PD, emoji: '🅳' },
+  ].filter(it => it.qty > 0); // 수량 0인 물품은 제외
+
   let text = `📦 ${reportYear}년 ${reportMonth + 1}월 배송 보고서\n`;
-  text += `총 ${s.days}일 배송 / 합계 ${s.Q.toLocaleString()}건\n`;
-  text += `총 실수령액: ${won(s.N)}\n`;
-  text += `-----------------------\n`;
+  text += `━━━━━━━━━━━━━━━\n`;
+  text += `🗓 ${s.days}일 배송 · 총 ${s.Q.toLocaleString()}건\n`;
+  text += `💵 총액 ${won(s.G)}\n`;
+  text += `💰 실수령 ${won(s.N)} (3.3% 공제)\n`;
+  text += `━━━━━━━━━━━━━━━\n`;
+  text += `📊 물품별 정산\n`;
+  items.forEach(it => {
+    text += `${it.emoji} ${it.name}: ${it.qty.toLocaleString()}건 × ${it.price.toLocaleString()}원 = ${won(it.amt)}\n`;
+  });
+  text += `━━━━━━━━━━━━━━━\n`;
 
   if (reportFormat === 'detail') {
+    text += `📋 일자별 상세\n\n`;
     mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD); // D수량 공유 연동
+      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD);
       const spd = perHour(p.qty, r.startTime, r.endTime);
-      const qA = r.qtyA || 0, qB = r.qtyB || 0, qC = r.qtyC || 0, qD = r.qtyD || 0;
-      text += `📅 ${r.date.slice(5).replace('-','/')} (${DAYS[new Date(r.date).getDay()]}): 총 ${p.qty.toLocaleString()}건\n`;
-      text += `   [A:${qA}, B:${qB}, C:${qC}, D:${qD}]\n`;
-      text += `   ⏱ ${r.startTime}~${r.endTime} | 실수령 ${won(p.net)}${spd ? ' | ⚡' + spd + '건/h' : ''}\n`;
-      if(r.memo) text += `   📝 ${r.memo}\n`;
+      // 그날 수량이 있는 물품만 이름으로 표시
+      const parts = [];
+      if (Number(r.qtyA) > 0) parts.push(`${nameA} ${Number(r.qtyA)}`);
+      if (Number(r.qtyB) > 0) parts.push(`${nameB} ${Number(r.qtyB)}`);
+      if (Number(r.qtyC) > 0) parts.push(`${nameC} ${Number(r.qtyC)}`);
+      if (Number(r.qtyD) > 0) parts.push(`${nameD} ${Number(r.qtyD)}`);
+      text += `📅 ${r.date.slice(5).replace('-','/')} (${DAYS[new Date(r.date).getDay()]}) · 총 ${p.qty.toLocaleString()}건\n`;
+      text += `   ${parts.join(' / ')}\n`;
+      text += `   ⏱ ${r.startTime}~${r.endTime} · 실수령 ${won(p.net)}${spd ? ' · ⚡' + spd + '건/h' : ''}\n`;
+      if (r.memo) text += `   📝 ${r.memo}\n`;
       text += '\n';
     });
   } else if (reportFormat === 'summary') {
+    text += `📋 일자별 요약\n\n`;
     mr.forEach(r => {
       const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD);
-      text += `[${r.date.slice(5).replace('-','/')}] ${p.qty.toLocaleString()}건 / ${won(p.net)}\n`;
+      text += `[${r.date.slice(5).replace('-','/')}] ${p.qty.toLocaleString()}건 · ${won(p.net)}\n`;
     });
   } else if (reportFormat === 'table') {
-    text += `날짜\t\t수량\t실수령액\n`;
+    // 표형식: 물품명 컬럼을 동적으로 구성
+    const cols = items.map(it => it.name);
+    text += `📋 일자별 표\n\n`;
+    text += `날짜 | ${cols.join(' | ')} | 합계 | 실수령\n`;
     mr.forEach(r => {
       const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD);
-      text += `${r.date.slice(5)}\t${p.qty}건\t${p.net.toLocaleString()}원\n`;
+      const cellMap = { [nameA]: Number(r.qtyA)||0, [nameB]: Number(r.qtyB)||0, [nameC]: Number(r.qtyC)||0, [nameD]: Number(r.qtyD)||0 };
+      const cells = cols.map(c => cellMap[c]);
+      text += `${r.date.slice(5)} | ${cells.join(' | ')} | ${p.qty}건 | ${p.net.toLocaleString()}원\n`;
     });
   }
   return text.trim();
