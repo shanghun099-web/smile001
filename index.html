@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ko"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -5,10 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="배송기록">
-<link rel="apple-touch-icon" id="touch-icon" href="">
 <link rel="apple-touch-icon" id="touch-icon" href="icon-194.png">
 <link rel="icon" id="fav-icon" type="image/png" href="icon-194.png">
-<link rel="manifest" id="pwa-manifest" href="">
 <title>📦 배송 기록</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -17,7 +16,7 @@
   --orange:#FF6B00;--orange2:#FF9A3C;
   --blue:#4A9EFF;--blue2:#7BBFFF;
   --green:#5cb85c;--green2:#7fd67f;
-  --pink:#ec4899;--pink2:#f472b6; /* 물품 D 테마 색상 추가 */
+  --pink:#ec4899;--pink2:#f472b6;
   --bg:#0f1117;--card:#1a1d27;--card2:#12141c;
   --border:#2a2d3a;--text:#f0f0f0;--sub:#777;
   --red:#e05555;
@@ -36,7 +35,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .header-actions{position:relative;z-index:1;display:flex;gap:8px;align-items:flex-end;}
 .header-icon-btn{background:rgba(0,0,0,0.2);border:1.5px solid rgba(255,255,255,0.3);border-radius:14px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(4px);transition:all 0.15s;}
 .header-icon-btn:active{background:rgba(0,0,0,0.4);transform:scale(0.91);}
-/* 카카오톡 공유 버튼 스타일 패치 */
 .header-icon-btn.kakao { background: #FEE500; border-color: #FEE500; color: #191919; font-size: 22px; }
 .header-icon-btn.kakao:active { background: #E6CF00; }
 
@@ -58,7 +56,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .ab-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);}
 .ab-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:12px;letter-spacing:0.5px;}
-.ab-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(75px, 1fr));gap:6px;} /* 4개 배치를 위해 반응형 최소폭 조절 */
+.ab-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(75px, 1fr));gap:6px;}
 .ab-item{background:var(--card2);border-radius:12px;padding:10px 5px;}
 .ab-item-label{font-size:10px;font-weight:700;margin-bottom:8px;text-align:center;}
 .ab-item-label.a{color:var(--orange2);}
@@ -106,11 +104,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .speed-badge-icon{font-size:20px;}
 .speed-badge-label{font-size:11px;color:var(--sub);}
 .speed-badge-val{font-size:22px;font-weight:900;color:var(--purple2);}
-.speed-badge-unit{font-size:10px;color:var(--sub);margin-top:1px;}
-.speed-badge-right{text-align:right;}
 .speed-badge-hrs{font-size:12px;color:var(--sub);}
 .speed-badge-total{font-size:12px;color:var(--purple);margin-top:2px;font-weight:700;}
-.rec-items{display:grid;grid-template-columns:repeat(4, 1fr);gap:4px;margin-bottom:10px;} /* 4칸 그리드로 확장 */
+.rec-items{display:grid;grid-template-columns:repeat(4, 1fr);gap:4px;margin-bottom:10px;}
 .rec-item{border-radius:10px;padding:8px 4px;text-align:center;}
 .rec-item.a{background:#1f1a10;border:1px solid #3a2800;}
 .rec-item.b{background:#101520;border:1px solid #0f2040;}
@@ -277,24 +273,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .car-total-bar{background:linear-gradient(135deg,#1a1500,#120f00);border:1px solid #3a2f00;border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
 .car-total-lbl{font-size:12px;color:#fcd34d;font-weight:700;}
 .car-total-val{font-size:18px;font-weight:900;color:#fbbf24;}
-.car-stat-month{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;border-radius:14px;padding:16px;margin-bottom:10px;}
-.car-chart-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:10px;}
 .car-subtabs{display:flex;gap:6px;margin-bottom:14px;}
 .car-subtab{flex:1;padding:9px 0;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:var(--sub);transition:all 0.2s;}
 .car-subtab.active{background:var(--teal);border-color:var(--teal);color:#0a1a1a;}
 .cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .cs-card{background:var(--card);border-radius:14px;padding:14px 12px;}
-.cs-card.accent{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;}
 .cs-label{font-size:10px;color:var(--sub);margin-bottom:4px;}
 .cs-val{font-size:20px;font-weight:900;line-height:1.1;}
 .cs-sub{font-size:10px;color:#555;margin-top:3px;}
 .cs-fullcard{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
 .cs-fullcard.teal{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;}
-.cs-fullcard.yellow{background:linear-gradient(135deg,#1a1500,#120f00);border:1.5px solid #3a2f00;}
-.cs-icon{font-size:26px;flex-shrink:0;}
-.cs-body{flex:1;}
-.cs-body-lbl{font-size:10px;color:var(--sub);margin-bottom:2px;}
-.cs-body-val{font-size:20px;font-weight:900;}
 .cs-summary-box{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;border-radius:14px;padding:16px;margin-bottom:10px;}
 .cs-summary-title{font-size:11px;color:var(--sub);margin-bottom:12px;letter-spacing:0.5px;}
 .cs-summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;}
@@ -309,14 +297,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cs-bar-fill.km{background:linear-gradient(90deg,var(--teal),var(--teal2));}
 .cs-bar-fill.fuel{background:linear-gradient(90deg,#fbbf24,#fcd34d);}
 
-/* 카톡 보고서 공유 시트 스타일 */
-.report-format-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-.report-format-tab { flex: 1; padding: 10px 0; border: 1.5px solid var(--border); border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--sub); text-align: center; }
-.report-format-tab.active { background: #FEE500; border-color: #FEE500; color: #191919; }
+/* 카톡 공유 시트 스타일 */
+.report-mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report-mode-tab { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; background: var(--card2); color: var(--sub); text-align: center; border: 1.5px solid var(--border); }
+.report-mode-tab.active { background: #FEE500; border-color: #FEE500; color: #191919; }
+.report-format-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.report-format-tab { flex: 1; padding: 8px 0; border: 1.5px solid var(--border); border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; background: transparent; color: var(--sub); text-align: center; }
+.report-format-tab.active { background: rgba(254, 229, 0, 0.2); border-color: #FEE500; color: #FEE500; }
 .btn-report-action { width: 100%; padding: 15px; border: none; border-radius: 14px; font-size: 15px; font-weight: 900; cursor: pointer; margin-bottom: 10px; transition: transform 0.1s; }
 .btn-report-action:active { transform: scale(0.97); }
 .btn-kakao-share { background: #FEE500; color: #191919; }
 .btn-clipboard { background: var(--card2); color: var(--text); border: 1.5px solid var(--border); }
+.daily-preview-box { background: var(--card2); border: 1.5px dashed var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
 </style>
 </head>
 <body>
@@ -325,15 +317,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <div class="header-left">
       <div class="header-label">📦 DELIVERY TRACKER</div>
       <div class="header-title">배송 기록 관리</div>
-      <div class="header-date" id="todayDate">2026년 5월 10일 일요일</div>
+      <div class="header-date" id="todayDate">2026년 8월 10일 월요일</div>
     </div>
     <div class="header-actions">
-<div class="header-icon-btn kakao" onclick="openReportSheet()" title="카톡 공유" style="display: flex; align-items: center; justify-content: center; padding: 0;">
-  <svg viewBox="0 0 100 100" width="32" height="32" style="display: block;">
-    <path fill="#371E1E" d="M50,15 C22.4,15 0,32.9 0,55 C0,69 8.7,81.3 21.8,88.5 L16.1,109.1 C15.7,110.5 17.2,111.6 18.3,110.8 L42.3,94.3 C44.8,94.7 47.4,95 50,95 C77.6,95 100,77.1 100,55 C100,32.9 77.6,15 50,15 Z"/>
-    <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="33" fill="#FEE500" text-anchor="middle" letter-spacing="-1.5">TALK</text>
-  </svg>
-</div>
+      <div class="header-icon-btn kakao" onclick="openReportSheet()" title="카톡 공유" style="display: flex; align-items: center; justify-content: center; padding: 0;">
+        <svg viewBox="0 0 100 100" width="32" height="32" style="display: block;">
+          <path fill="#371E1E" d="M50,15 C22.4,15 0,32.9 0,55 C0,69 8.7,81.3 21.8,88.5 L16.1,109.1 C15.7,110.5 17.2,111.6 18.3,110.8 L42.3,94.3 C44.8,94.7 47.4,95 50,95 C77.6,95 100,77.1 100,55 C100,32.9 77.6,15 50,15 Z"/>
+          <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="33" fill="#FEE500" text-anchor="middle" letter-spacing="-1.5">TALK</text>
+        </svg>
+      </div>
       <div class="header-icon-btn" onclick="openPriceSheet()" title="단가 설정">⚙️</div>
       <div class="header-icon-btn" onclick="openBackupSheet()" title="백업">💾</div>
     </div>
@@ -362,29 +354,62 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <button class="tab" onclick="switchTab('stats')" id="tab-stats">📊 통계</button>
     <button class="tab" onclick="switchTab('car')" id="tab-car">🚗 차량</button>
   </div>
-  <div class="content" id="content">
-    </div>
+  <div class="content" id="content"></div>
 </div>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
 
+<!-- 카카오톡 보고서 모달 시트 -->
 <div class="bottom-sheet-overlay" id="report-sheet" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="bottom-sheet">
-    <div class="sheet-title">💬 월간 배송 보고서 공유</div>
-    <div class="sheet-sub">카카오톡이나 문자로 이번 달 기록을 전송하세요</div>
+    <div class="sheet-title">💬 카카오톡 보고서 메시지 전송</div>
+    <div class="sheet-sub">원하는 보고 양식을 선택하여 카카오톡으로 전송하세요</div>
 
-    <div class="week-nav" style="margin-bottom: 16px;">
-      <button class="week-nav-btn" onclick="changeReportMonth(-1)">◀</button>
-      <div style="text-align:center">
-        <div class="week-nav-label" id="report-month-label">2026년 5월</div>
-      </div>
-      <button class="week-nav-btn" onclick="changeReportMonth(1)">▶</button>
+    <div class="report-mode-tabs">
+      <div class="report-mode-tab active" id="mode-daily-btn" onclick="switchReportMode('daily')">📍 당일 현황 보고</div>
+      <div class="report-mode-tab" id="mode-monthly-btn" onclick="switchReportMode('monthly')">📊 월간 정산 보고</div>
     </div>
 
-    <div style="font-size:10px;color:var(--sub);margin-bottom:8px;letter-spacing:0.5px;">📝 보고서 형식 선택</div>
-    <div class="report-format-tabs">
-      <div class="report-format-tab active" onclick="setReportFormat('detail')" id="r-fmt-detail">상세형</div>
-      <div class="report-format-tab" onclick="setReportFormat('summary')" id="r-fmt-summary">요약형</div>
-      <div class="report-format-tab" onclick="setReportFormat('table')" id="r-fmt-table">표형식</div>
+    <!-- 1. 당일 현황 보고 영역 -->
+    <div id="report-daily-section">
+      <div class="row2" style="margin-bottom:12px;">
+        <div class="field" style="margin-bottom:0;">
+          <label>📍 구역명</label>
+          <input type="text" id="daily-area-name" placeholder="예: 일원" value="일원" oninput="updateDailyPreview()">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>📅 날짜 선택</label>
+          <input type="date" id="daily-report-date" onchange="updateDailyPreview()">
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:var(--sub);margin-bottom:6px;letter-spacing:0.5px;">🎨 이모지 스타일 선택</div>
+      <div class="report-format-tabs" style="margin-bottom:12px;">
+        <div class="report-format-tab active" onclick="setDailyStyle('style1')" id="d-style-style1">기본형</div>
+        <div class="report-format-tab" onclick="setDailyStyle('style2')" id="d-style-style2">카드형</div>
+        <div class="report-format-tab" onclick="setDailyStyle('style3')" id="d-style-style3">심플형</div>
+        <div class="report-format-tab" onclick="setDailyStyle('style4')" id="d-style-style4">아이콘형</div>
+      </div>
+
+      <div style="font-size:10px;color:var(--sub);margin-bottom:6px;letter-spacing:0.5px;">📱 전송 메시지 미리보기</div>
+      <div class="daily-preview-box" id="daily-preview">미리보기 로딩 중...</div>
+    </div>
+
+    <!-- 2. 월간 정산 보고 영역 -->
+    <div id="report-monthly-section" style="display:none;">
+      <div class="week-nav" style="margin-bottom: 16px;">
+        <button class="week-nav-btn" onclick="changeReportMonth(-1)">◀</button>
+        <div style="text-align:center">
+          <div class="week-nav-label" id="report-month-label">2026년 8월</div>
+        </div>
+        <button class="week-nav-btn" onclick="changeReportMonth(1)">▶</button>
+      </div>
+
+      <div style="font-size:10px;color:var(--sub);margin-bottom:8px;letter-spacing:0.5px;">📝 보고서 형식 선택</div>
+      <div class="report-format-tabs">
+        <div class="report-format-tab active" onclick="setReportFormat('detail')" id="r-fmt-detail">상세형</div>
+        <div class="report-format-tab" onclick="setReportFormat('summary')" id="r-fmt-summary">요약형</div>
+        <div class="report-format-tab" onclick="setReportFormat('table')" id="r-fmt-table">표형식</div>
+      </div>
     </div>
 
     <button class="btn-report-action btn-kakao-share" onclick="shareReport()">💬 카톡 / 공유하기</button>
@@ -393,6 +418,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
   </div>
 </div>
 
+<!-- 단가 설정 및 백업 시트 -->
 <div class="bottom-sheet-overlay" id="price-sheet" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="bottom-sheet">
     <div class="sheet-title">⚙️ 단가 설정</div>
@@ -443,24 +469,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     </div>
   </div>
 </div>
+
 <script>
 const TAX=0.033;
 const DAYS=['일','월','화','수','목','금','토'];
 let PA=Number(localStorage.getItem('price-A'))||1400;
 let PB=Number(localStorage.getItem('price-B'))||1200;
 let PC=Number(localStorage.getItem('price-C'))||1200;
-let PD=Number(localStorage.getItem('price-D'))||1000; // 물품 D 단가 변수 추가
+let PD=Number(localStorage.getItem('price-D'))||1000;
 let nameA=localStorage.getItem('name-A')||'오네';
 let nameB=localStorage.getItem('name-B')||'오네 책';
 let nameC=localStorage.getItem('name-C')||'딜리';
-let nameD=localStorage.getItem('name-D')||'물품 D'; // 물품 D 명칭 변수 추가
+let nameD=localStorage.getItem('name-D')||'물품 D';
+let areaName=localStorage.getItem('dlv-area-name')||'일원';
+let dailyStyle=localStorage.getItem('dlv-daily-style')||'style1';
+
 let records=JSON.parse(localStorage.getItem('dlv-v4')||'[]');
 let tab='input', editId=null, deleteId=null;
 let statPeriod='month', weekYear=new Date().getFullYear(), weekMonth=new Date().getMonth(), weekIndex=0;
 let statYear=new Date().getFullYear(), statMonth=new Date().getMonth();
 let carSubTab='input', carStatPeriod='month', carWeekYear=new Date().getFullYear(), carWeekMonth=new Date().getMonth(), carWeekIndex=0;
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
-let form={date:today(),qtyA:'',qtyB:'',qtyC:'',qtyD:'',startTime:'',endTime:'',memo:''}; // form 구조에 qtyD 추가
+let form={date:today(),qtyA:'',qtyB:'',qtyC:'',qtyD:'',startTime:'',endTime:'',memo:''};
 
 function today(){ return new Date().toISOString().slice(0,10); }
 function fmtDate(d){ const x=new Date(d); return `${x.getMonth()+1}월 ${x.getDate()}일`; }
@@ -482,7 +512,7 @@ function perHour(qty,s,e){
   const m=workMin(s,e); if(!m||!qty) return null;
   return Math.round((Number(qty)/m)*60*10)/10;
 }
-function calcPay(a,b,c,d){ // d 변수 계산식 추가 확장
+function calcPay(a,b,c,d){
   const A=Number(a)||0,B=Number(b)||0,C=Number(c)||0,D=Number(d)||0;
   const gross=A*PA+B*PB+C*PC+D*PD, net=Math.round(gross*(1-TAX));
   return {A,B,C,D,gross,net,tax:gross-net,qty:A+B+C+D};
@@ -492,7 +522,7 @@ function saveAll(){ localStorage.setItem('dlv-v4',JSON.stringify(records)); upda
 function updateSummary(){
   const m=today().slice(0,7);
   const mr=records.filter(r=>r.date.startsWith(m));
-  const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0); // qtyD 반영
+  const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
   const mg=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD).gross,0);
   const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD).net,0);
   const vr=mr.filter(r=>workMin(r.startTime,r.endTime)>0);
@@ -522,7 +552,7 @@ function render(){
   if(tab==='car'&&carSubTab==='input') bindCarEvents();
 }
 
-function renderInput(){ // 입력 UI 물품 D 추가 설계
+function renderInput(){
   return `
     ${editId!==null?`<div class="edit-banner">✏️ 수정 모드 — 기존 기록을 수정하고 있습니다</div>`:''}
     <div class="field"><label>📅 날짜</label><input type="date" id="f-date" value="${form.date}"></div>
@@ -988,7 +1018,7 @@ function handleSave(){
   form.qtyA=document.getElementById('f-qA')?.value||form.qtyA;
   form.qtyB=document.getElementById('f-qB')?.value||form.qtyB;
   form.qtyC=document.getElementById('f-qC')?.value||form.qtyC;
-  form.qtyD=document.getElementById('f-qD')?.value||form.qtyD; // qtyD 할당
+  form.qtyD=document.getElementById('f-qD')?.value||form.qtyD;
   form.startTime=document.getElementById('f-st')?.value||form.startTime;
   form.endTime=document.getElementById('f-et')?.value||form.endTime;
   form.memo=document.getElementById('f-memo')?.value||form.memo;
@@ -1013,11 +1043,11 @@ function openPriceSheet() {
   document.getElementById('ps-pa').value=PA;
   document.getElementById('ps-pb').value=PB;
   document.getElementById('ps-pc').value=PC;
-  document.getElementById('ps-pd').value=PD; // 시트 연결
+  document.getElementById('ps-pd').value=PD;
   document.getElementById('ps-na').value=nameA;
   document.getElementById('ps-nb').value=nameB;
   document.getElementById('ps-nc').value=nameC;
-  document.getElementById('ps-nd').value=nameD; // 시트 연결
+  document.getElementById('ps-nd').value=nameD;
   document.getElementById('price-sheet-sub').textContent=`현재 A: ${PA.toLocaleString()}원 · B: ${PB.toLocaleString()}원 · C: ${PC.toLocaleString()}원 · D: ${PD.toLocaleString()}원`;
   document.getElementById('price-sheet').classList.add('show');
 }
@@ -1025,13 +1055,13 @@ function savePrices(){
   const a=Number(document.getElementById('ps-pa').value)||PA;
   const b=Number(document.getElementById('ps-pb').value)||PB;
   const c=Number(document.getElementById('ps-pc').value)||PC;
-  const d=Number(document.getElementById('ps-pd').value)||PD; // 변수 로드
+  const d=Number(document.getElementById('ps-pd').value)||PD;
   if(a<100||b<100||c<100||d<100){showToast('⚠️ 단가는 100원 이상이어야 해요');return;}
   PA=a;PB=b;PC=c;PD=d;
   const na=document.getElementById('ps-na').value.trim()||'물품 A';
   const nb=document.getElementById('ps-nb').value.trim()||'물품 B';
   const nc=document.getElementById('ps-nc').value.trim()||'물품 C';
-  const nd=document.getElementById('ps-nd').value.trim()||'물품 D'; // 변수 로드
+  const nd=document.getElementById('ps-nd').value.trim()||'물품 D';
   nameA=na;nameB=nb;nameC=nc;nameD=nd;
   localStorage.setItem('price-A',PA);localStorage.setItem('price-B',PB);localStorage.setItem('price-C',PC);localStorage.setItem('price-D',PD);
   localStorage.setItem('name-A',nameA);localStorage.setItem('name-B',nameB);localStorage.setItem('name-C',nameC);localStorage.setItem('name-D',nameD);
@@ -1102,7 +1132,7 @@ function openBackupSheet(){
 }
 function exportData(){
   const cr=typeof carRecords!=='undefined'?carRecords:[];
-  const data={version:'dlv-v6',exportDate:new Date().toISOString(),priceA:PA,priceB:PB,priceC:PC,priceD:PD,nameA,nameB,nameC,nameD,records,carRecords:cr}; // PD 백업 추가
+  const data={version:'dlv-v6',exportDate:new Date().toISOString(),priceA:PA,priceB:PB,priceC:PC,priceD:PD,nameA,nameB,nameC,nameD,records,carRecords:cr};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -1117,7 +1147,7 @@ function importData(e){
   reader.onload=function(ev){
     try{
       const data=JSON.parse(ev.target.result);
-      if(data.priceD) { // 백업 데이터 복원 로직 연동
+      if(data.priceD) {
         PA=data.priceA||PA; PB=data.priceB||PB; PC=data.priceC||PC; PD=data.priceD||PD;
         nameA=data.nameA||nameA; nameB=data.nameB||nameB; nameC=data.nameC||nameC; nameD=data.nameD||nameD;
         localStorage.setItem('price-A',PA);localStorage.setItem('price-B',PB);localStorage.setItem('price-C',PC);localStorage.setItem('price-D',PD);
@@ -1467,17 +1497,121 @@ function startCarEdit(id){
 }
 function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
 
-/* ===== 카톡 공유 보고서 기능 패치 (JS) ===== */
+/* ===== 카톡 공유 보고서 기능 (당일/월간 + 다채로운 이모지 스위처) ===== */
 let reportYear = new Date().getFullYear();
 let reportMonth = new Date().getMonth();
 let reportFormat = 'detail';
+let reportMode = 'daily';
 
 function openReportSheet() {
   reportYear = new Date().getFullYear();
   reportMonth = new Date().getMonth();
   updateReportMonthLabel();
   setReportFormat('detail');
+  
+  document.getElementById('daily-area-name').value = areaName;
+  document.getElementById('daily-report-date').value = today();
+  setDailyStyle(dailyStyle);
+  
+  switchReportMode('daily');
   document.getElementById('report-sheet').classList.add('show');
+}
+
+function switchReportMode(mode) {
+  reportMode = mode;
+  document.getElementById('mode-daily-btn').classList.toggle('active', mode === 'daily');
+  document.getElementById('mode-monthly-btn').classList.toggle('active', mode === 'monthly');
+  document.getElementById('report-daily-section').style.display = (mode === 'daily') ? 'block' : 'none';
+  document.getElementById('report-monthly-section').style.display = (mode === 'monthly') ? 'block' : 'none';
+  
+  if (mode === 'daily') {
+    updateDailyPreview();
+  }
+}
+
+function setDailyStyle(st) {
+  dailyStyle = st;
+  localStorage.setItem('dlv-daily-style', st);
+  ['style1', 'style2', 'style3', 'style4'].forEach(s => {
+    const btn = document.getElementById('d-style-' + s);
+    if(btn) btn.classList.toggle('active', s === st);
+  });
+  updateDailyPreview();
+}
+
+function updateDailyPreview() {
+  const previewBox = document.getElementById('daily-preview');
+  if (previewBox) {
+    previewBox.textContent = generateDailyReportText();
+  }
+}
+
+function generateDailyReportText() {
+  const dateVal = document.getElementById('daily-report-date')?.value || today();
+  const areaVal = document.getElementById('daily-area-name')?.value.trim() || '일원';
+  
+  localStorage.setItem('dlv-area-name', areaVal);
+  areaName = areaVal;
+
+  const d = new Date(dateVal + 'T00:00:00');
+  const monthStr = String(d.getMonth() + 1).padStart(2, '0');
+  const dayStr = String(d.getDate()).padStart(2, '0');
+  const dowStr = DAYS[d.getDay()] + '요일';
+  const titleDate = `${monthStr}월${dayStr}일 ${dowStr}`;
+
+  // 해당 날짜 기록 찾기
+  const rec = records.find(r => r.date === dateVal);
+
+  const qA = rec ? (Number(rec.qtyA) || 0) : 0;
+  const qB = rec ? (Number(rec.qtyB) || 0) : 0;
+  const qC = rec ? (Number(rec.qtyC) || 0) : 0;
+  const qD = rec ? (Number(rec.qtyD) || 0) : 0;
+
+  let text = '';
+
+  if (dailyStyle === 'style1') {
+    // [스타일 1] 기본 한줄형
+    const items = [];
+    if (qA > 0 || !rec) items.push(`${nameA} ${qA}개`);
+    if (qB > 0) items.push(`${nameB} ${qB}개`);
+    if (qC > 0) items.push(`${nameC} ${qC}개`);
+    if (qD > 0) items.push(`${nameD} ${qD}개`);
+    const itemText = items.length > 0 ? items.join(' / ') : `${nameA} 0개`;
+
+    text = `📍 [${areaVal}] ${titleDate} 배송\n\n`;
+    text += `🚚 출발 | ${itemText}\n\n`;
+    text += `✅ 완료 | ${itemText}`;
+
+  } else if (dailyStyle === 'style2') {
+    // [스타일 2] 카드 목록형
+    text = `📦 [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr} 배송일지\n`;
+    text += `───────────────────\n`;
+    text += `🚛 출발 현황\n`;
+    text += `▫️ ${nameA}: ${qA}개\n`;
+    text += `▫️ ${nameB}: ${qB}개\n`;
+    text += `▫️ ${nameC}: ${qC}개\n`;
+    if (qD > 0) text += `▫️ ${nameD}: ${qD}개\n`;
+    text += `\n🎯 완료 현황\n`;
+    text += `▪️ ${nameA}: ${qA}개\n`;
+    text += `▪️ ${nameB}: ${qB}개\n`;
+    text += `▪️ ${nameC}: ${qC}개\n`;
+    if (qD > 0) text += `▪️ ${nameD}: ${qD}개\n`;
+
+  } else if (dailyStyle === 'style3') {
+    // [스타일 3] 심플 한줄형
+    const shortDay = DAYS[d.getDay()];
+    text = `🚩 [${areaVal}] ${monthStr}/${dayStr}(${shortDay}) 배송물량\n\n`;
+    text += `▶️ 출발 ➔ ${nameA} ${qA} | ${nameB} ${qB} | ${nameC} ${qC}${qD > 0 ? ' | ' + nameD + ' ' + qD : ''}\n`;
+    text += `✔️ 완료 ➔ ${nameA} ${qA} | ${nameB} ${qB} | ${nameC} ${qC}${qD > 0 ? ' | ' + nameD + ' ' + qD : ''}`;
+
+  } else if (dailyStyle === 'style4') {
+    // [스타일 4] 개별 아이콘형
+    text = `🏷️ [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr}\n\n`;
+    text += `🟢 출발 📦 ${nameA} ${qA}개 / 📚 ${nameB} ${qB}개 / 🛵 ${nameC} ${qC}개${qD > 0 ? ' / 📑 ' + nameD + ' ' + qD + '개' : ''}\n\n`;
+    text += `🔵 완료 📦 ${nameA} ${qA}개 / 📚 ${nameB} ${qB}개 / 🛵 ${nameC} ${qC}개${qD > 0 ? ' / 📑 ' + nameD + ' ' + qD + '개' : ''}`;
+  }
+
+  return text;
 }
 
 function changeReportMonth(dir) {
@@ -1500,19 +1634,22 @@ function setReportFormat(fmt) {
 }
 
 function generateReportText() {
+  if (reportMode === 'daily') {
+    return generateDailyReportText();
+  }
+
   const ym = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
   const mr = records.filter(r => r.date.startsWith(ym)).sort((a, b) => a.date.localeCompare(b.date));
 
   if (mr.length === 0) return `📭 ${reportYear}년 ${reportMonth + 1}월 배송 기록이 없습니다.`;
 
   const s = statsFor(mr);
-  // 물품별 집계 (이름·단가·수량·금액)
   const items = [
     { name: nameA, qty: s.A, price: PA, amt: s.A * PA, emoji: '🅰' },
     { name: nameB, qty: s.B, price: PB, amt: s.B * PB, emoji: '🅱' },
     { name: nameC, qty: s.C, price: PC, amt: s.C * PC, emoji: '🅲' },
     { name: nameD, qty: s.D, price: PD, amt: s.D * PD, emoji: '🅳' },
-  ].filter(it => it.qty > 0); // 수량 0인 물품은 제외
+  ].filter(it => it.qty > 0);
 
   let text = `📦 ${reportYear}년 ${reportMonth + 1}월 배송 보고서\n`;
   text += `━━━━━━━━━━━━━━━\n`;
@@ -1531,7 +1668,6 @@ function generateReportText() {
     mr.forEach(r => {
       const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD);
       const spd = perHour(p.qty, r.startTime, r.endTime);
-      // 그날 수량이 있는 물품만 이름으로 표시
       const parts = [];
       if (Number(r.qtyA) > 0) parts.push(`${nameA} ${Number(r.qtyA)}`);
       if (Number(r.qtyB) > 0) parts.push(`${nameB} ${Number(r.qtyB)}`);
@@ -1550,7 +1686,6 @@ function generateReportText() {
       text += `[${r.date.slice(5).replace('-','/')}] ${p.qty.toLocaleString()}건 · ${won(p.net)}\n`;
     });
   } else if (reportFormat === 'table') {
-    // 표형식: 물품명 컬럼을 동적으로 구성
     const cols = items.map(it => it.name);
     text += `📋 일자별 표\n\n`;
     text += `날짜 | ${cols.join(' | ')} | 합계 | 실수령\n`;
@@ -1568,7 +1703,7 @@ function shareReport() {
   const text = generateReportText();
   if (navigator.share) {
     navigator.share({
-      title: '월간 배송 보고서',
+      title: reportMode === 'daily' ? '당일 배송 현황' : '월간 배송 보고서',
       text: text
     }).then(() => {
       document.getElementById('report-sheet').classList.remove('show');
