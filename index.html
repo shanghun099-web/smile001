@@ -365,11 +365,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <div class="sheet-sub">원하는 보고 양식을 선택하여 카카오톡으로 전송하세요</div>
 
     <div class="report-mode-tabs">
-      <div class="report-mode-tab active" id="mode-daily-btn" onclick="switchReportMode('daily')">📍 당일 현황 보고</div>
+      <div class="report-mode-tab active" id="mode-daily-btn" onclick="switchReportMode('daily')">📍 당일 보고</div>
       <div class="report-mode-tab" id="mode-monthly-btn" onclick="switchReportMode('monthly')">📊 월간 정산 보고</div>
     </div>
 
-    <!-- 1. 당일 현황 보고 영역 -->
+    <!-- 1. 당일 보고 영역 -->
     <div id="report-daily-section">
       <div class="row2" style="margin-bottom:12px;">
         <div class="field" style="margin-bottom:0;">
@@ -1595,12 +1595,11 @@ function generateDailyReportText() {
     if (activeItems.length === 0) {
       text += `⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
-      text += `🚛 출발 현황\n`;
+      text += `🚛 출발\n`;
       activeItems.forEach(it => { text += `▫️ ${it.name}: ${it.qty}개\n`; });
-      text += `\n🎯 완료 현황\n`;
+      text += `\n🎯 완료\n`;
       activeItems.forEach(it => { text += `▪️ ${it.name}: ${it.qty}개\n`; });
     }
-
   } else if (dailyStyle === 'style3') {
     // [스타일 3] 심플 한줄형
     const shortDay = DAYS[d.getDay()];
@@ -1717,7 +1716,6 @@ function shareReport() {
   const text = generateReportText();
   if (navigator.share) {
     navigator.share({
-      title: reportMode === 'daily' ? '당일 배송 현황' : '월간 배송 보고서',
       text: text
     }).then(() => {
       document.getElementById('report-sheet').classList.remove('show');
