@@ -1586,7 +1586,7 @@ function generateDailyReportText() {
       text = `📍 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
       const itemText = activeItems.map(it => `${it.name} ${it.qty}개`).join(' / ');
-      text = `📍 [${areaVal}] ${titleDate} 배송\n\n`;
+      text = `📦 [${areaVal}] ${titleDate} 배송\n\n`;
       text += `🚚 출발 | ${itemText}\n\n`;
       text += `✅ 완료 | ${itemText}`;
     }
