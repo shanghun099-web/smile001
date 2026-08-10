@@ -54,6 +54,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .field input:focus,.field textarea:focus{border-color:var(--orange);}
 .field textarea{height:72px;resize:none;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
 .ab-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);}
 .ab-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:12px;letter-spacing:0.5px;}
 .ab-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(75px, 1fr));gap:6px;}
@@ -71,6 +72,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .ab-item-sub.b{color:var(--blue2);}
 .ab-item-sub.c{color:var(--green2);}
 .ab-item-sub.d{color:var(--pink2);}
+
 .calc-box{background:linear-gradient(135deg,#151f15,#111a11);border:1.5px solid #254025;border-radius:14px;padding:16px;margin-bottom:14px;}
 .calc-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
 .calc-label{font-size:12px;color:var(--sub);}
@@ -93,6 +95,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .btn-save:active{transform:scale(0.97);}
 .btn-save.disabled{background:#2a2a2a!important;color:#444!important;box-shadow:none!important;}
 .btn-cancel{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;color:var(--sub);background:transparent;cursor:pointer;font-family:inherit;}
+
 .rec-card{background:var(--card);border-radius:14px;padding:14px;border-left:4px solid var(--orange);margin-bottom:10px;}
 .rec-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
 .rec-date{font-size:15px;font-weight:800;}
@@ -138,6 +141,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .rec-btn{flex:1;padding:9px;border:none;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-edit{background:#1a2a3a;color:#64b5f6;}
 .btn-del{background:#2d1414;color:#f06060;}
+
 .stat-card{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
 .stat-icon{font-size:26px;flex-shrink:0;}
 .stat-lbl{font-size:10px;color:#444;margin-bottom:2px;}
@@ -238,6 +242,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .dialog-btns button{flex:1;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-cd{background:#3a1414;color:#f06060;}
 .btn-cc{background:#2a2d3a;color:var(--sub);}
+
 .car-form-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);}
 .car-form-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:12px;letter-spacing:0.5px;}
 .car-km-box{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;border-radius:14px;padding:14px 16px;margin-bottom:14px;}
@@ -1174,7 +1179,6 @@ function importData(e){
 }
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
-// ===== 차량 일지 =====
 let carRecords=JSON.parse(localStorage.getItem('car-v1')||'[]');
 let carForm=defCarForm();
 let carEditId=null;
@@ -1497,7 +1501,6 @@ function startCarEdit(id){
 }
 function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
 
-/* ===== 카톡 공유 보고서 기능 (당일/월간 + 다채로운 이모지 스위처) ===== */
 let reportYear = new Date().getFullYear();
 let reportMonth = new Date().getMonth();
 let reportFormat = 'detail';
@@ -1589,9 +1592,9 @@ function generateDailyReportText() {
     }
 
   } else if (dailyStyle === 'style2') {
-    // [스타일 2] 카드 목록형
-    text = `📦 [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr} 배송일지\n`;
-    text += `───────────────────\n`;
+    // [스타일 2] 카드 목록형 (제목에서 '일지' 삭제 및 구분선 10자 축소 최적화)
+    text = `📦 [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr} 배송\n`;
+    text += `──────────\n`;
     if (activeItems.length === 0) {
       text += `⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
