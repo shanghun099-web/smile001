@@ -1587,7 +1587,7 @@ function generateDailyReportText() {
     } else {
       const itemText = activeItems.map(it => `${it.name} ${it.qty}개`).join(' / ');
       text = `📦 [${areaVal}] ${titleDate} 배송\n\n`;
-      text += `🚚 출발 | ${itemText}\n\n`;
+      text += `🚚 출발 | ${itemText}\n`;
       text += `✅ 완료 | ${itemText}`;
     }
 
@@ -1622,7 +1622,7 @@ function generateDailyReportText() {
       text += `⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
       const itemStr = activeItems.map(it => `${it.emoji} ${it.name} ${it.qty}개`).join(' / ');
-      text += `🟢 출발 ${itemStr}\n\n`;
+      text += `🟢 출발 ${itemStr}\n`;
       text += `🔵 완료 ${itemStr}`;
     }
   }
