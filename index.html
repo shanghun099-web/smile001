@@ -1567,48 +1567,62 @@ function generateDailyReportText() {
   const qC = rec ? (Number(rec.qtyC) || 0) : 0;
   const qD = rec ? (Number(rec.qtyD) || 0) : 0;
 
+  // 수량이 0보다 큰 물품만 필터링
+  const activeItems = [
+    { name: nameA, qty: qA, emoji: '📦' },
+    { name: nameB, qty: qB, emoji: '📚' },
+    { name: nameC, qty: qC, emoji: '🛵' },
+    { name: nameD, qty: qD, emoji: '📑' }
+  ].filter(it => it.qty > 0);
+
   let text = '';
 
   if (dailyStyle === 'style1') {
     // [스타일 1] 기본 한줄형
-    const items = [];
-    if (qA > 0 || !rec) items.push(`${nameA} ${qA}개`);
-    if (qB > 0) items.push(`${nameB} ${qB}개`);
-    if (qC > 0) items.push(`${nameC} ${qC}개`);
-    if (qD > 0) items.push(`${nameD} ${qD}개`);
-    const itemText = items.length > 0 ? items.join(' / ') : `${nameA} 0개`;
-
-    text = `📍 [${areaVal}] ${titleDate} 배송\n\n`;
-    text += `🚚 출발 | ${itemText}\n\n`;
-    text += `✅ 완료 | ${itemText}`;
+    if (activeItems.length === 0) {
+      text = `📍 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
+    } else {
+      const itemText = activeItems.map(it => `${it.name} ${it.qty}개`).join(' / ');
+      text = `📍 [${areaVal}] ${titleDate} 배송\n\n`;
+      text += `🚚 출발 | ${itemText}\n\n`;
+      text += `✅ 완료 | ${itemText}`;
+    }
 
   } else if (dailyStyle === 'style2') {
     // [스타일 2] 카드 목록형
     text = `📦 [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr} 배송일지\n`;
     text += `───────────────────\n`;
-    text += `🚛 출발 현황\n`;
-    text += `▫️ ${nameA}: ${qA}개\n`;
-    text += `▫️ ${nameB}: ${qB}개\n`;
-    text += `▫️ ${nameC}: ${qC}개\n`;
-    if (qD > 0) text += `▫️ ${nameD}: ${qD}개\n`;
-    text += `\n🎯 완료 현황\n`;
-    text += `▪️ ${nameA}: ${qA}개\n`;
-    text += `▪️ ${nameB}: ${qB}개\n`;
-    text += `▪️ ${nameC}: ${qC}개\n`;
-    if (qD > 0) text += `▪️ ${nameD}: ${qD}개\n`;
+    if (activeItems.length === 0) {
+      text += `⚠️ 기록된 배송 물량이 없습니다.`;
+    } else {
+      text += `🚛 출발 현황\n`;
+      activeItems.forEach(it => { text += `▫️ ${it.name}: ${it.qty}개\n`; });
+      text += `\n🎯 완료 현황\n`;
+      activeItems.forEach(it => { text += `▪️ ${it.name}: ${it.qty}개\n`; });
+    }
 
   } else if (dailyStyle === 'style3') {
     // [스타일 3] 심플 한줄형
     const shortDay = DAYS[d.getDay()];
-    text = `🚩 [${areaVal}] ${monthStr}/${dayStr}(${shortDay}) 배송물량\n\n`;
-    text += `▶️ 출발 ➔ ${nameA} ${qA} | ${nameB} ${qB} | ${nameC} ${qC}${qD > 0 ? ' | ' + nameD + ' ' + qD : ''}\n`;
-    text += `✔️ 완료 ➔ ${nameA} ${qA} | ${nameB} ${qB} | ${nameC} ${qC}${qD > 0 ? ' | ' + nameD + ' ' + qD : ''}`;
+    text = `🚩 [${areaVal}] ${monthStr}/${dayStr}(${shortDay}) 물량보고\n\n`;
+    if (activeItems.length === 0) {
+      text += `⚠️ 기록된 배송 물량이 없습니다.`;
+    } else {
+      const itemStr = activeItems.map(it => `${it.name} ${it.qty}`).join(' | ');
+      text += `▶️ 출발 ➔ ${itemStr}\n`;
+      text += `✔️ 완료 ➔ ${itemStr}`;
+    }
 
   } else if (dailyStyle === 'style4') {
     // [스타일 4] 개별 아이콘형
     text = `🏷️ [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr}\n\n`;
-    text += `🟢 출발 📦 ${nameA} ${qA}개 / 📚 ${nameB} ${qB}개 / 🛵 ${nameC} ${qC}개${qD > 0 ? ' / 📑 ' + nameD + ' ' + qD + '개' : ''}\n\n`;
-    text += `🔵 완료 📦 ${nameA} ${qA}개 / 📚 ${nameB} ${qB}개 / 🛵 ${nameC} ${qC}개${qD > 0 ? ' / 📑 ' + nameD + ' ' + qD + '개' : ''}`;
+    if (activeItems.length === 0) {
+      text += `⚠️ 기록된 배송 물량이 없습니다.`;
+    } else {
+      const itemStr = activeItems.map(it => `${it.emoji} ${it.name} ${it.qty}개`).join(' / ');
+      text += `🟢 출발 ${itemStr}\n\n`;
+      text += `🔵 완료 ${itemStr}`;
+    }
   }
 
   return text;
