@@ -1606,7 +1606,7 @@ function generateDailyReportText() {
   } else if (dailyStyle === 'style3') {
     // [스타일 3] 심플 한줄형
     const shortDay = DAYS[d.getDay()];
-    text = `🚩 [${areaVal}] ${monthStr}/${dayStr}(${shortDay}) 물량보고\n\n`;
+    text = `🚩 [${areaVal}] ${monthStr}/${dayStr}(${shortDay}) 배송\n\n`;
     if (activeItems.length === 0) {
       text += `⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
