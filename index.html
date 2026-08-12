@@ -194,6 +194,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .btn-bk:active{transform:scale(0.96);}
 .btn-bk-export{background:linear-gradient(135deg,#1a3a5c,#1e4a7a);color:#7bbfff;border:1.5px solid #2a5a9a;}
 .btn-bk-import{background:linear-gradient(135deg,#1a3a1a,#1e4a1e);color:#7fd67f;border:1.5px solid #2a6a2a;}
+.btn-bk-excel{background:linear-gradient(135deg,#0f2a1a,#0c2015);color:#6ee7a5;border:1.5px solid #1d5a3a;}
 .btn-bk-reset{background:linear-gradient(135deg,#3a1414,#2a0f0f);color:#f06060;border:1.5px solid #5a2020;}
 .backup-hint{font-size:10px;color:#444;text-align:center;margin-bottom:14px;}
 .btn-sheet-close{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;color:var(--sub);background:transparent;cursor:pointer;font-family:inherit;}
@@ -470,9 +471,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       <button class="btn-bk btn-bk-export" onclick="exportData()">📤 내보내기<br><span style="font-size:10px;font-weight:400;opacity:0.8">JSON 파일 저장</span></button>
       <button class="btn-bk btn-bk-import" onclick="document.getElementById('import-file').click()">📥 불러오기<br><span style="font-size:10px;font-weight:400;opacity:0.8">JSON 파일 복원</span></button>
     </div>
-    <button class="btn-bk" onclick="copyCode()" style="width:100%;margin-bottom:10px;background:linear-gradient(135deg,#1a1a3a,#14143a);color:#c4b5fd;border:1.5px solid #3a2f7a">📋 전체 코드 복사<br><span style="font-size:10px;font-weight:400;opacity:0.8">HTML 소스 원클릭 복사</span></button>
+    <button class="btn-bk btn-bk-excel" onclick="exportExcel()" style="width:100%;margin-bottom:10px">📊 엑셀 파일로 내보내기<br><span style="font-size:10px;font-weight:400;opacity:0.8">배송 · 차량 · 월별요약 3개 시트 (.xlsx)</span></button>
     <button class="btn-bk btn-bk-reset" onclick="confirmReset()" style="width:100%;margin-bottom:14px">🗑 전체 초기화<br><span style="font-size:10px;font-weight:400;opacity:0.8">모든 배송·차량 기록 삭제</span></button>
-    <div class="backup-hint">가져오기 시 기존 기록과 병합 · 중복 제외<br>기록은 이 브라우저에만 저장됩니다 · 주 1회 백업 권장</div>
+    <div class="backup-hint">복원은 JSON 파일로만 가능합니다 · 엑셀은 보관 · 정산 제출용<br>가져오기 시 기존 기록과 병합 · 중복 제외 · 주 1회 백업 권장</div>
     <button class="btn-sheet-close" onclick="document.getElementById('backup-sheet').classList.remove('show')">닫기</button>
   </div>
 </div>
@@ -1194,16 +1195,6 @@ function confirmDialog(){
 }
 
 /* ── 백업 ───────────────────────────────── */
-function copyCode(){
-  const openEls=document.querySelectorAll('.bottom-sheet-overlay.show,.overlay.show');
-  openEls.forEach(el=>el.classList.remove('show'));
-  const code='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
-  openEls.forEach(el=>el.classList.add('show'));
-  const done=()=>{document.getElementById('backup-sheet').classList.remove('show');showToast('📋 전체 코드 복사 완료!');};
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(code).then(done).catch(()=>fallbackCopy(code,done));
-  } else fallbackCopy(code,done);
-}
 function fallbackCopy(text,done){
   const ta=document.createElement('textarea');
   ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
@@ -1218,11 +1209,7 @@ function openBackupSheet(){
 function exportData(){
   const data={version:'dlv-v7',exportDate:new Date().toISOString(),priceA:PA,priceB:PB,priceC:PC,priceD:PD,nameA,nameB,nameC,nameD,records,carRecords};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=`배송기록_백업_${today()}.json`;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  downloadBlob(blob,`배송기록_백업_${today()}.json`);
   document.getElementById('backup-sheet').classList.remove('show');
   showToast('📤 백업 완료!');
 }
@@ -1268,6 +1255,190 @@ function importData(e){
   reader.onerror=function(){showToast('❌ 파일을 읽지 못했습니다');};
   reader.readAsText(file);e.target.value='';
 }
+/* ── 엑셀(.xlsx) 내보내기 ────────────────
+   외부 라이브러리 없이 xlsx(=ZIP+XML)를 직접 만들어 오프라인에서도 동작합니다. */
+function downloadBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function crc32(buf){
+  let table=crc32.table;
+  if(!table){
+    table=crc32.table=new Uint32Array(256);
+    for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); table[n]=c>>>0; }
+  }
+  let crc=0xFFFFFFFF;
+  for(let i=0;i<buf.length;i++) crc=(crc>>>8)^table[(crc^buf[i])&0xFF];
+  return (crc^0xFFFFFFFF)>>>0;
+}
+function zipStore(files){
+  const chunks=[],central=[];
+  const now=new Date();
+  const dosTime=((now.getHours()<<11)|(now.getMinutes()<<5)|(Math.floor(now.getSeconds()/2)))&0xFFFF;
+  const dosDate=(((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate())&0xFFFF;
+  const enc=new TextEncoder();
+  let offset=0;
+  files.forEach(f=>{
+    const nameBytes=enc.encode(f.name);
+    const data=f.data, crc=crc32(data);
+    const local=new Uint8Array(30+nameBytes.length);
+    const dv=new DataView(local.buffer);
+    dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0x0800,true);
+    dv.setUint16(8,0,true);dv.setUint16(10,dosTime,true);dv.setUint16(12,dosDate,true);
+    dv.setUint32(14,crc,true);dv.setUint32(18,data.length,true);dv.setUint32(22,data.length,true);
+    dv.setUint16(26,nameBytes.length,true);dv.setUint16(28,0,true);
+    local.set(nameBytes,30);
+    chunks.push(local,data);
+    const cd=new Uint8Array(46+nameBytes.length);
+    const cv=new DataView(cd.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint16(8,0x0800,true);cv.setUint16(10,0,true);
+    cv.setUint16(12,dosTime,true);cv.setUint16(14,dosDate,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);
+    cv.setUint16(28,nameBytes.length,true);cv.setUint32(42,offset,true);
+    cd.set(nameBytes,46);
+    central.push(cd);
+    offset+=local.length+data.length;
+  });
+  const centralSize=central.reduce((s,c)=>s+c.length,0);
+  const eocd=new Uint8Array(22);
+  const ev=new DataView(eocd.buffer);
+  ev.setUint32(0,0x06054b50,true);
+  ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);
+  ev.setUint32(12,centralSize,true);ev.setUint32(16,offset,true);
+  return new Blob([...chunks,...central,eocd],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function xmlEsc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])); }
+function colName(n){ let s='';n++; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26);} return s; }
+function sheetXml(rows,widths){
+  let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+   +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+   +'<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>';
+  if(widths&&widths.length){
+    x+='<cols>'+widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>';
+  }
+  x+='<sheetData>';
+  rows.forEach((row,ri)=>{
+    x+=`<row r="${ri+1}">`;
+    row.forEach((v,ci)=>{
+      const ref=colName(ci)+(ri+1);
+      const st=ri===0?' s="1"':'';
+      if(typeof v==='number'&&isFinite(v)) x+=`<c r="${ref}"${st}><v>${v}</v></c>`;
+      else{
+        const t=(v==null?'':String(v));
+        if(t==='') return;
+        x+=`<c r="${ref}" t="inlineStr"${st}><is><t xml:space="preserve">${xmlEsc(t)}</t></is></c>`;
+      }
+    });
+    x+='</row>';
+  });
+  return x+'</sheetData></worksheet>';
+}
+function buildXlsx(sheets){   // sheets: [{name, rows, widths}]
+  const enc=new TextEncoder();
+  const f=(name,str)=>({name,data:enc.encode(str)});
+  const files=[];
+  files.push(f('[Content_Types].xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    +'<Default Extension="xml" ContentType="application/xml"/>'
+    +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+    +sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')
+    +'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+    +'</Types>'));
+  files.push(f('_rels/.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+    +'</Relationships>'));
+  files.push(f('xl/workbook.xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'
+    +sheets.map((s,i)=>`<sheet name="${xmlEsc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')
+    +'</sheets></workbook>'));
+  files.push(f('xl/_rels/workbook.xml.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')
+    +`<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
+    +'</Relationships>'));
+  files.push(f('xl/styles.xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +'<fonts count="2"><font><sz val="11"/><name val="맑은 고딕"/></font><font><b/><sz val="11"/><name val="맑은 고딕"/></font></fonts>'
+    +'<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
+    +'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+    +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    +'<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+    +'<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>'
+    +'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
+    +'</styleSheet>'));
+  sheets.forEach((s,i)=>files.push(f(`xl/worksheets/sheet${i+1}.xml`,sheetXml(s.rows,s.widths))));
+  return zipStore(files);
+}
+
+function exportExcel(){
+  if(!records.length&&!carRecords.length){ showToast('⚠️ 내보낼 기록이 없습니다'); return; }
+  const asc=(a,b)=>a.date.localeCompare(b.date);
+  const dlv=[...records].sort(asc), car=[...carRecords].sort(asc);
+
+  // 시트 1 · 배송 기록
+  const dlvRows=[['날짜','요일',nameA,nameB,nameC,nameD,'총 건수','출발','마무리','근무시간(h)','시간당 건수','총액','실수령','공제액(3.3%)','메모']];
+  dlv.forEach(r=>{
+    const p=calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD);
+    const mins=workMin(r.startTime,r.endTime);
+    dlvRows.push([r.date,DAYS[toDate(r.date).getDay()],p.A,p.B,p.C,p.D,p.qty,
+      r.startTime||'',r.endTime||'',mins?Math.round(mins/6)/10:'',perHour(p.qty,r.startTime,r.endTime)||'',
+      p.gross,p.net,p.tax,r.memo||'']);
+  });
+  if(dlv.length){
+    const t=statsFor(dlv);
+    dlvRows.push([]);
+    dlvRows.push(['합계',t.days+'일',t.A,t.B,t.C,t.D,t.Q,'','',t.totalMin?Math.round(t.totalMin/6)/10:'',t.avgSpd||'',t.G,t.N,t.G-t.N,'']);
+  }
+
+  // 시트 2 · 차량 기록
+  const carRows=[['날짜','요일','출발 km','도착 km','주행 km','주유량(L)','리터당 단가','주유비','통행료','총 지출','연비(km/L)','메모']];
+  car.forEach(r=>{
+    const km=Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart));
+    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice),fc=parseNum(r.fuelCost),toll=parseNum(r.tollCost);
+    const tFl=fl>0?fl:((fp>0&&fc>0)?Math.round(fc/fp*100)/100:0);
+    const tFc=fc>0?fc:((fp>0&&fl>0)?Math.round(fp*fl):0);
+    carRows.push([r.date,DAYS[toDate(r.date).getDay()],parseNum(r.kmStart),parseNum(r.kmEnd),km,
+      tFl||'',fp||'',tFc||'',toll||'',tFc+toll,(km&&tFl)?Math.round(km/tFl*10)/10:'',r.memo||'']);
+  });
+  if(car.length){
+    const c=carStatsFor(car);
+    carRows.push([]);
+    carRows.push(['합계',c.days+'일','','',c.totalKm,c.totalFl||'','',c.totalFc||'',c.totalToll||'',c.totalCost,c.avgEff||'','']);
+  }
+
+  // 시트 3 · 월별 요약
+  const months=[...new Set([...dlv,...car].map(r=>r.date.slice(0,7)))].sort();
+  const sumRows=[['월','배송일수',nameA,nameB,nameC,nameD,'총 건수','총액','실수령','공제액','주행 km','차량 지출','순수입(실수령-차량)']];
+  months.forEach(m=>{
+    const d=dlv.filter(r=>r.date.startsWith(m));
+    const c=car.filter(r=>r.date.startsWith(m));
+    const s=statsFor(d), cs=carStatsFor(c);
+    sumRows.push([m,s.days,s.A,s.B,s.C,s.D,s.Q,s.G,s.N,s.G-s.N,cs.totalKm,cs.totalCost,s.N-cs.totalCost]);
+  });
+
+  try{
+    const blob=buildXlsx([
+      {name:'배송 기록',rows:dlvRows,widths:[12,6,10,10,10,10,10,9,9,12,12,12,12,13,30]},
+      {name:'차량 기록',rows:carRows,widths:[12,6,11,11,10,11,12,11,10,11,11,30]},
+      {name:'월별 요약',rows:sumRows,widths:[10,10,10,10,10,10,10,13,13,12,11,12,16]}
+    ]);
+    downloadBlob(blob,`배송기록_전체백업_${today()}.xlsx`);
+    document.getElementById('backup-sheet').classList.remove('show');
+    showToast('📊 엑셀 파일 저장 완료!');
+  }catch(e){ showToast('❌ 엑셀 생성 실패 — 브라우저를 최신으로 업데이트해 주세요'); }
+}
+
 let toastTimer=null;
 function showToast(msg){
   const t=document.getElementById('toast');
