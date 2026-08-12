@@ -1676,7 +1676,7 @@ function generateDailyReportText() {
   let text = '';
   if (dailyStyle === 'style1') {
     if (activeItems.length === 0) {
-      text = `📍 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
+      text = `📦 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
       const itemText = activeItems.map(it => `${it.name} ${it.qty}개`).join(' / ');
       text = `📦 [${areaVal}] ${titleDate} 배송\n\n`;
