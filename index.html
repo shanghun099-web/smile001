@@ -322,7 +322,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .btn-report-action:active { transform: scale(0.97); }
 .btn-kakao-share { background: #FEE500; color: #191919; }
 .btn-clipboard { background: var(--card2); color: var(--text); border: 1.5px solid var(--border); }
-.daily-preview-box { background: var(--card2); border: 1.5px dashed var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.daily-preview-box { display:block; width:100%; background: var(--card2); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: var(--text); font-family: inherit; white-space: pre-wrap; word-break: break-word; outline: none; resize: vertical; min-height: 120px; -webkit-appearance: none; transition: border 0.2s; }
+.daily-preview-box:focus { border-color: #FEE500; border-style: solid; }
+.btn-preview-reset { background: var(--card2); border: 1.5px solid var(--border); border-radius: 9px; color: var(--sub); font-size: 11px; font-weight: 700; padding: 6px 10px; cursor: pointer; font-family: inherit; }
+.btn-preview-reset:active { background: var(--border); }
+.daily-edit-note { display: none; font-size: 10px; color: var(--orange2); background: #2a1f00; border-radius: 8px; padding: 7px 10px; margin-bottom: 16px; line-height: 1.5; }
+.daily-edit-note.show { display: block; }
 </style>
 </head>
 <body>
@@ -409,8 +414,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
         <div class="report-format-tab" onclick="setDailyStyle('style2')" id="d-style-style2">카드형</div>
       </div>
 
-      <div style="font-size:10px;color:var(--sub);margin-bottom:6px;letter-spacing:0.5px;">📱 전송 메시지 미리보기</div>
-      <div class="daily-preview-box" id="daily-preview">미리보기 로딩 중...</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:10px;color:var(--sub);letter-spacing:0.5px;">✍️ 전송 메시지 (직접 수정 가능)</div>
+        <button class="btn-preview-reset" id="daily-reset-btn" onclick="resetDailyPreview()">🔄 원래대로</button>
+      </div>
+      <textarea class="daily-preview-box" id="daily-preview" spellcheck="false" oninput="onDailyPreviewInput()" placeholder="전송할 메시지"></textarea>
+      <div class="daily-edit-note" id="daily-edit-note">✏️ 직접 수정한 내용을 유지 중입니다 · 옵션을 바꿔도 덮어쓰지 않아요</div>
     </div>
 
     <!-- 2. 월간 정산 보고 영역 -->
@@ -1776,10 +1785,12 @@ function openReportSheet() {
   setReportFormat('detail');
   document.getElementById('daily-area-name').value = areaName;
   document.getElementById('daily-report-date').value = calSelectedDate || today();
+  dailyEdited = false;                       // [추가] 열 때마다 기본 양식으로 시작
   setDailyType(dailyType);
   setDailyStyle(dailyStyle);
   switchReportMode('daily');
   document.getElementById('report-sheet').classList.add('show');
+  requestAnimationFrame(()=>autosizePreview(document.getElementById('daily-preview'))); // 표시 후 높이 재계산
 }
 
 function switchReportMode(mode) {
@@ -1811,6 +1822,38 @@ function setDailyStyle(st) {
   updateDailyPreview();
 }
 
+// [추가] 미리보기를 직접 수정한 상태를 기억해 옵션 변경 시에도 덮어쓰지 않습니다.
+let dailyEdited=false;
+
+function autosizePreview(el){
+  if(!el) return;
+  el.style.height='auto';
+  el.style.height=Math.max(120,Math.min(el.scrollHeight+2,400))+'px';
+}
+function onDailyPreviewInput(){
+  const el=document.getElementById('daily-preview');
+  if(!el) return;
+  dailyEdited=(el.value.trim()!==generateDailyReportText().trim());
+  autosizePreview(el);
+  updateEditNote();
+}
+function updateEditNote(){
+  const note=document.getElementById('daily-edit-note');
+  if(note) note.classList.toggle('show',dailyEdited);
+  const btn=document.getElementById('daily-reset-btn');
+  if(btn) btn.style.opacity=dailyEdited?'1':'0.4';
+}
+function resetDailyPreview(){
+  dailyEdited=false;
+  updateDailyPreview();
+  showToast('🔄 기본 양식으로 되돌렸습니다');
+}
+function getDailyMessage(){
+  const el=document.getElementById('daily-preview');
+  const v=el?el.value.trim():'';
+  return v||generateDailyReportText();
+}
+
 function updateDailyPreview() {
   // [수정] 구역명 저장은 생성 함수가 아니라 여기에서 처리
   const areaEl=document.getElementById('daily-area-name');
@@ -1818,8 +1861,9 @@ function updateDailyPreview() {
     const v=safeName(areaEl.value)||'일원';
     if(v!==areaName){ areaName=v; lsSet('dlv-area-name',areaName); }
   }
-  const previewBox = document.getElementById('daily-preview');
-  if (previewBox) previewBox.textContent = generateDailyReportText();
+  const el=document.getElementById('daily-preview');
+  if(el&&!dailyEdited){ el.value=generateDailyReportText(); autosizePreview(el); }
+  updateEditNote();
 }
 
 function generateDailyReportText() {
@@ -1847,7 +1891,7 @@ function generateDailyReportText() {
   let text = '';
   if (dailyStyle === 'style1') {
     if (activeItems.length === 0) {
-      text = `📦 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
+      text = `📍 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
       const itemText = activeItems.map(it => `${it.name} ${it.qty}개`).join(' / ');
       text = `📦 [${areaVal}] ${titleDate} 배송\n\n`;
@@ -1892,7 +1936,7 @@ function setReportFormat(fmt) {
 }
 
 function generateReportText() {
-  if (reportMode === 'daily') return generateDailyReportText();
+  if (reportMode === 'daily') return getDailyMessage();
 
   const ym = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
   const mr = records.filter(r => r.date.startsWith(ym)).sort((a, b) => a.date.localeCompare(b.date));
