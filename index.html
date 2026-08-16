@@ -460,12 +460,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     </div>
     <div style="font-size:10px;color:var(--sub);margin:12px 0 8px;letter-spacing:0.5px">💰 단가 설정 (원 / 건)</div>
     <div class="price-grid">
-      <div class="price-item"><div class="price-item-label a">🅰 물품 A</div><input type="number" id="ps-pa" inputmode="numeric" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
-      <div class="price-item"><div class="price-item-label b">🅱 물품 B</div><input type="number" id="ps-pb" inputmode="numeric" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
-      <div class="price-item"><div class="price-item-label c">🅲 물품 C</div><input type="number" id="ps-pc" inputmode="numeric" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
-      <div class="price-item"><div class="price-item-label d">🅳 물품 D</div><input type="number" id="ps-pd" inputmode="numeric" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
+      <div class="price-item"><div class="price-item-label a">🅰 물품 A</div><input type="number" id="ps-pa" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
+      <div class="price-item"><div class="price-item-label b">🅱 물품 B</div><input type="number" id="ps-pb" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
+      <div class="price-item"><div class="price-item-label c">🅲 물품 C</div><input type="number" id="ps-pc" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
+      <div class="price-item"><div class="price-item-label d">🅳 물품 D</div><input type="number" id="ps-pd" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
     </div>
-    <div class="backup-hint" style="margin-bottom:12px">단가를 바꾸면 지난 기록의 금액도 새 단가로 다시 계산됩니다</div>
+    <div class="backup-hint" style="margin-bottom:12px">새로 저장하는 기록부터 적용되며, 지난 기록의 정산 금액은 안전하게 보존됩니다</div>
     <button class="btn-price-save" onclick="savePrices()">💾 저장 · 적용</button>
     <button class="btn-sheet-close" onclick="document.getElementById('price-sheet').classList.remove('show')">닫기</button>
   </div>
@@ -506,18 +506,17 @@ const TAX=0.033;
 const DAYS=['일','월','화','수','목','금','토'];
 
 /* ── 유틸 ───────────────────────────────── */
-// [수정] 기존 toISOString()은 UTC 기준이라 자정~오전 9시 사이에 '어제' 날짜가 잡혔습니다.
 function today(){
   const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-function toDate(s){ return new Date(String(s)+'T00:00:00'); }   // [수정] 로컬 기준 파싱 통일
+function toDate(s){ return new Date(String(s)+'T00:00:00'); }
 function fmtDate(d){ const x=toDate(d); return `${x.getMonth()+1}월 ${x.getDate()}일`; }
 function fmtDay(d){ return DAYS[toDate(d).getDay()]+'요일'; }
 function won(n){ return Number(n||0).toLocaleString()+'원'; }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); } // [추가] 메모 등 HTML 이스케이프
-function safeName(s){ return String(s||'').replace(/[<>&"'`]/g,'').trim().slice(0,12); }  // [추가] 물품명/구역명 정제
-function lsSet(k,v){                                                                       // [추가] 저장 실패 대응
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function safeName(s){ return String(s||'').replace(/[<>&"'`]/g,'').trim().slice(0,12); }
+function lsSet(k,v){
   try{ localStorage.setItem(k,v); return true; }
   catch(e){ showToast('⚠️ 저장 공간이 부족합니다 — 백업 후 정리해 주세요'); return false; }
 }
@@ -559,7 +558,7 @@ function workMin(s,e){
   const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
   if([sh,sm,eh,em].some(n=>isNaN(n))) return 0;
   let t=(eh*60+em)-(sh*60+sm);
-  if(t<0) t+=1440;           // 자정 넘김 처리
+  if(t<0) t+=1440;
   return t>0?t:0;
 }
 function isOvernight(s,e){ return !!(s&&e&&e<=s); }
@@ -572,10 +571,17 @@ function perHour(qty,s,e){
   const m=workMin(s,e); if(!m||!qty) return null;
   return Math.round((Number(qty)/m)*60*10)/10;
 }
-function calcPay(a,b,c,d){
+
+/* [보완 1] 단가 스냅샷 계산 로직 지원 */
+function calcPay(a,b,c,d,customRates){
+  const r = customRates || {};
+  const rA = (r.A !== undefined && r.A !== null && r.A !== '') ? Number(r.A) : PA;
+  const rB = (r.B !== undefined && r.B !== null && r.B !== '') ? Number(r.B) : PB;
+  const rC = (r.C !== undefined && r.C !== null && r.C !== '') ? Number(r.C) : PC;
+  const rD = (r.D !== undefined && r.D !== null && r.D !== '') ? Number(r.D) : PD;
   const A=Number(a)||0,B=Number(b)||0,C=Number(c)||0,D=Number(d)||0;
-  const gross=A*PA+B*PB+C*PC+D*PD, net=Math.round(gross*(1-TAX));
-  return {A,B,C,D,gross,net,tax:gross-net,qty:A+B+C+D};
+  const gross=A*rA+B*rB+C*rC+D*rD, net=Math.round(gross*(1-TAX));
+  return {A,B,C,D,gross,net,tax:gross-net,qty:A+B+C+D,rates:{A:rA,B:rB,C:rC,D:rD}};
 }
 
 function saveAll(){ lsSet('dlv-v4',JSON.stringify(records)); updateSummary(); }
@@ -584,8 +590,8 @@ function updateSummary(){
   const m=today().slice(0,7);
   const mr=records.filter(r=>r.date.startsWith(m));
   const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
-  const mg=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD).gross,0);
-  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD).net,0);
+  const mg=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).gross,0);
+  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
   const vr=mr.filter(r=>workMin(r.startTime,r.endTime)>0);
   let avgSpd=null;
   if(vr.length){
@@ -604,7 +610,7 @@ function switchTab(t){
   tab=t;
   ['input','history','cal','stats','car'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
   render();
-  scrollTop();                       // [추가] 탭 이동 시 스크롤 상단 복귀
+  scrollTop();
 }
 function scrollTop(){ const c=document.getElementById('content'); if(c) c.scrollTop=0; }
 
@@ -625,25 +631,25 @@ function renderInput(){
       <div class="ab-row">
         <div class="ab-item">
           <div class="ab-item-label a">🅰 ${esc(nameA)}</div>
-          <input type="number" id="f-qA" value="${esc(form.qtyA)}" placeholder="0" inputmode="numeric" min="0" max="9999">
+          <input type="number" id="f-qA" value="${esc(form.qtyA)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
           <div class="ab-item-price">${PA.toLocaleString()}원</div>
           <div class="ab-item-sub a" id="sub-a">${form.qtyA?won((Number(form.qtyA)||0)*PA):''}</div>
         </div>
         <div class="ab-item">
           <div class="ab-item-label b">🅱 ${esc(nameB)}</div>
-          <input type="number" id="f-qB" value="${esc(form.qtyB)}" placeholder="0" inputmode="numeric" min="0" max="9999">
+          <input type="number" id="f-qB" value="${esc(form.qtyB)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
           <div class="ab-item-price">${PB.toLocaleString()}원</div>
           <div class="ab-item-sub b" id="sub-b">${form.qtyB?won((Number(form.qtyB)||0)*PB):''}</div>
         </div>
         <div class="ab-item">
           <div class="ab-item-label c">🅲 ${esc(nameC)}</div>
-          <input type="number" id="f-qC" value="${esc(form.qtyC)}" placeholder="0" inputmode="numeric" min="0" max="9999">
+          <input type="number" id="f-qC" value="${esc(form.qtyC)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
           <div class="ab-item-price">${PC.toLocaleString()}원</div>
           <div class="ab-item-sub c" id="sub-c">${form.qtyC?won((Number(form.qtyC)||0)*PC):''}</div>
         </div>
         <div class="ab-item">
           <div class="ab-item-label d">🅳 ${esc(nameD)}</div>
-          <input type="number" id="f-qD" value="${esc(form.qtyD)}" placeholder="0" inputmode="numeric" min="0" max="9999">
+          <input type="number" id="f-qD" value="${esc(form.qtyD)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
           <div class="ab-item-price">${PD.toLocaleString()}원</div>
           <div class="ab-item-sub d" id="sub-d">${form.qtyD?won((Number(form.qtyD)||0)*PD):''}</div>
         </div>
@@ -700,7 +706,7 @@ function renderDurArea(){
   return html;
 }
 
-function clampQty(el){                      // [추가] 0~9999 범위 보정
+function clampQty(el){
   if(!el||el.value==='') return;
   let n=Math.floor(Number(el.value));
   if(isNaN(n)||n<0) n=0;
@@ -749,7 +755,6 @@ function bindInputEvents(){
   updateSaveBtn();
 }
 
-// [수정] 기존 `el.value || form.x` 방식은 값을 지워도 이전 값이 되살아났습니다.
 function readInputForm(){
   const g=id=>document.getElementById(id);
   if(g('f-date')) form.date=g('f-date').value;
@@ -769,16 +774,22 @@ function handleSave(){
   if(!form.qtyA&&!form.qtyB&&!form.qtyC&&!form.qtyD) miss.push('수량');
   if(!form.startTime) miss.push('출발 시간');
   if(!form.endTime) miss.push('마무리 시간');
-  if(miss.length){ showToast('⚠️ '+miss.join(' · ')+' 입력이 필요해요'); return; }   // [추가] 안내 없이 무반응이던 문제
-  const dup=records.find(r=>r.date===form.date&&r.id!==editId);                      // [추가] 같은 날짜 중복 방지
+  if(miss.length){ showToast('⚠️ '+miss.join(' · ')+' 입력이 필요해요'); return; }
+  const dup=records.find(r=>r.date===form.date&&r.id!==editId);
   if(dup){ pendingDupId=dup.id; askOverwrite(form.date); return; }
   commitSave();
 }
 
+/* [보완 1] 저장 시 현재 단가 스냅샷 보존 */
 function commitSave(){
+  const currentRates = { A: PA, B: PB, C: PC, D: PD };
+  const snapshotRates = (editId !== null)
+    ? (records.find(r => r.id === editId)?.rates || currentRates)
+    : currentRates;
+
   if(pendingDupId!==null){ records=records.filter(r=>r.id!==pendingDupId); pendingDupId=null; }
-  if(editId!==null){ records=records.map(r=>r.id===editId?{...form,id:editId}:r); editId=null; }
-  else records.unshift({...form,id:Date.now()});
+  if(editId!==null){ records=records.map(r=>r.id===editId?{...form, id:editId, rates: snapshotRates}:r); editId=null; }
+  else records.unshift({...form, id:Date.now(), rates: snapshotRates});
   records.sort((a,b)=>b.date.localeCompare(a.date));
   saveAll();
   form=defForm();
@@ -797,11 +808,12 @@ function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); render();
 function renderHistory(){
   if(!records.length) return `<div class="empty">📭 아직 기록이 없어요<br><span style="font-size:12px">첫 배송을 기록해보세요!</span></div>`;
   return records.map(r=>{
-    const p=calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD);
+    const p=calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates);
     const mins=workMin(r.startTime,r.endTime);
     const spd=perHour(p.qty,r.startTime,r.endTime);
     const h=Math.floor(mins/60),m=mins%60;
     const hStr=h>0?`${h}시간 ${m}분`:`${m}분`;
+    const rA=p.rates.A, rB=p.rates.B, rC=p.rates.C, rD=p.rates.D;
     return `<div class="rec-card">
       <div class="rec-head">
         <div><div class="rec-date">${fmtDate(r.date)}<span class="rec-day">${fmtDay(r.date)}</span></div></div>
@@ -814,10 +826,10 @@ function renderHistory(){
         <div class="speed-badge-right"><div class="speed-badge-hrs">근무 ${hStr}</div><div class="speed-badge-total">총 ${p.qty.toLocaleString()}건</div></div>
       </div>`:''}
       <div class="rec-items">
-        <div class="rec-item a"><div class="rec-item-lbl a">🅰 ${esc(nameA)}</div><div class="rec-item-qty a">${p.A.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.A*PA)}</div></div>
-        <div class="rec-item b"><div class="rec-item-lbl b">🅱 ${esc(nameB)}</div><div class="rec-item-qty b">${p.B.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.B*PB)}</div></div>
-        <div class="rec-item c"><div class="rec-item-lbl c">🅲 ${esc(nameC)}</div><div class="rec-item-qty c">${p.C.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.C*PC)}</div></div>
-        <div class="rec-item d"><div class="rec-item-lbl d">🅳 ${esc(nameD)}</div><div class="rec-item-qty d">${p.D.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.D*PD)}</div></div>
+        <div class="rec-item a"><div class="rec-item-lbl a">🅰 ${esc(nameA)}</div><div class="rec-item-qty a">${p.A.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.A*rA)}</div></div>
+        <div class="rec-item b"><div class="rec-item-lbl b">🅱 ${esc(nameB)}</div><div class="rec-item-qty b">${p.B.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.B*rB)}</div></div>
+        <div class="rec-item c"><div class="rec-item-lbl c">🅲 ${esc(nameC)}</div><div class="rec-item-qty c">${p.C.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.C*rC)}</div></div>
+        <div class="rec-item d"><div class="rec-item-lbl d">🅳 ${esc(nameD)}</div><div class="rec-item-qty d">${p.D.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.D*rD)}</div></div>
       </div>
       <div class="rec-pay">
         <div class="rec-pay-row"><span>총 배송</span><b>${p.qty.toLocaleString()} 건</b></div>
@@ -890,8 +902,12 @@ function statsFor(list){
   const B=list.reduce((s,r)=>s+(Number(r.qtyB)||0),0);
   const C=list.reduce((s,r)=>s+(Number(r.qtyC)||0),0);
   const D=list.reduce((s,r)=>s+(Number(r.qtyD)||0),0);
-  const G=list.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD).gross,0);
-  const N=list.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD).net,0);
+  const amtA=list.reduce((s,r)=>s+(Number(r.qtyA)||0)*((r.rates&&r.rates.A)||PA),0);
+  const amtB=list.reduce((s,r)=>s+(Number(r.qtyB)||0)*((r.rates&&r.rates.B)||PB),0);
+  const amtC=list.reduce((s,r)=>s+(Number(r.qtyC)||0)*((r.rates&&r.rates.C)||PC),0);
+  const amtD=list.reduce((s,r)=>s+(Number(r.qtyD)||0)*((r.rates&&r.rates.D)||PD),0);
+  const G=list.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).gross,0);
+  const N=list.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
   const Q=A+B+C+D;
   const avg=list.length?Math.round(Q/list.length):0;
   const vr=list.filter(r=>workMin(r.startTime,r.endTime)>0);
@@ -903,21 +919,21 @@ function statsFor(list){
     const spds=vr.map(r=>perHour((Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),r.startTime,r.endTime)).filter(v=>v!==null);
     if(spds.length){maxSpd=Math.max(...spds);minSpd=Math.min(...spds);}
   }
-  return {A,B,C,D,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length};
+  return {A,B,C,D,amtA,amtB,amtC,amtD,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length};
 }
 
 function renderStatBlock(s,title,chartList){
   const qtyOf=r=>(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0);
   const maxQ=chartList.length?Math.max(...chartList.map(qtyOf),1):1;
   const maxS=chartList.length?Math.max(...chartList.map(r=>perHour(qtyOf(r),r.startTime,r.endTime)||0),1):1;
-  const hourNet=s.totalMin>0?Math.round(s.N/(s.totalMin/60)):null;   // [추가] 시간당 실수령
+  const hourNet=s.totalMin>0?Math.round(s.N/(s.totalMin/60)):null;
   return `
     <div class="month-box">
       <div class="month-title">${title} · ${s.days}일</div>
-      ${s.A>0?`<div class="month-row"><span class="month-lbl">🅰 ${esc(nameA)} ${s.A.toLocaleString()}건</span><span class="month-val" style="color:var(--orange2)">${won(s.A*PA)}</span></div>`:''}
-      ${s.B>0?`<div class="month-row"><span class="month-lbl">🅱 ${esc(nameB)} ${s.B.toLocaleString()}건</span><span class="month-val" style="color:var(--blue2)">${won(s.B*PB)}</span></div>`:''}
-      ${s.C>0?`<div class="month-row"><span class="month-lbl">🅲 ${esc(nameC)} ${s.C.toLocaleString()}건</span><span class="month-val" style="color:var(--green2)">${won(s.C*PC)}</span></div>`:''}
-      ${s.D>0?`<div class="month-row"><span class="month-lbl">🅳 ${esc(nameD)} ${s.D.toLocaleString()}건</span><span class="month-val" style="color:var(--pink2)">${won(s.D*PD)}</span></div>`:''}
+      ${s.A>0?`<div class="month-row"><span class="month-lbl">🅰 ${esc(nameA)} ${s.A.toLocaleString()}건</span><span class="month-val" style="color:var(--orange2)">${won(s.amtA)}</span></div>`:''}
+      ${s.B>0?`<div class="month-row"><span class="month-lbl">🅱 ${esc(nameB)} ${s.B.toLocaleString()}건</span><span class="month-val" style="color:var(--blue2)">${won(s.amtB)}</span></div>`:''}
+      ${s.C>0?`<div class="month-row"><span class="month-lbl">🅲 ${esc(nameC)} ${s.C.toLocaleString()}건</span><span class="month-val" style="color:var(--green2)">${won(s.amtC)}</span></div>`:''}
+      ${s.D>0?`<div class="month-row"><span class="month-lbl">🅳 ${esc(nameD)} ${s.D.toLocaleString()}건</span><span class="month-val" style="color:var(--pink2)">${won(s.amtD)}</span></div>`:''}
       <hr class="month-sep">
       <div class="month-row"><span class="month-lbl" style="color:var(--sub)">총 배송 ${s.Q.toLocaleString()}건</span></div>
       <div class="month-total">${won(s.G)}</div>
@@ -1014,7 +1030,7 @@ function renderCalendar(){
   const todayStr=today();
   const mr=records.filter(r=>r.date.startsWith(ym));
   const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
-  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD).net,0);
+  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
   const mCar=carRecords.filter(r=>r.date.startsWith(ym));
   const mKm=mCar.reduce((s,r)=>s+Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart)),0);
   const dlvMap={},carMap={};
@@ -1034,7 +1050,7 @@ function renderCalendar(){
     const cr2=carMap[calSelectedDate]||[];
     const fd=toDate(calSelectedDate);
     const dayLabel=`${fd.getMonth()+1}월 ${fd.getDate()}일 (${DAYS[fd.getDay()]}요일)`;
-    const p=dr?calcPay(dr.qtyA,dr.qtyB,dr.qtyC,dr.qtyD):null;
+    const p=dr?calcPay(dr.qtyA,dr.qtyB,dr.qtyC,dr.qtyD,dr.rates):null;
     detailHtml=`<div class="cal-day-detail">
       <div class="cal-day-detail-title">📌 ${dayLabel}</div>
       ${dr?`
@@ -1179,7 +1195,7 @@ function askCarDelete(id){
   carDeleteId=id;deleteId=null;
   openDialog('🗑 삭제하시겠어요?','삭제된 기록은 복구할 수 없습니다.','삭제','delete');
 }
-function askOverwrite(dateStr){                     // [추가] 같은 날짜 중복 저장 방지
+function askOverwrite(dateStr){
   openDialog('📅 같은 날짜 기록이 있어요',`${fmtDate(dateStr)} 기록이 이미 저장되어 있습니다.\n기존 기록을 지우고 이번 내용으로 바꿀까요?`,'덮어쓰기','dup',true);
 }
 function closeDialog(){
@@ -1228,7 +1244,6 @@ function importData(e){
   reader.onload=function(ev){
     try{
       const data=JSON.parse(ev.target.result);
-      // [수정] 단가·물품명은 값이 있을 때만 개별 복원
       if(!Array.isArray(data)){
         if(Number(data.priceA)>0) PA=Number(data.priceA);
         if(Number(data.priceB)>0) PB=Number(data.priceB);
@@ -1245,7 +1260,7 @@ function importData(e){
       const imported=(Array.isArray(data)?data:(data.records||[])).filter(valid);
       const existIds=new Set(records.map(r=>r.id));
       const existDates=new Set(records.map(r=>r.date));
-      const newRecs=imported.filter(r=>!existIds.has(r.id)&&!existDates.has(r.date));  // [수정] 날짜 중복도 제외
+      const newRecs=imported.filter(r=>!existIds.has(r.id)&&!existDates.has(r.date));
       const skipped=imported.length-newRecs.length;
       if(newRecs.length){records=[...records,...newRecs].sort((a,b)=>b.date.localeCompare(a.date));saveAll();}
       let newCar=0;
@@ -1264,8 +1279,8 @@ function importData(e){
   reader.onerror=function(){showToast('❌ 파일을 읽지 못했습니다');};
   reader.readAsText(file);e.target.value='';
 }
-/* ── 엑셀(.xlsx) 내보내기 ────────────────
-   외부 라이브러리 없이 xlsx(=ZIP+XML)를 직접 만들어 오프라인에서도 동작합니다. */
+
+/* ── 엑셀(.xlsx) 내보내기 ──────────────── */
 function downloadBlob(blob,filename){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -1346,7 +1361,7 @@ function sheetXml(rows,widths){
   });
   return x+'</sheetData></worksheet>';
 }
-function buildXlsx(sheets){   // sheets: [{name, rows, widths}]
+function buildXlsx(sheets){
   const enc=new TextEncoder();
   const f=(name,str)=>({name,data:enc.encode(str)});
   const files=[];
@@ -1395,10 +1410,9 @@ function exportExcel(){
   const asc=(a,b)=>a.date.localeCompare(b.date);
   const dlv=[...records].sort(asc), car=[...carRecords].sort(asc);
 
-  // 시트 1 · 배송 기록
   const dlvRows=[['날짜','요일',nameA,nameB,nameC,nameD,'총 건수','출발','마무리','근무시간(h)','시간당 건수','총액','실수령','공제액(3.3%)','메모']];
   dlv.forEach(r=>{
-    const p=calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD);
+    const p=calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates);
     const mins=workMin(r.startTime,r.endTime);
     dlvRows.push([r.date,DAYS[toDate(r.date).getDay()],p.A,p.B,p.C,p.D,p.qty,
       r.startTime||'',r.endTime||'',mins?Math.round(mins/6)/10:'',perHour(p.qty,r.startTime,r.endTime)||'',
@@ -1410,7 +1424,6 @@ function exportExcel(){
     dlvRows.push(['합계',t.days+'일',t.A,t.B,t.C,t.D,t.Q,'','',t.totalMin?Math.round(t.totalMin/6)/10:'',t.avgSpd||'',t.G,t.N,t.G-t.N,'']);
   }
 
-  // 시트 2 · 차량 기록
   const carRows=[['날짜','요일','출발 km','도착 km','주행 km','주유량(L)','리터당 단가','주유비','통행료','총 지출','연비(km/L)','메모']];
   car.forEach(r=>{
     const km=Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart));
@@ -1426,7 +1439,6 @@ function exportExcel(){
     carRows.push(['합계',c.days+'일','','',c.totalKm,c.totalFl||'','',c.totalFc||'',c.totalToll||'',c.totalCost,c.avgEff||'','']);
   }
 
-  // 시트 3 · 월별 요약
   const months=[...new Set([...dlv,...car].map(r=>r.date.slice(0,7)))].sort();
   const sumRows=[['월','배송일수',nameA,nameB,nameC,nameD,'총 건수','총액','실수령','공제액','주행 km','차량 지출','순수입(실수령-차량)']];
   months.forEach(m=>{
@@ -1463,7 +1475,7 @@ let carDeleteId=null;
 let carForm=defCarForm();
 
 function defCarForm(){
-  const last=carRecords.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];   // [추가] 직전 도착 km 자동 채움
+  const last=carRecords.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
   return{date:today(),kmStart:last?String(parseNum(last.kmEnd)||''):'',kmEnd:'',fuelLiters:'',fuelPrice:'',fuelCost:'',tollCost:'',memo:''};
 }
 function saveCarAll(){ lsSet('car-v1',JSON.stringify(carRecords)); }
@@ -1535,9 +1547,9 @@ function renderCarInput(){
     <div class="car-km-box">
       <div class="car-km-title">🛣 주행 거리 (km)</div>
       <div class="car-km-row">
-        <div class="car-km-item"><label>🚀 출발 km</label><input type="text" id="cf-kmS" value="${fmtComma(carForm.kmStart)}" placeholder="0" inputmode="numeric"></div>
+        <div class="car-km-item"><label>🚀 출발 km</label><input type="text" id="cf-kmS" value="${fmtComma(carForm.kmStart)}" placeholder="0" inputmode="numeric" pattern="[0-9]*"></div>
         <div class="car-km-arrow">→</div>
-        <div class="car-km-item"><label>🏁 도착 km</label><input type="text" id="cf-kmE" value="${fmtComma(carForm.kmEnd)}" placeholder="0" inputmode="numeric"></div>
+        <div class="car-km-item"><label>🏁 도착 km</label><input type="text" id="cf-kmE" value="${fmtComma(carForm.kmEnd)}" placeholder="0" inputmode="numeric" pattern="[0-9]*"></div>
       </div>
       <div class="car-km-result" id="car-km-result" style="margin-top:${d.driven?'10px':'0'};padding:${d.driven?'10px 14px':'0'}">
         ${d.driven!==null?`<span class="car-km-result-label">오늘 주행거리</span><span class="car-km-result-val">${d.driven.toLocaleString()} km</span>`:''}
@@ -1551,11 +1563,11 @@ function renderCarInput(){
       </div>
       <div class="field" style="margin-bottom:10px">
         <label>리터당 단가 (원)</label>
-        <input type="text" id="cf-fp" value="${fmtComma(carForm.fuelPrice)}" placeholder="1,700" inputmode="numeric">
+        <input type="text" id="cf-fp" value="${fmtComma(carForm.fuelPrice)}" placeholder="1,700" inputmode="numeric" pattern="[0-9]*">
       </div>
       <div class="field" style="margin-bottom:0">
         <label>주유비 (원) <span id="car-fc-hint" style="color:var(--teal2);font-size:10px;font-weight:400">${(d.fp>0&&d.fl>0&&d.fc===0&&d.autoFc>0)?'→ 자동: '+won(d.autoFc):''}</span></label>
-        <input type="text" id="cf-fc" value="${fmtComma(carForm.fuelCost)}" placeholder="비워두면 단가×리터 자동계산" inputmode="numeric">
+        <input type="text" id="cf-fc" value="${fmtComma(carForm.fuelCost)}" placeholder="비워두면 단가×리터 자동계산" inputmode="numeric" pattern="[0-9]*">
       </div>
       <div id="car-eff" style="font-size:11px;color:var(--teal);margin-top:6px;font-weight:700">${d.efficiency?'⚡ 연비: '+d.efficiency+' km/L':''}</div>
     </div>
@@ -1563,7 +1575,7 @@ function renderCarInput(){
       <div class="car-form-title">🛣 통행료 / 하이패스 (선택)</div>
       <div class="field" style="margin-bottom:0">
         <label>통행료 (원)</label>
-        <input type="text" id="cf-toll" value="${fmtComma(carForm.tollCost)}" placeholder="0" inputmode="numeric">
+        <input type="text" id="cf-toll" value="${fmtComma(carForm.tollCost)}" placeholder="0" inputmode="numeric" pattern="[0-9]*">
       </div>
     </div>
     <div class="car-cost-box" id="car-cost-preview" style="display:${d.totalCost>0?'block':'none'}">
@@ -1755,7 +1767,6 @@ function handleCarSave(){
   Object.keys(CAR_COMMA).forEach(id=>{const el=g(id);if(el) carForm[CAR_COMMA[id]]=el.value.replace(/[^0-9]/g,'');});
   if(g('cf-fl')) carForm.fuelLiters=g('cf-fl').value;
   if(g('cf-memo')) carForm.memo=g('cf-memo').value;
-  // [추가] 저장 실패 시 사유 안내
   if(!carForm.date){showToast('⚠️ 날짜를 선택해 주세요');return;}
   if(!parseNum(carForm.kmStart)||!parseNum(carForm.kmEnd)){showToast('⚠️ 출발 · 도착 km를 입력해 주세요');return;}
   if(parseNum(carForm.kmEnd)<=parseNum(carForm.kmStart)){showToast('⚠️ 도착 km가 출발 km보다 커야 해요');return;}
@@ -1785,12 +1796,12 @@ function openReportSheet() {
   setReportFormat('detail');
   document.getElementById('daily-area-name').value = areaName;
   document.getElementById('daily-report-date').value = calSelectedDate || today();
-  dailyEdited = false;                       // [추가] 열 때마다 기본 양식으로 시작
+  dailyEdited = false;
   setDailyType(dailyType);
   setDailyStyle(dailyStyle);
   switchReportMode('daily');
   document.getElementById('report-sheet').classList.add('show');
-  requestAnimationFrame(()=>autosizePreview(document.getElementById('daily-preview'))); // 표시 후 높이 재계산
+  requestAnimationFrame(()=>autosizePreview(document.getElementById('daily-preview')));
 }
 
 function switchReportMode(mode) {
@@ -1822,7 +1833,6 @@ function setDailyStyle(st) {
   updateDailyPreview();
 }
 
-// [추가] 미리보기를 직접 수정한 상태를 기억해 옵션 변경 시에도 덮어쓰지 않습니다.
 let dailyEdited=false;
 
 function autosizePreview(el){
@@ -1855,7 +1865,6 @@ function getDailyMessage(){
 }
 
 function updateDailyPreview() {
-  // [수정] 구역명 저장은 생성 함수가 아니라 여기에서 처리
   const areaEl=document.getElementById('daily-area-name');
   if(areaEl){
     const v=safeName(areaEl.value)||'일원';
@@ -1944,10 +1953,10 @@ function generateReportText() {
 
   const s = statsFor(mr);
   const items = [
-    { name: nameA, qty: s.A, price: PA, amt: s.A * PA, emoji: '🅰', key:'qtyA' },
-    { name: nameB, qty: s.B, price: PB, amt: s.B * PB, emoji: '🅱', key:'qtyB' },
-    { name: nameC, qty: s.C, price: PC, amt: s.C * PC, emoji: '🅲', key:'qtyC' },
-    { name: nameD, qty: s.D, price: PD, amt: s.D * PD, emoji: '🅳', key:'qtyD' },
+    { name: nameA, qty: s.A, amt: s.amtA, emoji: '🅰', key:'qtyA' },
+    { name: nameB, qty: s.B, amt: s.amtB, emoji: '🅱', key:'qtyB' },
+    { name: nameC, qty: s.C, amt: s.amtC, emoji: '🅲', key:'qtyC' },
+    { name: nameD, qty: s.D, amt: s.amtD, emoji: '🅳', key:'qtyD' },
   ].filter(it => it.qty > 0);
 
   let text = `📦 ${reportYear}년 ${reportMonth + 1}월 배송 보고서\n`;
@@ -1957,14 +1966,14 @@ function generateReportText() {
   text += `💰 실수령 ${won(s.N)} (3.3% 공제)\n`;
   text += `━━━━━━━━━━━━━━━\n📊 물품별 정산\n`;
   items.forEach(it => {
-    text += `${it.emoji} ${it.name}: ${it.qty.toLocaleString()}건 × ${it.price.toLocaleString()}원 = ${won(it.amt)}\n`;
+    text += `${it.emoji} ${it.name}: ${it.qty.toLocaleString()}건 = ${won(it.amt)}\n`;
   });
   text += `━━━━━━━━━━━━━━━\n`;
 
   if (reportFormat === 'detail') {
     text += `📋 일자별 상세\n\n`;
     mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD);
+      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
       const spd = perHour(p.qty, r.startTime, r.endTime);
       const parts = [];
       if (p.A > 0) parts.push(`${nameA} ${p.A}`);
@@ -1980,15 +1989,14 @@ function generateReportText() {
   } else if (reportFormat === 'summary') {
     text += `📋 일자별 요약\n\n`;
     mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD);
+      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
       text += `[${r.date.slice(5).replace('-','/')}] ${p.qty.toLocaleString()}건 · ${won(p.net)}\n`;
     });
   } else {
-    // [수정] 물품명이 같아도 열이 섞이지 않도록 key 기준으로 값 추출
     text += `📋 일자별 표\n\n`;
     text += `날짜 | ${items.map(it=>it.name).join(' | ')} | 합계 | 실수령\n`;
     mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD);
+      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
       const cells = items.map(it => Number(r[it.key]) || 0);
       text += `${r.date.slice(5)} | ${cells.join(' | ')} | ${p.qty}건 | ${p.net.toLocaleString()}원\n`;
     });
@@ -2002,7 +2010,7 @@ function shareReport() {
     navigator.share({ text: text }).then(() => {
       document.getElementById('report-sheet').classList.remove('show');
     }).catch((error) => {
-      if (error && error.name === 'AbortError') return;   // [수정] 사용자가 공유를 닫은 경우 복사 안내를 띄우지 않음
+      if (error && error.name === 'AbortError') return;
       copyReport();
     });
   } else {
@@ -2018,7 +2026,7 @@ function copyReport() {
   } else fallbackCopy(text,done);
 }
 
-/* ── 시작 ───────────────────────────────── */
+/* ── 시작 & PWA 오프라인 캐시 ──────────────── */
 function refreshTodayLabel(){
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 }
@@ -2026,7 +2034,6 @@ refreshTodayLabel();
 updateSummary();
 render();
 
-// [추가] 앱을 켜둔 채 날짜가 바뀌어도 오늘 표시·이번 달 합계가 따라가도록
 let lastDay=today();
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'&&today()!==lastDay){
@@ -2036,6 +2043,54 @@ document.addEventListener('visibilitychange',()=>{
     updateSummary();render();
   }
 });
+
+/* [보완 5] PWA Manifest 자동 등록 & 오프라인 Service Worker */
+try {
+  const manifestData = {
+    name: "배송 기록 관리",
+    short_name: "배송기록",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#0f1117",
+    theme_color: "#FF6B00",
+    icons: [{ src: "icon-194.png", sizes: "194x194", type: "image/png" }]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+  const manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = URL.createObjectURL(manifestBlob);
+  document.head.appendChild(manifestLink);
+} catch(e){}
+
+if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+  const swCode = `
+    const CACHE_NAME = 'dlv-offline-v1';
+    self.addEventListener('install', e => { self.skipWaiting(); });
+    self.addEventListener('activate', e => {
+      e.waitUntil(
+        caches.keys().then(keys => Promise.all(
+          keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null)
+        )).then(() => self.clients.claim())
+      );
+    });
+    self.addEventListener('fetch', e => {
+      if (e.request.method !== 'GET') return;
+      e.respondWith(
+        fetch(e.request).then(res => {
+          if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
+            const resClone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(e.request, resClone));
+          }
+          return res;
+        }).catch(() => caches.match(e.request))
+      );
+    });
+  `;
+  try {
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+  } catch(e){}
+}
 </script>
 </body>
 </html>
