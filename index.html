@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko"><head>
+<html lang="ko">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#FF6B00">
@@ -8,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="배송기록">
 <link rel="apple-touch-icon" id="touch-icon" href="icon-194.png">
 <link rel="icon" id="fav-icon" type="image/png" href="icon-194.png">
-<title>📦 배송 기록</title>
+<title>📦 배송 & 차량 기록 관리</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -22,9 +23,11 @@
   --red:#e05555;
   --teal:#2dd4bf;--teal2:#5eead4;
   --purple:#a78bfa;--purple2:#c4b5fd;
+  --amber:#fbbf24;--amber2:#fcd34d;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow:hidden;}
 #app{display:flex;flex-direction:column;height:100vh;height:-webkit-fill-available;}
+
 .header{background:linear-gradient(135deg,var(--orange) 0%,var(--orange2) 100%);padding:calc(30px + env(safe-area-inset-top,20px)) 20px 16px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;}
 .header::before{content:'';position:absolute;top:-30px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.1);}
 .header::after{content:'';position:absolute;bottom:-40px;left:40px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.07);}
@@ -42,7 +45,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .sum-card{background:var(--card);border-radius:12px;padding:11px 10px;border-top:3px solid var(--orange);}
 .sum-label{font-size:9px;color:var(--sub);margin-bottom:3px;}
 .sum-val{font-size:16px;font-weight:900;color:var(--orange2);line-height:1.2;}
-.sum-sub{font-size:9px;color:#444;margin-top:2px;}
+.sum-sub{font-size:9px;color:#777;margin-top:2px;}
+
 .tabs{display:flex;margin:12px 14px 0;border-radius:12px;overflow:hidden;background:var(--card);flex-shrink:0;}
 .tab{flex:1;padding:11px 0;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;}
 .tab.active{background:var(--orange);color:#fff;}
@@ -146,7 +150,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 
 .stat-card{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
 .stat-icon{font-size:26px;flex-shrink:0;}
-.stat-lbl{font-size:10px;color:#444;margin-bottom:2px;}
+.stat-lbl{font-size:10px;color:#777;margin-bottom:2px;}
 .stat-val{font-size:17px;font-weight:900;}
 .month-box{background:linear-gradient(135deg,#151f15,#111a11);border:1.5px solid #254025;border-radius:14px;padding:16px;margin-bottom:10px;}
 .month-title{font-size:11px;color:var(--sub);margin-bottom:12px;letter-spacing:0.5px;}
@@ -165,48 +169,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .bar-fill{height:7px;border-radius:4px;}
 .bar-fill.qty{background:linear-gradient(90deg,var(--orange),var(--orange2));}
 .bar-fill.spd{background:linear-gradient(90deg,var(--purple),var(--purple2));}
-.bar-legend{font-size:9px;color:#444;}
+.bar-legend{font-size:9px;color:#777;}
 .period-tabs{display:flex;gap:6px;margin-bottom:12px;}
 .period-tab{flex:1;padding:9px 0;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:var(--sub);transition:all 0.2s;}
 .period-tab.active{background:var(--orange);border-color:var(--orange);color:#fff;}
 .week-nav{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:12px;padding:9px 14px;margin-bottom:12px;}
 .week-nav-btn{background:transparent;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;}
 .week-nav-label{font-size:12px;font-weight:700;color:var(--text);}
-.bottom-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:flex-end;justify-content:center;}
-.bottom-sheet-overlay.show{display:flex;}
-.bottom-sheet{background:var(--card);border-radius:22px 22px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;}
-.sheet-title{font-size:14px;font-weight:900;margin-bottom:4px;}
-.sheet-sub{font-size:11px;color:var(--sub);margin-bottom:20px;}
-.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-.price-item{background:var(--card2);border-radius:14px;padding:14px;}
-.price-item-label{font-size:10px;font-weight:700;margin-bottom:8px;}
-.price-item-label.a{color:var(--orange2);}
-.price-item-label.b{color:var(--blue2);}
-.price-item-label.c{color:var(--green2);}
-.price-item-label.d{color:var(--pink2);}
-.price-item input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 10px;font-size:20px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;}
-.price-item input:focus{border-color:var(--orange);}
-.price-item-unit{font-size:10px;color:var(--sub);text-align:center;margin-top:6px;}
-.btn-price-save{width:100%;padding:15px;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;margin-bottom:10px;}
-.btn-price-save:active{transform:scale(0.97);}
-.backup-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-.btn-bk{padding:16px 10px;border:none;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:transform 0.1s;line-height:1.6;}
-.btn-bk:active{transform:scale(0.96);}
-.btn-bk-export{background:linear-gradient(135deg,#1a3a5c,#1e4a7a);color:#7bbfff;border:1.5px solid #2a5a9a;}
-.btn-bk-import{background:linear-gradient(135deg,#1a3a1a,#1e4a1e);color:#7fd67f;border:1.5px solid #2a6a2a;}
-.btn-bk-excel{background:linear-gradient(135deg,#0f2a1a,#0c2015);color:#6ee7a5;border:1.5px solid #1d5a3a;}
-.btn-bk-reset{background:linear-gradient(135deg,#3a1414,#2a0f0f);color:#f06060;border:1.5px solid #5a2020;}
-.backup-hint{font-size:10px;color:#444;text-align:center;margin-bottom:14px;}
-.btn-sheet-close{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;color:var(--sub);background:transparent;cursor:pointer;font-family:inherit;}
+
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .cal-nav-btn{background:var(--card);border:1.5px solid var(--border);border-radius:12px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--sub);-webkit-tap-highlight-color:transparent;}
 .cal-nav-btn:active{background:var(--border);}
 .cal-nav-title{font-size:18px;font-weight:900;letter-spacing:1px;}
 .cal-nav-sub{font-size:10px;color:var(--sub);font-weight:400;text-align:center;margin-top:2px;}
-.cal-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;}
+.cal-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:14px;overflow:hidden;margin-bottom:8px;}
 .cal-sum-item{background:var(--card);padding:12px 8px;text-align:center;}
-.cal-sum-val{font-size:20px;font-weight:900;color:var(--orange2);line-height:1;}
+.cal-sum-val{font-size:18px;font-weight:900;color:var(--orange2);line-height:1;}
 .cal-sum-lbl{font-size:9px;color:var(--sub);margin-top:4px;}
+.cal-fuel-bar{background:linear-gradient(135deg,#1c1808,#121005);border:1px solid #3a3210;border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font-size:11px;}
+.cal-fuel-lbl{color:var(--amber2);font-weight:700;display:flex;align-items:center;gap:4px;}
+.cal-fuel-val{color:var(--amber2);font-weight:900;font-size:13px;}
+
 .cal-grid-wrap{background:var(--card);border-radius:14px;padding:14px;margin-bottom:14px;}
 .cal-grid-title{font-size:10px;color:var(--sub);margin-bottom:12px;letter-spacing:0.5px;}
 .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;}
@@ -234,19 +217,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cal-day-detail{background:var(--card);border-radius:14px;padding:14px;margin-bottom:14px;border-left:4px solid var(--orange);}
 .cal-day-detail-title{font-size:13px;font-weight:900;margin-bottom:10px;color:var(--orange2);}
 .cal-day-detail-empty{font-size:12px;color:var(--sub);text-align:center;padding:16px 0;}
-.empty{text-align:center;color:#333;padding:60px 0;font-size:14px;line-height:2.4;}
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e3a1e;border:1px solid #4a8a4a;color:var(--green2);padding:12px 24px;border-radius:30px;font-size:14px;font-weight:700;z-index:999;pointer-events:none;opacity:0;transition:opacity 0.3s;max-width:90vw;text-align:center;}
-.toast.show{opacity:1;}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;}
-.overlay.show{display:flex;}
-.dialog{background:var(--card);border-radius:18px;padding:24px;width:290px;text-align:center;}
-.dialog h3{font-size:16px;margin-bottom:8px;}
-.dialog p{font-size:13px;color:var(--sub);margin-bottom:20px;white-space:pre-line;line-height:1.6;}
-.dialog-btns{display:flex;gap:10px;}
-.dialog-btns button{flex:1;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-cd{background:#3a1414;color:#f06060;}
-.btn-cd.warn{background:#2a1f00;color:var(--orange2);}
-.btn-cc{background:#2a2d3a;color:var(--sub);}
 
 .car-form-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);}
 .car-form-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:12px;letter-spacing:0.5px;}
@@ -290,9 +260,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cs-card{background:var(--card);border-radius:14px;padding:14px 12px;}
 .cs-label{font-size:10px;color:var(--sub);margin-bottom:4px;}
 .cs-val{font-size:20px;font-weight:900;line-height:1.1;}
-.cs-sub{font-size:10px;color:#555;margin-top:3px;}
+.cs-sub{font-size:10px;color:#777;margin-top:3px;}
 .cs-fullcard{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
 .cs-fullcard.teal{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;}
+.cs-fullcard.amber{background:linear-gradient(135deg,#1f1a08,#161205);border:1.5px solid #3a3010;}
 .cs-icon{font-size:26px;flex-shrink:0;}
 .cs-body{flex:1;}
 .cs-body-lbl{font-size:10px;color:var(--sub);margin-bottom:3px;}
@@ -311,9 +282,35 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cs-bar-fill.km{background:linear-gradient(90deg,var(--teal),var(--teal2));}
 .cs-bar-fill.fuel{background:linear-gradient(90deg,#fbbf24,#fcd34d);}
 
-/* 카톡 공유 시트 스타일 */
-.report-mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-.report-mode-tab { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; background: var(--card2); color: var(--sub); text-align: center; border: 1.5px solid var(--border); }
+.bottom-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:flex-end;justify-content:center;}
+.bottom-sheet-overlay.show{display:flex;}
+.bottom-sheet{background:var(--card);border-radius:22px 22px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;}
+.sheet-title{font-size:14px;font-weight:900;margin-bottom:4px;}
+.sheet-sub{font-size:11px;color:var(--sub);margin-bottom:20px;}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.price-item{background:var(--card2);border-radius:14px;padding:14px;}
+.price-item-label{font-size:10px;font-weight:700;margin-bottom:8px;}
+.price-item-label.a{color:var(--orange2);}
+.price-item-label.b{color:var(--blue2);}
+.price-item-label.c{color:var(--green2);}
+.price-item-label.d{color:var(--pink2);}
+.price-item input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 10px;font-size:20px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;}
+.price-item input:focus{border-color:var(--orange);}
+.price-item-unit{font-size:10px;color:var(--sub);text-align:center;margin-top:6px;}
+.btn-price-save{width:100%;padding:15px;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;margin-bottom:10px;}
+.btn-price-save:active{transform:scale(0.97);}
+.backup-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.btn-bk{padding:16px 10px;border:none;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;transition:transform 0.1s;line-height:1.6;}
+.btn-bk:active{transform:scale(0.96);}
+.btn-bk-export{background:linear-gradient(135deg,#1a3a5c,#1e4a7a);color:#7bbfff;border:1.5px solid #2a5a9a;}
+.btn-bk-import{background:linear-gradient(135deg,#1a3a1a,#1e4a1e);color:#7fd67f;border:1.5px solid #2a6a2a;}
+.btn-bk-excel{background:linear-gradient(135deg,#0f2a1a,#0c2015);color:#6ee7a5;border:1.5px solid #1d5a3a;}
+.btn-bk-reset{background:linear-gradient(135deg,#3a1414,#2a0f0f);color:#f06060;border:1.5px solid #5a2020;}
+.backup-hint{font-size:10px;color:#777;text-align:center;margin-bottom:14px;}
+.btn-sheet-close{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;color:var(--sub);background:transparent;cursor:pointer;font-family:inherit;}
+
+.report-mode-tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.report-mode-tab { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; background: var(--card2); color: var(--sub); text-align: center; border: 1.5px solid var(--border); }
 .report-mode-tab.active { background: #FEE500; border-color: #FEE500; color: #191919; }
 .report-format-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
 .report-format-tab { flex: 1; padding: 8px 0; border: 1.5px solid var(--border); border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; background: transparent; color: var(--sub); text-align: center; }
@@ -322,12 +319,26 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .btn-report-action:active { transform: scale(0.97); }
 .btn-kakao-share { background: #FEE500; color: #191919; }
 .btn-clipboard { background: var(--card2); color: var(--text); border: 1.5px solid var(--border); }
-.daily-preview-box { display:block; width:100%; background: var(--card2); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: var(--text); font-family: inherit; white-space: pre-wrap; word-break: break-word; outline: none; resize: vertical; min-height: 120px; -webkit-appearance: none; transition: border 0.2s; }
+.daily-preview-box { display:block; width:100%; background: var(--card2); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; font-size: 14px; line-height: 1.6; color: var(--text); font-family: inherit; white-space: pre-wrap; word-break: break-word; outline: none; resize: vertical; min-height: 120px; -webkit-appearance: none; transition: border 0.2s; }
 .daily-preview-box:focus { border-color: #FEE500; border-style: solid; }
 .btn-preview-reset { background: var(--card2); border: 1.5px solid var(--border); border-radius: 9px; color: var(--sub); font-size: 11px; font-weight: 700; padding: 6px 10px; cursor: pointer; font-family: inherit; }
 .btn-preview-reset:active { background: var(--border); }
 .daily-edit-note { display: none; font-size: 10px; color: var(--orange2); background: #2a1f00; border-radius: 8px; padding: 7px 10px; margin-bottom: 16px; line-height: 1.5; }
 .daily-edit-note.show { display: block; }
+
+.empty{text-align:center;color:#555;padding:60px 0;font-size:14px;line-height:2.4;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e3a1e;border:1px solid #4a8a4a;color:var(--green2);padding:12px 24px;border-radius:30px;font-size:14px;font-weight:700;z-index:999;pointer-events:none;opacity:0;transition:opacity 0.3s;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.dialog{background:var(--card);border-radius:18px;padding:24px;width:290px;text-align:center;}
+.dialog h3{font-size:16px;margin-bottom:8px;}
+.dialog p{font-size:13px;color:var(--sub);margin-bottom:20px;white-space:pre-line;line-height:1.6;}
+.dialog-btns{display:flex;gap:10px;}
+.dialog-btns button{flex:1;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-cd{background:#3a1414;color:#f06060;}
+.btn-cd.warn{background:#2a1f00;color:var(--orange2);}
+.btn-cc{background:#2a2d3a;color:var(--sub);}
 </style>
 </head>
 <body>
@@ -339,7 +350,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       <div class="header-date" id="todayDate">-</div>
     </div>
     <div class="header-actions">
-      <div class="header-icon-btn kakao" onclick="openReportSheet()" title="카톡 공유" style="display: flex; align-items: center; justify-content: center; padding: 0;">
+      <div class="header-icon-btn kakao" onclick="openReportSheet()" title="카톡 공유">
         <svg viewBox="0 0 100 100" width="32" height="32" style="display: block;">
           <path fill="#371E1E" d="M50,15 C22.4,15 0,32.9 0,55 C0,69 8.7,81.3 21.8,88.5 L16.1,109.1 C15.7,110.5 17.2,111.6 18.3,110.8 L42.3,94.3 C44.8,94.7 47.4,95 50,95 C77.6,95 100,77.1 100,55 C100,32.9 77.6,15 50,15 Z"/>
           <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="33" fill="#FEE500" text-anchor="middle" letter-spacing="-1.5">TALK</text>
@@ -384,8 +395,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <div class="sheet-sub">원하는 보고 양식을 선택하여 카카오톡으로 전송하세요</div>
 
     <div class="report-mode-tabs">
-      <div class="report-mode-tab active" id="mode-daily-btn" onclick="switchReportMode('daily')">📍 당일 보고</div>
-      <div class="report-mode-tab" id="mode-monthly-btn" onclick="switchReportMode('monthly')">📊 월간 정산 보고</div>
+      <div class="report-mode-tab active" id="mode-daily-btn" onclick="switchReportMode('daily')">📍 당일 배송</div>
+      <div class="report-mode-tab" id="mode-monthly-btn" onclick="switchReportMode('monthly')">📊 배송 월간 정산</div>
+      <div class="report-mode-tab" id="mode-car-btn" onclick="switchReportMode('car')">🚗 차량 월간 지출</div>
     </div>
 
     <!-- 1. 당일 보고 영역 -->
@@ -437,6 +449,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
         <div class="report-format-tab active" onclick="setReportFormat('detail')" id="r-fmt-detail">상세형</div>
         <div class="report-format-tab" onclick="setReportFormat('summary')" id="r-fmt-summary">요약형</div>
         <div class="report-format-tab" onclick="setReportFormat('table')" id="r-fmt-table">표형식</div>
+      </div>
+    </div>
+
+    <!-- 3. 차량 월간 지출 보고 영역 -->
+    <div id="report-car-section" style="display:none;">
+      <div class="week-nav" style="margin-bottom: 16px;">
+        <button class="week-nav-btn" onclick="changeReportMonth(-1)">◀</button>
+        <div style="text-align:center">
+          <div class="week-nav-label" id="report-car-month-label">-</div>
+        </div>
+        <button class="week-nav-btn" onclick="changeReportMonth(1)">▶</button>
       </div>
     </div>
 
@@ -547,6 +570,7 @@ let tab='input', editId=null, deleteId=null, pendingDupId=null;
 let statPeriod='month', weekYear=new Date().getFullYear(), weekMonth=new Date().getMonth(), weekIndex=0;
 let statYear=new Date().getFullYear(), statMonth=new Date().getMonth();
 let carSubTab='input', carStatPeriod='month', carWeekYear=new Date().getFullYear(), carWeekMonth=new Date().getMonth(), carWeekIndex=0;
+let carStatYear=new Date().getFullYear(), carStatMonth=new Date().getMonth();
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 let calSelectedDate=null;
 let form=defForm();
@@ -572,7 +596,6 @@ function perHour(qty,s,e){
   return Math.round((Number(qty)/m)*60*10)/10;
 }
 
-/* [보완 1] 단가 스냅샷 계산 로직 지원 */
 function calcPay(a,b,c,d,customRates){
   const r = customRates || {};
   const rA = (r.A !== undefined && r.A !== null && r.A !== '') ? Number(r.A) : PA;
@@ -780,7 +803,6 @@ function handleSave(){
   commitSave();
 }
 
-/* [보완 1] 저장 시 현재 단가 스냅샷 보존 */
 function commitSave(){
   const currentRates = { A: PA, B: PB, C: PC, D: PD };
   const snapshotRates = (editId !== null)
@@ -896,6 +918,129 @@ function jumpToCurrentWeek(iscar){
   render();
 }
 
+/* ── 월별 달력 ──────────────────────────── */
+function renderCalendar(){
+  const ym=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  const todayStr=today();
+  const mr=records.filter(r=>r.date.startsWith(ym));
+  const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
+  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
+  
+  const mCar=carRecords.filter(r=>r.date.startsWith(ym));
+  const cStats=carStatsFor(mCar);
+
+  const dlvMap={},carMap={};
+  mr.forEach(r=>{dlvMap[r.date]=r;});
+  mCar.forEach(r=>{ (carMap[r.date]=carMap[r.date]||[]).push(r); });
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  const cells=[];
+  for(let i=0;i<firstDay;i++) cells.push({day:prevDays-firstDay+1+i,cur:false});
+  for(let i=1;i<=daysInMonth;i++) cells.push({day:i,cur:true});
+  while(cells.length%7!==0) cells.push({day:cells.length-firstDay-daysInMonth+1,cur:false});
+
+  let detailHtml='';
+  if(calSelectedDate&&calSelectedDate.startsWith(ym)){
+    const dr=dlvMap[calSelectedDate];
+    const cr2=carMap[calSelectedDate]||[];
+    const fd=toDate(calSelectedDate);
+    const dayLabel=`${fd.getMonth()+1}월 ${fd.getDate()}일 (${DAYS[fd.getDay()]}요일)`;
+    const p=dr?calcPay(dr.qtyA,dr.qtyB,dr.qtyC,dr.qtyD,dr.rates):null;
+    detailHtml=`<div class="cal-day-detail">
+      <div class="cal-day-detail-title">📌 ${dayLabel}</div>
+      ${dr?`
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+          <span style="color:var(--sub)">🅰${p.A} · 🅱${p.B} · 🅲${p.C}${p.D>0?' · 🅳'+p.D:''}</span>
+          <span style="color:var(--orange2);font-weight:700">총 ${p.qty}건</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="color:var(--sub)">💵 총액</span><span style="font-weight:700;color:var(--green2)">${won(p.gross)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="color:var(--sub)">💰 실수령</span><span style="font-weight:700;color:var(--green)">${won(p.net)}</span>
+        </div>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px">⏱ ${esc(dr.startTime||'-')} ~ ${esc(dr.endTime||'-')} · ${durStr(dr.startTime,dr.endTime)}</div>
+        ${dr.memo?`<div style="font-size:11px;color:var(--sub);margin-top:4px;white-space:pre-wrap">📝 ${esc(dr.memo)}</div>`:''}
+        <button class="rec-btn btn-edit" style="width:100%;margin-top:10px" onclick="startEdit(${dr.id})">✏️ 이 날 기록 수정</button>
+      `:'<div class="cal-day-detail-empty">배송 기록 없음</div>'}
+      ${cr2.length?cr2.map(c=>{
+        const km=Math.max(0,parseNum(c.kmEnd)-parseNum(c.kmStart));
+        const fl=Number(c.fuelLiters)||0,fp=parseNum(c.fuelPrice),fc=parseNum(c.fuelCost);
+        const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
+        const tFl=fl>0?fl:autoFl,tFc=fc>0?fc:Math.round(fp*fl);
+        return `<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px">
+            <span style="color:var(--teal2)">🚗 주행 ${km.toLocaleString()}km</span>
+            ${tFl>0?`<span style="color:#fcd34d;font-size:11px">⛽ ${tFl}L ${tFc>0?'· '+won(tFc):''}</span>`:''}
+          </div>
+        </div>`;
+      }).join(''):''}
+    </div>`;
+  }
+  const dowLabels=['일','월','화','수','목','금','토'];
+  const netLabel = mn>=10000 ? Math.round(mn/10000)+'만' : (mn>0 ? mn.toLocaleString() : '-');
+  return `
+    <div class="cal-nav">
+      <div class="cal-nav-btn" onclick="moveCalMonth(-1)">◀</div>
+      <div style="text-align:center">
+        <div class="cal-nav-title">${calYear}년 ${calMonth+1}월</div>
+        <div class="cal-nav-sub">${mr.length}일 배송 · ${mCar.length}일 운행</div>
+      </div>
+      <div class="cal-nav-btn" onclick="moveCalMonth(1)">▶</div>
+    </div>
+    <div class="cal-summary">
+      <div class="cal-sum-item"><div class="cal-sum-val">${mr.length}</div><div class="cal-sum-lbl">배송일</div></div>
+      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--green2);font-size:${netLabel.length>4?'14px':'18px'}">${netLabel}</div><div class="cal-sum-lbl">실수령(원)</div></div>
+      <div class="cal-sum-item"><div class="cal-sum-val">${mq.toLocaleString()}</div><div class="cal-sum-lbl">총 배송량</div></div>
+      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--teal2);font-size:${cStats.totalKm>=1000?'15px':'18px'}">${cStats.totalKm>0?cStats.totalKm.toLocaleString():'-'}</div><div class="cal-sum-lbl">주행(km)</div></div>
+    </div>
+    <div class="cal-fuel-bar">
+      <span class="cal-fuel-lbl">⛽ 월 차량 지출 (주유+통행료)</span>
+      <span class="cal-fuel-val">${cStats.totalFl>0?cStats.totalFl+'L · ':''}${cStats.totalCost>0?won(cStats.totalCost):'0원'}</span>
+    </div>
+    ${detailHtml}
+    <div class="cal-grid-wrap">
+      <div class="cal-grid-title">기록 현황</div>
+      <div class="cal-dow">${dowLabels.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('')}</div>
+      <div class="cal-days">
+        ${cells.map(({day,cur})=>{
+          if(!cur) return `<div class="cal-day other-month"><div class="cal-day-num" style="font-size:11px;color:#333">${day}</div></div>`;
+          const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const isToday=dateStr===todayStr;
+          const hasDlv=!!dlvMap[dateStr];
+          const hasCar=!!(carMap[dateStr]&&carMap[dateStr].length);
+          const isSelected=calSelectedDate===dateStr;
+          const dow=toDate(dateStr).getDay();
+          let cls='cal-day';
+          if(isToday) cls+=' today';
+          else if(hasDlv||hasCar) cls+=' has-record';
+          if(isSelected) cls+=' selected';
+          return `<div class="${cls}${dow===0&&!isToday?' cal-day-sun':''}${dow===6&&!isToday?' cal-day-sat':''}" onclick="selectCalDay('${dateStr}')">
+            <div class="cal-day-num">${day}</div>
+            ${(hasDlv||hasCar)?`<div class="cal-day-dots">${hasDlv?'<div class="cal-dot dlv"></div>':''}${hasCar?'<div class="cal-dot car"></div>':''}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="cal-legend">
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange2)"></div>배송 기록</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--teal2)"></div>차량 기록</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange)"></div>오늘</div>
+    </div>
+    <div style="height:20px"></div>`;
+}
+function moveCalMonth(dir){
+  calMonth+=dir;
+  if(calMonth<0){calMonth=11;calYear--;}
+  else if(calMonth>11){calMonth=0;calYear++;}
+  calSelectedDate=null; render();
+}
+function selectCalDay(dateStr){
+  calSelectedDate=(calSelectedDate===dateStr)?null:dateStr;
+  render();
+}
+
 /* ── 통계 ───────────────────────────────── */
 function statsFor(list){
   const A=list.reduce((s,r)=>s+(Number(r.qtyA)||0),0);
@@ -946,9 +1091,9 @@ function renderStatBlock(s,title,chartList){
         <div class="stat-lbl">평균 시간당 배달 속도</div>
         <div class="stat-val" style="color:var(--purple2)">${s.avgSpd} <span style="font-size:13px;color:var(--sub);font-weight:400">건/시간</span></div>
         <div style="display:flex;gap:16px;margin-top:6px">
-          <div><div style="font-size:9px;color:#444">최고</div><div style="font-size:13px;font-weight:900;color:var(--green2)">${s.maxSpd}건</div></div>
-          <div><div style="font-size:9px;color:#444">최저</div><div style="font-size:13px;font-weight:900;color:var(--red)">${s.minSpd}건</div></div>
-          <div><div style="font-size:9px;color:#444">측정일수</div><div style="font-size:13px;font-weight:900;color:var(--sub)">${s.vr.length}일</div></div>
+          <div><div style="font-size:9px;color:#777">최고</div><div style="font-size:13px;font-weight:900;color:var(--green2)">${s.maxSpd}건</div></div>
+          <div><div style="font-size:9px;color:#777">최저</div><div style="font-size:13px;font-weight:900;color:var(--red)">${s.minSpd}건</div></div>
+          <div><div style="font-size:9px;color:#777">측정일수</div><div style="font-size:13px;font-weight:900;color:var(--sub)">${s.vr.length}일</div></div>
         </div>
       </div>
     </div>`:''}
@@ -1024,124 +1169,652 @@ function moveStatMonth(dir){
   render();
 }
 
-/* ── 월별 달력 ──────────────────────────── */
-function renderCalendar(){
-  const ym=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
-  const todayStr=today();
-  const mr=records.filter(r=>r.date.startsWith(ym));
-  const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
-  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
-  const mCar=carRecords.filter(r=>r.date.startsWith(ym));
-  const mKm=mCar.reduce((s,r)=>s+Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart)),0);
-  const dlvMap={},carMap={};
-  mr.forEach(r=>{dlvMap[r.date]=r;});
-  mCar.forEach(r=>{ (carMap[r.date]=carMap[r.date]||[]).push(r); });
-  const firstDay=new Date(calYear,calMonth,1).getDay();
-  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  const prevDays=new Date(calYear,calMonth,0).getDate();
-  const cells=[];
-  for(let i=0;i<firstDay;i++) cells.push({day:prevDays-firstDay+1+i,cur:false});
-  for(let i=1;i<=daysInMonth;i++) cells.push({day:i,cur:true});
-  while(cells.length%7!==0) cells.push({day:cells.length-firstDay-daysInMonth+1,cur:false});
+/* ── 차량 ───────────────────────────────── */
+let carRecords=loadRecords('car-v1');
+let carEditId=null;
+let carDeleteId=null;
+let carForm=defCarForm();
 
-  let detailHtml='';
-  if(calSelectedDate&&calSelectedDate.startsWith(ym)){
-    const dr=dlvMap[calSelectedDate];
-    const cr2=carMap[calSelectedDate]||[];
-    const fd=toDate(calSelectedDate);
-    const dayLabel=`${fd.getMonth()+1}월 ${fd.getDate()}일 (${DAYS[fd.getDay()]}요일)`;
-    const p=dr?calcPay(dr.qtyA,dr.qtyB,dr.qtyC,dr.qtyD,dr.rates):null;
-    detailHtml=`<div class="cal-day-detail">
-      <div class="cal-day-detail-title">📌 ${dayLabel}</div>
-      ${dr?`
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
-          <span style="color:var(--sub)">🅰${p.A} · 🅱${p.B} · 🅲${p.C}${p.D>0?' · 🅳'+p.D:''}</span>
-          <span style="color:var(--orange2);font-weight:700">총 ${p.qty}건</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:var(--sub)">💵 총액</span><span style="font-weight:700;color:var(--green2)">${won(p.gross)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:var(--sub)">💰 실수령</span><span style="font-weight:700;color:var(--green)">${won(p.net)}</span>
-        </div>
-        <div style="font-size:11px;color:var(--sub);margin-top:4px">⏱ ${esc(dr.startTime||'-')} ~ ${esc(dr.endTime||'-')} · ${durStr(dr.startTime,dr.endTime)}</div>
-        ${dr.memo?`<div style="font-size:11px;color:var(--sub);margin-top:4px;white-space:pre-wrap">📝 ${esc(dr.memo)}</div>`:''}
-        <button class="rec-btn btn-edit" style="width:100%;margin-top:10px" onclick="startEdit(${dr.id})">✏️ 이 날 기록 수정</button>
-      `:'<div class="cal-day-detail-empty">배송 기록 없음</div>'}
-      ${cr2.length?cr2.map(c=>{
-        const km=Math.max(0,parseNum(c.kmEnd)-parseNum(c.kmStart));
-        const fl=Number(c.fuelLiters)||0,fp=parseNum(c.fuelPrice),fc=parseNum(c.fuelCost);
-        const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
-        const tFl=fl>0?fl:autoFl,tFc=fc>0?fc:Math.round(fp*fl);
-        return `<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
-          <div style="display:flex;justify-content:space-between;font-size:12px">
-            <span style="color:var(--teal2)">🚗 주행 ${km.toLocaleString()}km</span>
-            ${tFl>0?`<span style="color:#fcd34d;font-size:11px">⛽ ${tFl}L ${tFc>0?'· '+won(tFc):''}</span>`:''}
-          </div>
-        </div>`;
-      }).join(''):''}
-    </div>`;
+function defCarForm(){
+  const last=carRecords.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+  return{date:today(),kmStart:last?String(parseNum(last.kmEnd)||''):'',kmEnd:'',fuelLiters:'',fuelPrice:'',fuelCost:'',tollCost:'',memo:''};
+}
+function saveCarAll(){ lsSet('car-v1',JSON.stringify(carRecords)); }
+function parseNum(v){ const n=Number(String(v==null?'':v).replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; }
+function fmtComma(n){ const x=Number(n); return x>0?x.toLocaleString():''; }
+
+function carCalc(){
+  const kmS=parseNum(carForm.kmStart),kmE=parseNum(carForm.kmEnd);
+  const fl=Number(carForm.fuelLiters)||0,fp=parseNum(carForm.fuelPrice),fc=parseNum(carForm.fuelCost);
+  const toll=parseNum(carForm.tollCost);
+  const driven=kmE>kmS?kmE-kmS:null;
+  const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
+  const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
+  const totalFl=fl>0?fl:autoFl;
+  const totalFc=fc>0?fc:autoFc;
+  const totalCost=totalFc+toll;
+  const efficiency=(driven&&totalFl>0)?Math.round(driven/totalFl*10)/10:null;
+  return{kmS,kmE,driven,fl,fp,fc,autoFc,autoFl,totalFl,totalFc,toll,totalCost,efficiency};
+}
+
+function updateCarCalcDOM(){
+  const d=carCalc();
+  const kmRes=document.getElementById('car-km-result');
+  if(kmRes){
+    if(d.driven!==null){
+      kmRes.style.cssText='margin-top:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;';
+      kmRes.innerHTML=`<span class="car-km-result-label">오늘 주행거리</span><span class="car-km-result-val">${d.driven.toLocaleString()} km</span>`;
+    }else{kmRes.style.cssText='margin-top:0;padding:0;';kmRes.innerHTML='';}
   }
-  const dowLabels=['일','월','화','수','목','금','토'];
-  const netLabel = mn>=10000 ? Math.round(mn/10000)+'만' : (mn>0 ? mn.toLocaleString() : '-');
+  const flHint=document.getElementById('car-fl-hint');
+  if(flHint) flHint.textContent=(d.fp>0&&d.fc>0&&d.fl===0&&d.autoFl>0)?`→ 자동: ${d.autoFl}L`:'';
+  const fcHint=document.getElementById('car-fc-hint');
+  if(fcHint) fcHint.textContent=(d.fp>0&&d.fl>0&&d.fc===0&&d.autoFc>0)?`→ 자동: ${won(d.autoFc)}`:'';
+  const effHint=document.getElementById('car-eff');
+  if(effHint) effHint.textContent=d.efficiency?`⚡ 연비: ${d.efficiency} km/L`:'';
+  const costBox=document.getElementById('car-cost-preview');
+  if(costBox){
+    if(d.totalCost>0){
+      costBox.style.display='block';
+      const fuelRow=document.getElementById('car-cost-fuel-row');
+      const tollRow=document.getElementById('car-cost-toll-row');
+      const totalEl=document.getElementById('car-cost-total-val');
+      if(fuelRow){fuelRow.style.display=d.totalFc>0?'flex':'none';if(d.totalFc>0) fuelRow.querySelector('span:last-child').textContent=won(d.totalFc);}
+      if(tollRow){tollRow.style.display=d.toll>0?'flex':'none';if(d.toll>0) tollRow.querySelector('span:last-child').textContent=won(d.toll);}
+      if(totalEl) totalEl.textContent=won(d.totalCost);
+    }else{costBox.style.display='none';}
+  }
+  const btn=document.getElementById('car-save-btn');
+  if(btn) btn.classList.toggle('disabled',!(carForm.date&&d.kmS>0&&d.kmE>0&&d.driven!==null&&d.driven>0));
+}
+
+function renderCarTab(){
+  const subBar=`<div class="car-subtabs">
+    <button class="car-subtab ${carSubTab==='input'?'active':''}" onclick="carSubTab='input';render();scrollTop()">✏️ 입력</button>
+    <button class="car-subtab ${carSubTab==='history'?'active':''}" onclick="carSubTab='history';render();scrollTop()">📋 기록</button>
+    <button class="car-subtab ${carSubTab==='stats'?'active':''}" onclick="carSubTab='stats';render();scrollTop()">📊 월별 통계</button>
+  </div>`;
+  if(carSubTab==='input') return subBar+renderCarInput()+'<div style="height:20px"></div>';
+  if(carSubTab==='history') return subBar+(carRecords.length?renderCarHistory()+'<div style="height:20px"></div>':`<div class="empty">🚗 아직 차량 기록이 없어요</div>`);
+  return subBar+renderCarStats();
+}
+
+function renderCarInput(){
+  const d=carCalc();
+  const ok=carForm.date&&d.kmS>0&&d.kmE>0&&(d.driven||0)>0;
   return `
-    <div class="cal-nav">
-      <div class="cal-nav-btn" onclick="moveCalMonth(-1)">◀</div>
+    ${carEditId!==null?'<div class="edit-banner">✏️ 차량 수정 모드</div>':''}
+    <div class="field"><label>📅 날짜</label><input type="date" id="cf-date" value="${carForm.date}"></div>
+    <div class="car-km-box">
+      <div class="car-km-title">🛣 주행 거리 (km)</div>
+      <div class="car-km-row">
+        <div class="car-km-item"><label>🚀 출발 km</label><input type="text" id="cf-kmS" value="${fmtComma(carForm.kmStart)}" placeholder="0" inputmode="numeric" pattern="[0-9]*"></div>
+        <div class="car-km-arrow">→</div>
+        <div class="car-km-item"><label>🏁 도착 km</label><input type="text" id="cf-kmE" value="${fmtComma(carForm.kmEnd)}" placeholder="0" inputmode="numeric" pattern="[0-9]*"></div>
+      </div>
+      <div class="car-km-result" id="car-km-result" style="margin-top:${d.driven?'10px':'0'};padding:${d.driven?'10px 14px':'0'}">
+        ${d.driven!==null?`<span class="car-km-result-label">오늘 주행거리</span><span class="car-km-result-val">${d.driven.toLocaleString()} km</span>`:''}
+      </div>
+    </div>
+    <div class="car-form-box">
+      <div class="car-form-title">⛽ 주유 정보 (선택)</div>
+      <div class="field" style="margin-bottom:10px">
+        <label>주유량 (L) <span id="car-fl-hint" style="color:var(--teal2);font-size:10px;font-weight:400">${(d.fp>0&&d.fc>0&&d.fl===0&&d.autoFl>0)?'→ 자동: '+d.autoFl+'L':''}</span></label>
+        <input type="number" id="cf-fl" value="${esc(carForm.fuelLiters)}" placeholder="비워두면 자동계산" inputmode="decimal" step="0.01" min="0">
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>리터당 단가 (원)</label>
+        <input type="text" id="cf-fp" value="${fmtComma(carForm.fuelPrice)}" placeholder="1,700" inputmode="numeric" pattern="[0-9]*">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>주유비 (원) <span id="car-fc-hint" style="color:var(--teal2);font-size:10px;font-weight:400">${(d.fp>0&&d.fl>0&&d.fc===0&&d.autoFc>0)?'→ 자동: '+won(d.autoFc):''}</span></label>
+        <input type="text" id="cf-fc" value="${fmtComma(carForm.fuelCost)}" placeholder="비워두면 단가×리터 자동계산" inputmode="numeric" pattern="[0-9]*">
+      </div>
+      <div id="car-eff" style="font-size:11px;color:var(--teal);margin-top:6px;font-weight:700">${d.efficiency?'⚡ 연비: '+d.efficiency+' km/L':''}</div>
+    </div>
+    <div class="car-form-box">
+      <div class="car-form-title">🛣 통행료 / 하이패스 (선택)</div>
+      <div class="field" style="margin-bottom:0">
+        <label>통행료 (원)</label>
+        <input type="text" id="cf-toll" value="${fmtComma(carForm.tollCost)}" placeholder="0" inputmode="numeric" pattern="[0-9]*">
+      </div>
+    </div>
+    <div class="car-cost-box" id="car-cost-preview" style="display:${d.totalCost>0?'block':'none'}">
+      <div class="car-cost-row" id="car-cost-fuel-row" style="display:${d.totalFc>0?'flex':'none'}">
+        <span class="car-cost-label">⛽ 주유비</span><span class="car-cost-val">${won(d.totalFc)}</span>
+      </div>
+      <div class="car-cost-row" id="car-cost-toll-row" style="display:${d.toll>0?'flex':'none'}">
+        <span class="car-cost-label">🛣 통행료</span><span class="car-cost-val">${won(d.toll)}</span>
+      </div>
+      <hr class="car-cost-sep">
+      <div class="car-cost-row"><span class="car-cost-label" style="font-weight:700;color:#fcd34d">💰 총 지출</span><span class="car-cost-total" id="car-cost-total-val">${won(d.totalCost)}</span></div>
+    </div>
+    <div class="field"><label>📝 메모 (선택)</label><textarea id="cf-memo" placeholder="특이사항, 목적지 등..." maxlength="300">${esc(carForm.memo)}</textarea></div>
+    <button class="btn-save ${ok?'':'disabled'}" id="car-save-btn" onclick="handleCarSave()">${carEditId!==null?'✏️ 수정 완료':'🚗 저장하기'}</button>
+    ${carEditId!==null?`<button class="btn-cancel" onclick="cancelCarEdit()">취소</button>`:''}
+    <div style="height:4px"></div>`;
+}
+
+function renderCarHistory(){
+  return carRecords.map(r=>{
+    const driven=Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart));
+    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice);
+    const fc=parseNum(r.fuelCost),toll=parseNum(r.tollCost);
+    const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
+    const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
+    const totalFl=fl>0?fl:autoFl,totalFc=fc>0?fc:autoFc;
+    const total=totalFc+toll;
+    const eff=(driven&&totalFl>0)?Math.round(driven/totalFl*10)/10:null;
+    return `<div class="car-card">
+      <div class="car-card-head">
+        <div><span class="car-card-date">${fmtDate(r.date)}</span><span class="car-card-day">${fmtDay(r.date)}</span></div>
+      </div>
+      <div class="car-km-badge">
+        <div class="car-km-badge-left"><div>🛣</div>
+          <div><div class="car-km-badge-lbl">오늘 주행${eff?` · ⚡${eff}km/L`:''}</div>
+          <div class="car-km-badge-val">${driven.toLocaleString()}<span style="font-size:11px;color:var(--sub);font-weight:400"> km</span></div></div>
+        </div>
+        <div class="car-km-badge-right">
+          <div>${parseNum(r.kmStart).toLocaleString()} km 출발</div>
+          <div>${parseNum(r.kmEnd).toLocaleString()} km 도착</div>
+        </div>
+      </div>
+      ${(totalFc>0||toll>0)?`<div class="car-costs">
+        ${totalFc>0?`<div class="car-cost-item"><div class="car-cost-item-lbl">⛽ 주유비</div><div class="car-cost-item-val" style="color:#fcd34d">${won(totalFc)}</div><div class="car-cost-item-sub">${totalFl>0?totalFl+'L':''}${fp>0?' · '+fp.toLocaleString()+'원/L':''}</div></div>`:'<div></div>'}
+        ${toll>0?`<div class="car-cost-item"><div class="car-cost-item-lbl">🛣 통행료</div><div class="car-cost-item-val" style="color:#fb923c">${won(toll)}</div></div>`:'<div></div>'}
+      </div>
+      <div class="car-total-bar"><span class="car-total-lbl">💰 총 지출</span><span class="car-total-val">${won(total)}</span></div>`:''}
+      ${r.memo?`<div class="rec-memo">📝 ${esc(r.memo)}</div>`:''}
+      <div class="rec-btns">
+        <button class="rec-btn btn-edit" onclick="startCarEdit(${r.id})">✏️ 수정</button>
+        <button class="rec-btn btn-del" onclick="askCarDelete(${r.id})">🗑 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function carStatsFor(list){
+  let totalKm=0,totalFl=0,totalFc=0,totalToll=0;
+  const days=list.length;
+  const dayEffList=[];
+  list.forEach(r=>{
+    const driven=parseNum(r.kmEnd)-parseNum(r.kmStart);
+    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice),fc=parseNum(r.fuelCost),toll=parseNum(r.tollCost);
+    const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
+    const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
+    const tFl=fl>0?fl:autoFl,tFc=fc>0?fc:autoFc;
+    totalKm+=driven>0?driven:0;totalFl+=tFl;totalFc+=tFc;totalToll+=toll;
+    if(driven>0&&tFl>0) dayEffList.push(Math.round(driven/tFl*10)/10);
+  });
+  totalFl=Math.round(totalFl*100)/100;
+  const totalCost=totalFc+totalToll;
+  const avgEff=(totalKm>0&&totalFl>0)?Math.round(totalKm/totalFl*10)/10:null;
+  const avgKm=days?Math.round(totalKm/days):0;
+  const avgFc=totalFl>0?Math.round(totalFc/totalFl):null;
+  return{totalKm,totalFl,totalFc,totalToll,totalCost,avgEff,avgKm,avgFc,days,effCount:dayEffList.length};
+}
+
+function renderCarStats(){
+  const periodBar=`<div class="period-tabs">
+    <button class="period-tab ${carStatPeriod==='week'?'active':''}" onclick="carStatPeriod='week';jumpToCurrentWeek(true)">📅 주간</button>
+    <button class="period-tab ${carStatPeriod==='month'?'active':''}" onclick="carStatPeriod='month';render()">🗓 월별</button>
+    <button class="period-tab ${carStatPeriod==='all'?'active':''}" onclick="carStatPeriod='all';render()">📊 전체</button>
+  </div>`;
+
+  if(!carRecords.length) return periodBar+`<div class="empty">🚗 기록이 쌓이면 통계가 보여요!</div>`;
+
+  let filtered=[],navHtml='',blockTitle='',targetYm='';
+
+  if(carStatPeriod==='week'){
+    const weeks=getCalWeeks(carWeekYear,carWeekMonth);
+    const wr=weeks[carWeekIndex]||weeks[0];
+    const isCurrentWeek=(wr.start<=today()&&today()<=wr.end);
+    blockTitle=`${wr.label}${isCurrentWeek?' (이번 주)':''}`;
+    filtered=carRecords.filter(r=>r.date>=wr.start&&r.date<=wr.end);
+    navHtml=`<div class="week-nav">
+      <button class="week-nav-btn" onclick="moveWeek(-1,true)">◀</button>
       <div style="text-align:center">
-        <div class="cal-nav-title">${calYear}년 ${calMonth+1}월</div>
-        <div class="cal-nav-sub">${mr.length}일 배송 · ${mCar.length}일 운행</div>
+        <div class="week-nav-label">${carWeekYear}년 ${carWeekMonth+1}월 ${wr.weekNum}주차</div>
+        <div style="font-size:10px;color:var(--sub);margin-top:2px">${carWeekMonth+1}/${wr.start.slice(8)} ~ ${carWeekMonth+1}/${wr.end.slice(8)}</div>
       </div>
-      <div class="cal-nav-btn" onclick="moveCalMonth(1)">▶</div>
-    </div>
-    <div class="cal-summary">
-      <div class="cal-sum-item"><div class="cal-sum-val">${mr.length}</div><div class="cal-sum-lbl">배송일</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--green2);font-size:${netLabel.length>4?'14px':'20px'}">${netLabel}</div><div class="cal-sum-lbl">실수령(원)</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val">${mq.toLocaleString()}</div><div class="cal-sum-lbl">총 배송량</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--teal2);font-size:${mKm>=1000?'16px':'20px'}">${mKm>0?mKm.toLocaleString():'-'}</div><div class="cal-sum-lbl">주행(km)</div></div>
-    </div>
-    ${detailHtml}
-    <div class="cal-grid-wrap">
-      <div class="cal-grid-title">기록 현황</div>
-      <div class="cal-dow">${dowLabels.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('')}</div>
-      <div class="cal-days">
-        ${cells.map(({day,cur})=>{
-          if(!cur) return `<div class="cal-day other-month"><div class="cal-day-num" style="font-size:11px;color:#333">${day}</div></div>`;
-          const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-          const isToday=dateStr===todayStr;
-          const hasDlv=!!dlvMap[dateStr];
-          const hasCar=!!(carMap[dateStr]&&carMap[dateStr].length);
-          const isSelected=calSelectedDate===dateStr;
-          const dow=toDate(dateStr).getDay();
-          let cls='cal-day';
-          if(isToday) cls+=' today';
-          else if(hasDlv||hasCar) cls+=' has-record';
-          if(isSelected) cls+=' selected';
-          return `<div class="${cls}${dow===0&&!isToday?' cal-day-sun':''}${dow===6&&!isToday?' cal-day-sat':''}" onclick="selectCalDay('${dateStr}')">
-            <div class="cal-day-num">${day}</div>
-            ${(hasDlv||hasCar)?`<div class="cal-day-dots">${hasDlv?'<div class="cal-dot dlv"></div>':''}${hasCar?'<div class="cal-dot car"></div>':''}</div>`:''}
-          </div>`;
-        }).join('')}
+      <button class="week-nav-btn" onclick="moveWeek(1,true)">▶</button>
+    </div>`;
+  } else if(carStatPeriod==='month'){
+    targetYm=`${carStatYear}-${String(carStatMonth+1).padStart(2,'0')}`;
+    const isCurrentMonth=(carStatYear===new Date().getFullYear()&&carStatMonth===new Date().getMonth());
+    filtered=carRecords.filter(r=>r.date.startsWith(targetYm));
+    blockTitle=`${carStatYear}년 ${carStatMonth+1}월 차량 통계${isCurrentMonth?' (이번 달)':''}`;
+    navHtml=`<div class="week-nav">
+      <button class="week-nav-btn" onclick="moveCarStatMonth(-1)">◀</button>
+      <div style="text-align:center">
+        <div class="week-nav-label">${carStatYear}년 ${carStatMonth+1}월</div>
+        ${isCurrentMonth?`<div style="font-size:10px;color:var(--teal2);margin-top:2px">이번 달</div>`:''}
       </div>
+      <button class="week-nav-btn" onclick="moveCarStatMonth(1)">▶</button>
+    </div>`;
+  } else {
+    filtered=carRecords;
+    blockTitle=`전체 차량 통계`;
+  }
+
+  if(!filtered.length) return periodBar+navHtml+`<div class="empty" style="padding:40px 0">🚗 해당 기간에 차량 기록이 없어요</div>`;
+
+  const s=carStatsFor(filtered);
+  const chart=filtered.slice(0,7);
+
+  // 배송 수입 대비 차량 지출 분석 (월별 조회 시)
+  let incomeAnalysisHtml = '';
+  if(carStatPeriod==='month' && targetYm) {
+    const dlvRecords = records.filter(r=>r.date.startsWith(targetYm));
+    const dlvNet = dlvRecords.reduce((acc,r)=>acc+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
+    const pureIncome = dlvNet - s.totalCost;
+    const costRatio = dlvNet > 0 ? Math.round((s.totalCost / dlvNet) * 1000) / 10 : null;
+
+    incomeAnalysisHtml = `
+      <div class="cs-summary-box" style="background:linear-gradient(135deg,#121820,#0f141a);border-color:#203040;margin-bottom:10px;">
+        <div class="cs-summary-title" style="color:var(--blue2)">💡 ${carStatMonth+1}월 수입 대비 차량비 분석</div>
+        <div class="cs-summary-row"><span class="cs-summary-lbl">📦 배송 실수령액</span><span class="cs-summary-val" style="color:var(--green2)">${won(dlvNet)}</span></div>
+        <div class="cs-summary-row"><span class="cs-summary-lbl">🚗 차량 총 지출</span><span class="cs-summary-val" style="color:#fbbf24">-${won(s.totalCost)}</span></div>
+        <hr class="cs-summary-sep" style="border-color:#203040">
+        <div class="cs-summary-row">
+          <span class="cs-summary-lbl" style="font-weight:700;color:var(--text)">💰 순수입 (실수령 - 차량비)</span>
+          <span class="cs-summary-val" style="font-size:18px;font-weight:900;color:${pureIncome>=0?'var(--green)':'var(--red)'}">${won(pureIncome)}</span>
+        </div>
+        ${costRatio!==null?`<div style="font-size:11px;color:var(--sub);margin-top:6px;text-align:right">실수령액의 <b style="color:#fbbf24">${costRatio}%</b>를 차량비로 지출함</div>`:''}
+      </div>
+    `;
+  }
+
+  const flOf=r=>{
+    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice),fc=parseNum(r.fuelCost);
+    const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
+    return fl>0?fl:autoFl;
+  };
+  const maxKm=chart.length?Math.max(...chart.map(r=>Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart))),1):1;
+  const maxFl=chart.length?Math.max(...chart.map(flOf),1):1;
+
+  return periodBar+navHtml+incomeAnalysisHtml+`
+    <div class="cs-summary-box">
+      <div class="cs-summary-title">🚗 ${blockTitle} · ${s.days}일 운행</div>
+      <div class="cs-summary-row"><span class="cs-summary-lbl">GM 총 주행거리</span><span class="cs-summary-val" style="color:var(--teal2)">${s.totalKm.toLocaleString()} km</span></div>
+      <div class="cs-summary-row"><span class="cs-summary-lbl">⛽ 총 주유량</span><span class="cs-summary-val" style="color:#fcd34d">${s.totalFl>0?s.totalFl+' L':'-'}</span></div>
+      <div class="cs-summary-row"><span class="cs-summary-lbl">💸 총 주유비</span><span class="cs-summary-val" style="color:#fbbf24">${s.totalFc>0?won(s.totalFc):'-'}</span></div>
+      <div class="cs-summary-row"><span class="cs-summary-lbl">🛣 총 통행료</span><span class="cs-summary-val" style="color:#fb923c">${s.totalToll>0?won(s.totalToll):'-'}</span></div>
+      <hr class="cs-summary-sep">
+      <div class="cs-summary-row"><span class="cs-summary-lbl" style="font-weight:700;color:#fcd34d">💰 총 차량 지출</span></div>
+      <div class="cs-summary-total">${s.totalCost>0?won(s.totalCost):'0원'}</div>
     </div>
-    <div class="cal-legend">
-      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange2)"></div>배송 기록</div>
-      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--teal2)"></div>차량 기록</div>
-      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange)"></div>오늘</div>
+    ${s.avgEff!==null?`<div class="cs-fullcard teal">
+      <div class="cs-icon">⚡</div>
+      <div class="cs-body">
+        <div class="cs-body-lbl">평균 연비 <span style="font-size:9px;color:#2a5a5a">(총 ${s.totalKm.toLocaleString()}km ÷ ${s.totalFl}L)</span></div>
+        <div class="cs-body-val" style="color:var(--teal2)">${s.avgEff} <span style="font-size:13px;color:var(--sub);font-weight:400">km/L</span></div>
+        ${s.effCount?`<div style="margin-top:6px;font-size:10px;color:#2a5a5a">주유 기록 ${s.effCount}일 기준</div>`:''}
+      </div>
+    </div>`:''}
+    <div class="cs-grid">
+      <div class="cs-card"><div class="cs-label">🛣 일평균 주행거리</div><div class="cs-val" style="color:var(--teal2)">${s.avgKm.toLocaleString()}</div><div class="cs-sub">km / 일</div></div>
+      <div class="cs-card"><div class="cs-label">⛽ L당 평균 단가</div><div class="cs-val" style="color:#fcd34d">${s.avgFc?s.avgFc.toLocaleString():'-'}</div><div class="cs-sub">원 / L</div></div>
+      <div class="cs-card"><div class="cs-label">💸 일평균 주유비</div><div class="cs-val" style="color:#fbbf24">${s.days&&s.totalFc?Math.round(s.totalFc/s.days).toLocaleString():'-'}</div><div class="cs-sub">원 / 일</div></div>
+      <div class="cs-card"><div class="cs-label">💰 일평균 총지출</div><div class="cs-val" style="color:#fb923c">${s.days&&s.totalCost?Math.round(s.totalCost/s.days).toLocaleString():'-'}</div><div class="cs-sub">원 / 일</div></div>
     </div>
+    ${chart.length?`<div class="car-chart-box">
+      <div class="chart-title">📊 주행거리 & 주유량 (최근 ${chart.length}일)</div>
+      ${[...chart].reverse().map(r=>{
+        const km=Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart));
+        const tFl=flOf(r);
+        const eff=(km>0&&tFl>0)?Math.round(km/tFl*10)/10:null;
+        return `<div class="cs-bar-row">
+          <div class="cs-bar-meta"><span>${fmtDate(r.date)} (${fmtDay(r.date)})</span><span>${km.toLocaleString()}km${eff?' · ⚡'+eff+'km/L':''}</span></div>
+          <div class="cs-bar-track"><div class="cs-bar-fill km" style="width:${Math.round(km/maxKm*100)}%"></div></div>
+          ${tFl>0?`<div class="cs-bar-track"><div class="cs-bar-fill fuel" style="width:${Math.round(tFl/maxFl*100)}%"></div></div>`:''}
+          <div class="bar-legend">■ <span style="color:var(--teal)">주행거리</span> &nbsp;${tFl>0?'■ <span style="color:#fbbf24">주유량</span>':''}</div>
+        </div>`;
+      }).join('')}
+    </div>`:''}
     <div style="height:20px"></div>`;
 }
-function moveCalMonth(dir){
-  calMonth+=dir;
-  if(calMonth<0){calMonth=11;calYear--;}
-  else if(calMonth>11){calMonth=0;calYear++;}
-  calSelectedDate=null; render();
-}
-function selectCalDay(dateStr){
-  calSelectedDate=(calSelectedDate===dateStr)?null:dateStr;
+
+function moveCarStatMonth(dir){
+  carStatMonth+=dir;
+  if(carStatMonth<0){carStatMonth=11;carStatYear--;}
+  else if(carStatMonth>11){carStatMonth=0;carStatYear++;}
   render();
 }
 
-/* ── 단가 시트 ──────────────────────────── */
+const CAR_COMMA={'cf-kmS':'kmStart','cf-kmE':'kmEnd','cf-fp':'fuelPrice','cf-fc':'fuelCost','cf-toll':'tollCost'};
+
+function bindCarEvents(){
+  Object.keys(CAR_COMMA).forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('input',()=>{
+      const raw=el.value.replace(/[^0-9]/g,'');
+      const n=Number(raw);
+      const cursor=el.selectionStart,prevLen=el.value.length;
+      el.value=n>0?n.toLocaleString():'';
+      try{const diff=el.value.length-prevLen;el.setSelectionRange(cursor+diff,cursor+diff);}catch(e){}
+      carForm[CAR_COMMA[id]]=raw;
+      updateCarCalcDOM();
+    });
+    el.addEventListener('blur',()=>{
+      const raw=el.value.replace(/[^0-9]/g,'');
+      const n=Number(raw);
+      el.value=n>0?n.toLocaleString():'';
+      carForm[CAR_COMMA[id]]=raw;
+    });
+  });
+  document.getElementById('cf-fl')?.addEventListener('input',e=>{carForm.fuelLiters=e.target.value;updateCarCalcDOM();});
+  document.getElementById('cf-date')?.addEventListener('change',e=>{carForm.date=e.target.value;updateCarCalcDOM();});
+  document.getElementById('cf-memo')?.addEventListener('input',e=>{carForm.memo=e.target.value;});
+}
+
+function handleCarSave(){
+  const g=id=>document.getElementById(id);
+  if(g('cf-date')) carForm.date=g('cf-date').value;
+  Object.keys(CAR_COMMA).forEach(id=>{const el=g(id);if(el) carForm[CAR_COMMA[id]]=el.value.replace(/[^0-9]/g,'');});
+  if(g('cf-fl')) carForm.fuelLiters=g('cf-fl').value;
+  if(g('cf-memo')) carForm.memo=g('cf-memo').value;
+  if(!carForm.date){showToast('⚠️ 날짜를 선택해 주세요');return;}
+  if(!parseNum(carForm.kmStart)||!parseNum(carForm.kmEnd)){showToast('⚠️ 출발 · 도착 km를 입력해 주세요');return;}
+  if(parseNum(carForm.kmEnd)<=parseNum(carForm.kmStart)){showToast('⚠️ 도착 km가 출발 km보다 커야 해요');return;}
+  if(carEditId!==null){carRecords=carRecords.map(r=>r.id===carEditId?{...carForm,id:carEditId}:r);carEditId=null;}
+  else carRecords.unshift({...carForm,id:Date.now()});
+  carRecords.sort((a,b)=>b.date.localeCompare(a.date));
+  saveCarAll();carForm=defCarForm();
+  showToast('🚗 차량 기록 저장!');carSubTab='history';render();scrollTop();
+}
+function startCarEdit(id){
+  const r=carRecords.find(x=>x.id===id);if(!r) return;
+  carForm={date:r.date,kmStart:String(parseNum(r.kmStart)||''),kmEnd:String(parseNum(r.kmEnd)||''),fuelLiters:r.fuelLiters||'',fuelPrice:String(parseNum(r.fuelPrice)||''),fuelCost:String(parseNum(r.fuelCost)||''),tollCost:String(parseNum(r.tollCost)||''),memo:r.memo||''};
+  carEditId=id;carSubTab='input';render();scrollTop();
+}
+function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
+
+/* ── 보고서 ─────────────────────────────── */
+let reportYear = new Date().getFullYear();
+let reportMonth = new Date().getMonth();
+let reportFormat = 'detail';
+let reportMode = 'daily';
+
+function openReportSheet() {
+  reportYear = new Date().getFullYear();
+  reportMonth = new Date().getMonth();
+  updateReportMonthLabel();
+  setReportFormat('detail');
+  document.getElementById('daily-area-name').value = areaName;
+  document.getElementById('daily-report-date').value = calSelectedDate || today();
+  dailyEdited = false;
+  setDailyType(dailyType);
+  setDailyStyle(dailyStyle);
+  switchReportMode('daily');
+  document.getElementById('report-sheet').classList.add('show');
+  requestAnimationFrame(()=>autosizePreview(document.getElementById('daily-preview')));
+}
+
+function switchReportMode(mode) {
+  reportMode = mode;
+  document.getElementById('mode-daily-btn').classList.toggle('active', mode === 'daily');
+  document.getElementById('mode-monthly-btn').classList.toggle('active', mode === 'monthly');
+  document.getElementById('mode-car-btn').classList.toggle('active', mode === 'car');
+  
+  document.getElementById('report-daily-section').style.display = (mode === 'daily') ? 'block' : 'none';
+  document.getElementById('report-monthly-section').style.display = (mode === 'monthly') ? 'block' : 'none';
+  document.getElementById('report-car-section').style.display = (mode === 'car') ? 'block' : 'none';
+  
+  if (mode === 'daily') updateDailyPreview();
+}
+
+function setDailyType(type) {
+  dailyType = type;
+  lsSet('dlv-daily-type', type);
+  ['both','start','end'].forEach(t=>{
+    const btn=document.getElementById('d-type-'+t);
+    if(btn) btn.classList.toggle('active', t===type);
+  });
+  updateDailyPreview();
+}
+
+function setDailyStyle(st) {
+  dailyStyle = st;
+  lsSet('dlv-daily-style', st);
+  ['style1','style2'].forEach(s=>{
+    const btn=document.getElementById('d-style-'+s);
+    if(btn) btn.classList.toggle('active', s===st);
+  });
+  updateDailyPreview();
+}
+
+let dailyEdited=false;
+
+function autosizePreview(el){
+  if(!el) return;
+  el.style.height='auto';
+  el.style.height=Math.max(120,Math.min(el.scrollHeight+2,400))+'px';
+}
+function onDailyPreviewInput(){
+  const el=document.getElementById('daily-preview');
+  if(!el) return;
+  dailyEdited=(el.value.trim()!==generateDailyReportText().trim());
+  autosizePreview(el);
+  updateEditNote();
+}
+function updateEditNote(){
+  const note=document.getElementById('daily-edit-note');
+  if(note) note.classList.toggle('show',dailyEdited);
+  const btn=document.getElementById('daily-reset-btn');
+  if(btn) btn.style.opacity=dailyEdited?'1':'0.4';
+}
+function resetDailyPreview(){
+  dailyEdited=false;
+  updateDailyPreview();
+  showToast('🔄 기본 양식으로 되돌렸습니다');
+}
+function getDailyMessage(){
+  const el=document.getElementById('daily-preview');
+  const v=el?el.value.trim():'';
+  return v||generateDailyReportText();
+}
+
+function updateDailyPreview() {
+  const areaEl=document.getElementById('daily-area-name');
+  if(areaEl){
+    const v=safeName(areaEl.value)||'일원';
+    if(v!==areaName){ areaName=v; lsSet('dlv-area-name',areaName); }
+  }
+  const el=document.getElementById('daily-preview');
+  if(el&&!dailyEdited){ el.value=generateDailyReportText(); autosizePreview(el); }
+  updateEditNote();
+}
+
+function generateDailyReportText() {
+  const dateVal = document.getElementById('daily-report-date')?.value || today();
+  const areaVal = safeName(document.getElementById('daily-area-name')?.value) || areaName || '일원';
+  const d = toDate(dateVal);
+  const monthStr = String(d.getMonth() + 1).padStart(2, '0');
+  const dayStr = String(d.getDate()).padStart(2, '0');
+  const dowStr = DAYS[d.getDay()] + '요일';
+  const titleDate = `${monthStr}월${dayStr}일 ${dowStr}`;
+
+  const rec = records.find(r => r.date === dateVal);
+  const qA = rec ? (Number(rec.qtyA) || 0) : 0;
+  const qB = rec ? (Number(rec.qtyB) || 0) : 0;
+  const qC = rec ? (Number(rec.qtyC) || 0) : 0;
+  const qD = rec ? (Number(rec.qtyD) || 0) : 0;
+
+  const activeItems = [
+    { name: nameA, qty: qA },
+    { name: nameB, qty: qB },
+    { name: nameC, qty: qC },
+    { name: nameD, qty: qD }
+  ].filter(it => it.qty > 0);
+
+  let text = '';
+  if (dailyStyle === 'style1') {
+    if (activeItems.length === 0) {
+      text = `📦 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
+    } else {
+      const itemText = activeItems.map(it => `${it.name} ${it.qty}개`).join(' / ');
+      text = `📦 [${areaVal}] ${titleDate} 배송\n\n`;
+      if (dailyType === 'both') text += `🚚 출발 | ${itemText}\n✅ 완료 | ${itemText}`;
+      else if (dailyType === 'start') text += `🚚 출발 | ${itemText}`;
+      else text += `✅ 완료 | ${itemText}`;
+    }
+  } else {
+    text = `📦 [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr} 배송\n──────────\n`;
+    if (activeItems.length === 0) {
+      text += `⚠️ 기록된 배송 물량이 없습니다.`;
+    } else {
+      if (dailyType === 'both' || dailyType === 'start') {
+        text += `🚛 출발\n`;
+        activeItems.forEach(it => { text += `▫️ ${it.name}: ${it.qty}개\n`; });
+      }
+      if (dailyType === 'both') text += `\n`;
+      if (dailyType === 'both' || dailyType === 'end') {
+        text += `🎯 완료\n`;
+        activeItems.forEach(it => { text += `▪️ ${it.name}: ${it.qty}개\n`; });
+      }
+    }
+  }
+  return text.trim();
+}
+
+function changeReportMonth(dir) {
+  reportMonth += dir;
+  if (reportMonth < 0) { reportMonth = 11; reportYear--; }
+  else if (reportMonth > 11) { reportMonth = 0; reportYear++; }
+  updateReportMonthLabel();
+}
+function updateReportMonthLabel() {
+  const lbl = `${reportYear}년 ${reportMonth + 1}월`;
+  document.getElementById('report-month-label').textContent = lbl;
+  document.getElementById('report-car-month-label').textContent = lbl;
+}
+function setReportFormat(fmt) {
+  reportFormat = fmt;
+  ['detail','summary','table'].forEach(f=>{
+    const el=document.getElementById('r-fmt-'+f);
+    if(el) el.classList.toggle('active', f===fmt);
+  });
+}
+
+function generateReportText() {
+  if (reportMode === 'daily') return getDailyMessage();
+
+  const ym = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
+
+  if (reportMode === 'car') {
+    const cRecs = carRecords.filter(r => r.date.startsWith(ym)).sort((a,b)=>a.date.localeCompare(b.date));
+    if(cRecs.length === 0) return `🚗 ${reportYear}년 ${reportMonth + 1}월 차량 기록이 없습니다.`;
+    const cs = carStatsFor(cRecs);
+    const dRecs = records.filter(r => r.date.startsWith(ym));
+    const dNet = dRecs.reduce((acc,r)=>acc+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
+    const pureIncome = dNet - cs.totalCost;
+
+    let text = `🚗 ${reportYear}년 ${reportMonth + 1}월 차량 지출 보고서\n`;
+    text += `━━━━━━━━━━━━━━━\n`;
+    text += `🛣 총 주행거리: ${cs.totalKm.toLocaleString()} km (${cs.days}일 운행)\n`;
+    text += `⛽ 총 주유량: ${cs.totalFl>0 ? cs.totalFl+' L' : '-'}\n`;
+    text += `💸 총 주유비: ${cs.totalFc>0 ? won(cs.totalFc) : '0원'}\n`;
+    text += `🛣 총 통행료: ${cs.totalToll>0 ? won(cs.totalToll) : '0원'}\n`;
+    text += `💰 총 차량지출: ${cs.totalCost>0 ? won(cs.totalCost) : '0원'}\n`;
+    if(cs.avgEff) text += `⚡ 평균 연비: ${cs.avgEff} km/L\n`;
+    text += `━━━━━━━━━━━━━━━\n`;
+    text += `📦 배송 실수령: ${won(dNet)}\n`;
+    text += `📉 순수입 (실수령-차량비): ${won(pureIncome)}\n`;
+    text += `━━━━━━━━━━━━━━━\n📋 일자별 주행 내역\n\n`;
+    cRecs.forEach(r => {
+      const driven = Math.max(0, parseNum(r.kmEnd) - parseNum(r.kmStart));
+      const fl = Number(r.fuelLiters)||0, fp = parseNum(r.fuelPrice), fc = parseNum(r.fuelCost), toll = parseNum(r.tollCost);
+      const autoFl = (fp>0&&fc>0&&fl===0) ? Math.round(fc/fp*100)/100 : 0;
+      const tFl = fl>0?fl:autoFl, tFc = fc>0?fc:Math.round(fp*fl);
+      const totalCost = tFc + toll;
+      text += `📅 ${r.date.slice(5).replace('-','/')} (${DAYS[toDate(r.date).getDay()]}) · ${driven.toLocaleString()}km\n`;
+      if(tFc>0 || toll>0) text += `   지출: ${won(totalCost)}${tFl>0?' ('+tFl+'L)':''}${toll>0?' (통행료 포함)':''}\n`;
+      if(r.memo) text += `   📝 ${r.memo}\n`;
+    });
+    return text.trim();
+  }
+
+  const mr = records.filter(r => r.date.startsWith(ym)).sort((a, b) => a.date.localeCompare(b.date));
+  if (mr.length === 0) return `📭 ${reportYear}년 ${reportMonth + 1}월 배송 기록이 없습니다.`;
+
+  const s = statsFor(mr);
+  const items = [
+    { name: nameA, qty: s.A, amt: s.amtA, emoji: '🅰', key:'qtyA' },
+    { name: nameB, qty: s.B, amt: s.amtB, emoji: '🅱', key:'qtyB' },
+    { name: nameC, qty: s.C, amt: s.amtC, emoji: '🅲', key:'qtyC' },
+    { name: nameD, qty: s.D, amt: s.amtD, emoji: '🅳', key:'qtyD' },
+  ].filter(it => it.qty > 0);
+
+  let text = `📦 ${reportYear}년 ${reportMonth + 1}월 배송 보고서\n`;
+  text += `━━━━━━━━━━━━━━━\n`;
+  text += `🗓 ${s.days}일 배송 · 총 ${s.Q.toLocaleString()}건\n`;
+  text += `💵 총액 ${won(s.G)}\n`;
+  text += `💰 실수령 ${won(s.N)} (3.3% 공제)\n`;
+  text += `━━━━━━━━━━━━━━━\n📊 물품별 정산\n`;
+  items.forEach(it => {
+    text += `${it.emoji} ${it.name}: ${it.qty.toLocaleString()}건 = ${won(it.amt)}\n`;
+  });
+  text += `━━━━━━━━━━━━━━━\n`;
+
+  if (reportFormat === 'detail') {
+    text += `📋 일자별 상세\n\n`;
+    mr.forEach(r => {
+      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
+      const spd = perHour(p.qty, r.startTime, r.endTime);
+      const parts = [];
+      if (p.A > 0) parts.push(`${nameA} ${p.A}`);
+      if (p.B > 0) parts.push(`${nameB} ${p.B}`);
+      if (p.C > 0) parts.push(`${nameC} ${p.C}`);
+      if (p.D > 0) parts.push(`${nameD} ${p.D}`);
+      text += `📅 ${r.date.slice(5).replace('-','/')} (${DAYS[toDate(r.date).getDay()]}) · 총 ${p.qty.toLocaleString()}건\n`;
+      text += `   ${parts.join(' / ')}\n`;
+      text += `   ⏱ ${r.startTime}~${r.endTime} · 실수령 ${won(p.net)}${spd ? ' · ⚡' + spd + '건/h' : ''}\n`;
+      if (r.memo) text += `   📝 ${r.memo}\n`;
+      text += '\n';
+    });
+  } else if (reportFormat === 'summary') {
+    text += `📋 일자별 요약\n\n`;
+    mr.forEach(r => {
+      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
+      text += `[${r.date.slice(5).replace('-','/')}] ${p.qty.toLocaleString()}건 · ${won(p.net)}\n`;
+    });
+  } else {
+    text += `📋 일자별 표\n\n`;
+    text += `날짜 | ${items.map(it=>it.name).join(' | ')} | 합계 | 실수령\n`;
+    mr.forEach(r => {
+      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
+      const cells = items.map(it => Number(r[it.key]) || 0);
+      text += `${r.date.slice(5)} | ${cells.join(' | ')} | ${p.qty}건 | ${p.net.toLocaleString()}원\n`;
+    });
+  }
+  return text.trim();
+}
+
+function shareReport() {
+  const text = generateReportText();
+  if (navigator.share) {
+    navigator.share({ text: text }).then(() => {
+      document.getElementById('report-sheet').classList.remove('show');
+    }).catch((error) => {
+      if (error && error.name === 'AbortError') return;
+      copyReport();
+    });
+  } else {
+    copyReport();
+  }
+}
+
+function copyReport() {
+  const text = generateReportText();
+  const done=()=>{document.getElementById('report-sheet').classList.remove('show');showToast('📋 보고서가 클립보드에 복사되었습니다');};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else fallbackCopy(text,done);
+}
+
+/* ── 단가 시트 & 다이얼로그 ──────────────────────────── */
 function openPriceSheet() {
   document.getElementById('ps-pa').value=PA;
   document.getElementById('ps-pb').value=PB;
@@ -1172,7 +1845,6 @@ function savePrices(){
   showToast('✅ 단가 저장 완료!');
 }
 
-/* ── 다이얼로그 ─────────────────────────── */
 let dialogMode='delete';
 function openDialog(title,msg,btnText,mode,warn){
   document.getElementById('dialog-title').textContent=title;
@@ -1219,7 +1891,7 @@ function confirmDialog(){
   overlay.classList.remove('show');render();
 }
 
-/* ── 백업 ───────────────────────────────── */
+/* ── 백업 & 엑셀 ───────────────────────────────── */
 function fallbackCopy(text,done){
   const ta=document.createElement('textarea');
   ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
@@ -1280,7 +1952,6 @@ function importData(e){
   reader.readAsText(file);e.target.value='';
 }
 
-/* ── 엑셀(.xlsx) 내보내기 ──────────────── */
 function downloadBlob(blob,filename){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -1468,564 +2139,6 @@ function showToast(msg){
   toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-/* ── 차량 ───────────────────────────────── */
-let carRecords=loadRecords('car-v1');
-let carEditId=null;
-let carDeleteId=null;
-let carForm=defCarForm();
-
-function defCarForm(){
-  const last=carRecords.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
-  return{date:today(),kmStart:last?String(parseNum(last.kmEnd)||''):'',kmEnd:'',fuelLiters:'',fuelPrice:'',fuelCost:'',tollCost:'',memo:''};
-}
-function saveCarAll(){ lsSet('car-v1',JSON.stringify(carRecords)); }
-function parseNum(v){ const n=Number(String(v==null?'':v).replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; }
-function fmtComma(n){ const x=Number(n); return x>0?x.toLocaleString():''; }
-
-function carCalc(){
-  const kmS=parseNum(carForm.kmStart),kmE=parseNum(carForm.kmEnd);
-  const fl=Number(carForm.fuelLiters)||0,fp=parseNum(carForm.fuelPrice),fc=parseNum(carForm.fuelCost);
-  const toll=parseNum(carForm.tollCost);
-  const driven=kmE>kmS?kmE-kmS:null;
-  const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
-  const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
-  const totalFl=fl>0?fl:autoFl;
-  const totalFc=fc>0?fc:autoFc;
-  const totalCost=totalFc+toll;
-  const efficiency=(driven&&totalFl>0)?Math.round(driven/totalFl*10)/10:null;
-  return{kmS,kmE,driven,fl,fp,fc,autoFc,autoFl,totalFl,totalFc,toll,totalCost,efficiency};
-}
-
-function updateCarCalcDOM(){
-  const d=carCalc();
-  const kmRes=document.getElementById('car-km-result');
-  if(kmRes){
-    if(d.driven!==null){
-      kmRes.style.cssText='margin-top:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;';
-      kmRes.innerHTML=`<span class="car-km-result-label">오늘 주행거리</span><span class="car-km-result-val">${d.driven.toLocaleString()} km</span>`;
-    }else{kmRes.style.cssText='margin-top:0;padding:0;';kmRes.innerHTML='';}
-  }
-  const flHint=document.getElementById('car-fl-hint');
-  if(flHint) flHint.textContent=(d.fp>0&&d.fc>0&&d.fl===0&&d.autoFl>0)?`→ 자동: ${d.autoFl}L`:'';
-  const fcHint=document.getElementById('car-fc-hint');
-  if(fcHint) fcHint.textContent=(d.fp>0&&d.fl>0&&d.fc===0&&d.autoFc>0)?`→ 자동: ${won(d.autoFc)}`:'';
-  const effHint=document.getElementById('car-eff');
-  if(effHint) effHint.textContent=d.efficiency?`⚡ 연비: ${d.efficiency} km/L`:'';
-  const costBox=document.getElementById('car-cost-preview');
-  if(costBox){
-    if(d.totalCost>0){
-      costBox.style.display='block';
-      const fuelRow=document.getElementById('car-cost-fuel-row');
-      const tollRow=document.getElementById('car-cost-toll-row');
-      const totalEl=document.getElementById('car-cost-total-val');
-      if(fuelRow){fuelRow.style.display=d.totalFc>0?'flex':'none';if(d.totalFc>0) fuelRow.querySelector('span:last-child').textContent=won(d.totalFc);}
-      if(tollRow){tollRow.style.display=d.toll>0?'flex':'none';if(d.toll>0) tollRow.querySelector('span:last-child').textContent=won(d.toll);}
-      if(totalEl) totalEl.textContent=won(d.totalCost);
-    }else{costBox.style.display='none';}
-  }
-  const btn=document.getElementById('car-save-btn');
-  if(btn) btn.classList.toggle('disabled',!(carForm.date&&d.kmS>0&&d.kmE>0&&d.driven!==null&&d.driven>0));
-}
-
-function renderCarTab(){
-  const subBar=`<div class="car-subtabs">
-    <button class="car-subtab ${carSubTab==='input'?'active':''}" onclick="carSubTab='input';render();scrollTop()">✏️ 입력</button>
-    <button class="car-subtab ${carSubTab==='history'?'active':''}" onclick="carSubTab='history';render();scrollTop()">📋 기록</button>
-    <button class="car-subtab ${carSubTab==='stats'?'active':''}" onclick="carSubTab='stats';render();scrollTop()">📊 통계</button>
-  </div>`;
-  if(carSubTab==='input') return subBar+renderCarInput()+'<div style="height:20px"></div>';
-  if(carSubTab==='history') return subBar+(carRecords.length?renderCarHistory()+'<div style="height:20px"></div>':`<div class="empty">🚗 아직 차량 기록이 없어요</div>`);
-  return subBar+renderCarStats();
-}
-
-function renderCarInput(){
-  const d=carCalc();
-  const ok=carForm.date&&d.kmS>0&&d.kmE>0&&(d.driven||0)>0;
-  return `
-    ${carEditId!==null?'<div class="edit-banner">✏️ 차량 수정 모드</div>':''}
-    <div class="field"><label>📅 날짜</label><input type="date" id="cf-date" value="${carForm.date}"></div>
-    <div class="car-km-box">
-      <div class="car-km-title">🛣 주행 거리 (km)</div>
-      <div class="car-km-row">
-        <div class="car-km-item"><label>🚀 출발 km</label><input type="text" id="cf-kmS" value="${fmtComma(carForm.kmStart)}" placeholder="0" inputmode="numeric" pattern="[0-9]*"></div>
-        <div class="car-km-arrow">→</div>
-        <div class="car-km-item"><label>🏁 도착 km</label><input type="text" id="cf-kmE" value="${fmtComma(carForm.kmEnd)}" placeholder="0" inputmode="numeric" pattern="[0-9]*"></div>
-      </div>
-      <div class="car-km-result" id="car-km-result" style="margin-top:${d.driven?'10px':'0'};padding:${d.driven?'10px 14px':'0'}">
-        ${d.driven!==null?`<span class="car-km-result-label">오늘 주행거리</span><span class="car-km-result-val">${d.driven.toLocaleString()} km</span>`:''}
-      </div>
-    </div>
-    <div class="car-form-box">
-      <div class="car-form-title">⛽ 주유 정보 (선택)</div>
-      <div class="field" style="margin-bottom:10px">
-        <label>주유량 (L) <span id="car-fl-hint" style="color:var(--teal2);font-size:10px;font-weight:400">${(d.fp>0&&d.fc>0&&d.fl===0&&d.autoFl>0)?'→ 자동: '+d.autoFl+'L':''}</span></label>
-        <input type="number" id="cf-fl" value="${esc(carForm.fuelLiters)}" placeholder="비워두면 자동계산" inputmode="decimal" step="0.01" min="0">
-      </div>
-      <div class="field" style="margin-bottom:10px">
-        <label>리터당 단가 (원)</label>
-        <input type="text" id="cf-fp" value="${fmtComma(carForm.fuelPrice)}" placeholder="1,700" inputmode="numeric" pattern="[0-9]*">
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label>주유비 (원) <span id="car-fc-hint" style="color:var(--teal2);font-size:10px;font-weight:400">${(d.fp>0&&d.fl>0&&d.fc===0&&d.autoFc>0)?'→ 자동: '+won(d.autoFc):''}</span></label>
-        <input type="text" id="cf-fc" value="${fmtComma(carForm.fuelCost)}" placeholder="비워두면 단가×리터 자동계산" inputmode="numeric" pattern="[0-9]*">
-      </div>
-      <div id="car-eff" style="font-size:11px;color:var(--teal);margin-top:6px;font-weight:700">${d.efficiency?'⚡ 연비: '+d.efficiency+' km/L':''}</div>
-    </div>
-    <div class="car-form-box">
-      <div class="car-form-title">🛣 통행료 / 하이패스 (선택)</div>
-      <div class="field" style="margin-bottom:0">
-        <label>통행료 (원)</label>
-        <input type="text" id="cf-toll" value="${fmtComma(carForm.tollCost)}" placeholder="0" inputmode="numeric" pattern="[0-9]*">
-      </div>
-    </div>
-    <div class="car-cost-box" id="car-cost-preview" style="display:${d.totalCost>0?'block':'none'}">
-      <div class="car-cost-row" id="car-cost-fuel-row" style="display:${d.totalFc>0?'flex':'none'}">
-        <span class="car-cost-label">⛽ 주유비</span><span class="car-cost-val">${won(d.totalFc)}</span>
-      </div>
-      <div class="car-cost-row" id="car-cost-toll-row" style="display:${d.toll>0?'flex':'none'}">
-        <span class="car-cost-label">🛣 통행료</span><span class="car-cost-val">${won(d.toll)}</span>
-      </div>
-      <hr class="car-cost-sep">
-      <div class="car-cost-row"><span class="car-cost-label" style="font-weight:700;color:#fcd34d">💰 총 지출</span><span class="car-cost-total" id="car-cost-total-val">${won(d.totalCost)}</span></div>
-    </div>
-    <div class="field"><label>📝 메모 (선택)</label><textarea id="cf-memo" placeholder="특이사항, 목적지 등..." maxlength="300">${esc(carForm.memo)}</textarea></div>
-    <button class="btn-save ${ok?'':'disabled'}" id="car-save-btn" onclick="handleCarSave()">${carEditId!==null?'✏️ 수정 완료':'🚗 저장하기'}</button>
-    ${carEditId!==null?`<button class="btn-cancel" onclick="cancelCarEdit()">취소</button>`:''}
-    <div style="height:4px"></div>`;
-}
-
-function renderCarHistory(){
-  return carRecords.map(r=>{
-    const driven=Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart));
-    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice);
-    const fc=parseNum(r.fuelCost),toll=parseNum(r.tollCost);
-    const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
-    const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
-    const totalFl=fl>0?fl:autoFl,totalFc=fc>0?fc:autoFc;
-    const total=totalFc+toll;
-    const eff=(driven&&totalFl>0)?Math.round(driven/totalFl*10)/10:null;
-    return `<div class="car-card">
-      <div class="car-card-head">
-        <div><span class="car-card-date">${fmtDate(r.date)}</span><span class="car-card-day">${fmtDay(r.date)}</span></div>
-      </div>
-      <div class="car-km-badge">
-        <div class="car-km-badge-left"><div>🛣</div>
-          <div><div class="car-km-badge-lbl">오늘 주행${eff?` · ⚡${eff}km/L`:''}</div>
-          <div class="car-km-badge-val">${driven.toLocaleString()}<span style="font-size:11px;color:var(--sub);font-weight:400"> km</span></div></div>
-        </div>
-        <div class="car-km-badge-right">
-          <div>${parseNum(r.kmStart).toLocaleString()} km 출발</div>
-          <div>${parseNum(r.kmEnd).toLocaleString()} km 도착</div>
-        </div>
-      </div>
-      ${(totalFc>0||toll>0)?`<div class="car-costs">
-        ${totalFc>0?`<div class="car-cost-item"><div class="car-cost-item-lbl">⛽ 주유비</div><div class="car-cost-item-val" style="color:#fcd34d">${won(totalFc)}</div><div class="car-cost-item-sub">${totalFl>0?totalFl+'L':''}${fp>0?' · '+fp.toLocaleString()+'원/L':''}</div></div>`:'<div></div>'}
-        ${toll>0?`<div class="car-cost-item"><div class="car-cost-item-lbl">🛣 통행료</div><div class="car-cost-item-val" style="color:#fb923c">${won(toll)}</div></div>`:'<div></div>'}
-      </div>
-      <div class="car-total-bar"><span class="car-total-lbl">💰 총 지출</span><span class="car-total-val">${won(total)}</span></div>`:''}
-      ${r.memo?`<div class="rec-memo">📝 ${esc(r.memo)}</div>`:''}
-      <div class="rec-btns">
-        <button class="rec-btn btn-edit" onclick="startCarEdit(${r.id})">✏️ 수정</button>
-        <button class="rec-btn btn-del" onclick="askCarDelete(${r.id})">🗑 삭제</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function carStatsFor(list){
-  let totalKm=0,totalFl=0,totalFc=0,totalToll=0;
-  const days=list.length;
-  const dayEffList=[];
-  list.forEach(r=>{
-    const driven=parseNum(r.kmEnd)-parseNum(r.kmStart);
-    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice),fc=parseNum(r.fuelCost),toll=parseNum(r.tollCost);
-    const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
-    const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
-    const tFl=fl>0?fl:autoFl,tFc=fc>0?fc:autoFc;
-    totalKm+=driven>0?driven:0;totalFl+=tFl;totalFc+=tFc;totalToll+=toll;
-    if(driven>0&&tFl>0) dayEffList.push(Math.round(driven/tFl*10)/10);
-  });
-  totalFl=Math.round(totalFl*100)/100;
-  const totalCost=totalFc+totalToll;
-  const avgEff=(totalKm>0&&totalFl>0)?Math.round(totalKm/totalFl*10)/10:null;
-  const avgKm=days?Math.round(totalKm/days):0;
-  const avgFc=totalFl>0?Math.round(totalFc/totalFl):null;
-  return{totalKm,totalFl,totalFc,totalToll,totalCost,avgEff,avgKm,avgFc,days,effCount:dayEffList.length};
-}
-
-function renderCarStats(){
-  const periodBar=`<div class="period-tabs">
-    <button class="period-tab ${carStatPeriod==='week'?'active':''}" onclick="carStatPeriod='week';jumpToCurrentWeek(true)">📅 주간</button>
-    <button class="period-tab ${carStatPeriod==='month'?'active':''}" onclick="carStatPeriod='month';render()">🗓 이번 달</button>
-    <button class="period-tab ${carStatPeriod==='all'?'active':''}" onclick="carStatPeriod='all';render()">📊 전체</button>
-  </div>`;
-  if(!carRecords.length) return periodBar+`<div class="empty">🚗 기록이 쌓이면 통계가 보여요!</div>`;
-  let filtered=[],navHtml='',blockTitle='';
-  if(carStatPeriod==='week'){
-    const weeks=getCalWeeks(carWeekYear,carWeekMonth);
-    const wr=weeks[carWeekIndex]||weeks[0];
-    const isCurrentWeek=(wr.start<=today()&&today()<=wr.end);
-    blockTitle=`${wr.label}${isCurrentWeek?' (이번 주)':''}`;
-    filtered=carRecords.filter(r=>r.date>=wr.start&&r.date<=wr.end);
-    navHtml=`<div class="week-nav">
-      <button class="week-nav-btn" onclick="moveWeek(-1,true)">◀</button>
-      <div style="text-align:center">
-        <div class="week-nav-label">${carWeekYear}년 ${carWeekMonth+1}월 ${wr.weekNum}주차</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:2px">${carWeekMonth+1}/${wr.start.slice(8)} ~ ${carWeekMonth+1}/${wr.end.slice(8)}</div>
-      </div>
-      <button class="week-nav-btn" onclick="moveWeek(1,true)">▶</button>
-    </div>`;
-  } else if(carStatPeriod==='month'){
-    const m=today().slice(0,7);
-    filtered=carRecords.filter(r=>r.date.startsWith(m));
-    blockTitle=`${new Date().getMonth()+1}월 차량 통계`;
-  } else {
-    filtered=carRecords;blockTitle=`전체 차량 통계`;
-  }
-  if(!filtered.length) return periodBar+navHtml+`<div class="empty" style="padding:40px 0">🚗 해당 기간에 기록이 없어요</div>`;
-  const s=carStatsFor(filtered);
-  const chart=filtered.slice(0,7);
-  const flOf=r=>{
-    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice),fc=parseNum(r.fuelCost);
-    const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
-    return fl>0?fl:autoFl;
-  };
-  const maxKm=chart.length?Math.max(...chart.map(r=>Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart))),1):1;
-  const maxFl=chart.length?Math.max(...chart.map(flOf),1):1;
-  return periodBar+navHtml+`
-    <div class="cs-summary-box">
-      <div class="cs-summary-title">🚗 ${blockTitle} · ${s.days}일</div>
-      <div class="cs-summary-row"><span class="cs-summary-lbl">🛣 총 주행거리</span><span class="cs-summary-val" style="color:var(--teal2)">${s.totalKm.toLocaleString()} km</span></div>
-      <div class="cs-summary-row"><span class="cs-summary-lbl">⛽ 총 주유량</span><span class="cs-summary-val" style="color:#fcd34d">${s.totalFl>0?s.totalFl+'L':'-'}</span></div>
-      <div class="cs-summary-row"><span class="cs-summary-lbl">💸 총 주유비</span><span class="cs-summary-val" style="color:#fbbf24">${s.totalFc>0?won(s.totalFc):'-'}</span></div>
-      <div class="cs-summary-row"><span class="cs-summary-lbl">🛣 통행료</span><span class="cs-summary-val" style="color:#fb923c">${s.totalToll>0?won(s.totalToll):'-'}</span></div>
-      <hr class="cs-summary-sep">
-      <div class="cs-summary-row"><span class="cs-summary-lbl" style="font-weight:700;color:#fcd34d">💰 총 차량 지출</span></div>
-      <div class="cs-summary-total">${s.totalCost>0?won(s.totalCost):'-'}</div>
-    </div>
-    ${s.avgEff!==null?`<div class="cs-fullcard teal">
-      <div class="cs-icon">⚡</div>
-      <div class="cs-body">
-        <div class="cs-body-lbl">평균 연비 <span style="font-size:9px;color:#2a5a5a">(총 ${s.totalKm.toLocaleString()}km ÷ ${s.totalFl}L)</span></div>
-        <div class="cs-body-val" style="color:var(--teal2)">${s.avgEff} <span style="font-size:13px;color:var(--sub);font-weight:400">km/L</span></div>
-        ${s.effCount?`<div style="margin-top:6px;font-size:10px;color:#2a5a5a">주유 기록 ${s.effCount}일 기준</div>`:''}
-      </div>
-    </div>`:''}
-    <div class="cs-grid">
-      <div class="cs-card"><div class="cs-label">🛣 일평균 주행거리</div><div class="cs-val" style="color:var(--teal2)">${s.avgKm.toLocaleString()}</div><div class="cs-sub">km / 일</div></div>
-      <div class="cs-card"><div class="cs-label">⛽ 평균 연료 단가</div><div class="cs-val" style="color:#fcd34d">${s.avgFc?s.avgFc.toLocaleString():'-'}</div><div class="cs-sub">원 / L</div></div>
-      <div class="cs-card"><div class="cs-label">💸 일평균 주유비</div><div class="cs-val" style="color:#fbbf24">${s.days&&s.totalFc?Math.round(s.totalFc/s.days).toLocaleString():'-'}</div><div class="cs-sub">원 / 일</div></div>
-      <div class="cs-card"><div class="cs-label">💰 일평균 지출</div><div class="cs-val" style="color:#fb923c">${s.days&&s.totalCost?Math.round(s.totalCost/s.days).toLocaleString():'-'}</div><div class="cs-sub">원 / 일</div></div>
-    </div>
-    ${chart.length?`<div class="car-chart-box">
-      <div class="chart-title">📊 주행거리 & 주유량 (최근 ${chart.length}일)</div>
-      ${[...chart].reverse().map(r=>{
-        const km=Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart));
-        const tFl=flOf(r);
-        const eff=(km>0&&tFl>0)?Math.round(km/tFl*10)/10:null;
-        return `<div class="cs-bar-row">
-          <div class="cs-bar-meta"><span>${fmtDate(r.date)} (${fmtDay(r.date)})</span><span>${km.toLocaleString()}km${eff?' · ⚡'+eff+'km/L':''}</span></div>
-          <div class="cs-bar-track"><div class="cs-bar-fill km" style="width:${Math.round(km/maxKm*100)}%"></div></div>
-          ${tFl>0?`<div class="cs-bar-track"><div class="cs-bar-fill fuel" style="width:${Math.round(tFl/maxFl*100)}%"></div></div>`:''}
-          <div class="bar-legend">■ <span style="color:var(--teal)">주행거리</span> &nbsp;${tFl>0?'■ <span style="color:#fbbf24">주유량</span>':''}</div>
-        </div>`;
-      }).join('')}
-    </div>`:''}
-    <div style="height:20px"></div>`;
-}
-
-const CAR_COMMA={'cf-kmS':'kmStart','cf-kmE':'kmEnd','cf-fp':'fuelPrice','cf-fc':'fuelCost','cf-toll':'tollCost'};
-
-function bindCarEvents(){
-  Object.keys(CAR_COMMA).forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.addEventListener('input',()=>{
-      const raw=el.value.replace(/[^0-9]/g,'');
-      const n=Number(raw);
-      const cursor=el.selectionStart,prevLen=el.value.length;
-      el.value=n>0?n.toLocaleString():'';
-      try{const diff=el.value.length-prevLen;el.setSelectionRange(cursor+diff,cursor+diff);}catch(e){}
-      carForm[CAR_COMMA[id]]=raw;
-      updateCarCalcDOM();
-    });
-    el.addEventListener('blur',()=>{
-      const raw=el.value.replace(/[^0-9]/g,'');
-      const n=Number(raw);
-      el.value=n>0?n.toLocaleString():'';
-      carForm[CAR_COMMA[id]]=raw;
-    });
-  });
-  document.getElementById('cf-fl')?.addEventListener('input',e=>{carForm.fuelLiters=e.target.value;updateCarCalcDOM();});
-  document.getElementById('cf-date')?.addEventListener('change',e=>{carForm.date=e.target.value;updateCarCalcDOM();});
-  document.getElementById('cf-memo')?.addEventListener('input',e=>{carForm.memo=e.target.value;});
-}
-
-function handleCarSave(){
-  const g=id=>document.getElementById(id);
-  if(g('cf-date')) carForm.date=g('cf-date').value;
-  Object.keys(CAR_COMMA).forEach(id=>{const el=g(id);if(el) carForm[CAR_COMMA[id]]=el.value.replace(/[^0-9]/g,'');});
-  if(g('cf-fl')) carForm.fuelLiters=g('cf-fl').value;
-  if(g('cf-memo')) carForm.memo=g('cf-memo').value;
-  if(!carForm.date){showToast('⚠️ 날짜를 선택해 주세요');return;}
-  if(!parseNum(carForm.kmStart)||!parseNum(carForm.kmEnd)){showToast('⚠️ 출발 · 도착 km를 입력해 주세요');return;}
-  if(parseNum(carForm.kmEnd)<=parseNum(carForm.kmStart)){showToast('⚠️ 도착 km가 출발 km보다 커야 해요');return;}
-  if(carEditId!==null){carRecords=carRecords.map(r=>r.id===carEditId?{...carForm,id:carEditId}:r);carEditId=null;}
-  else carRecords.unshift({...carForm,id:Date.now()});
-  carRecords.sort((a,b)=>b.date.localeCompare(a.date));
-  saveCarAll();carForm=defCarForm();
-  showToast('🚗 차량 기록 저장!');carSubTab='history';render();scrollTop();
-}
-function startCarEdit(id){
-  const r=carRecords.find(x=>x.id===id);if(!r) return;
-  carForm={date:r.date,kmStart:String(parseNum(r.kmStart)||''),kmEnd:String(parseNum(r.kmEnd)||''),fuelLiters:r.fuelLiters||'',fuelPrice:String(parseNum(r.fuelPrice)||''),fuelCost:String(parseNum(r.fuelCost)||''),tollCost:String(parseNum(r.tollCost)||''),memo:r.memo||''};
-  carEditId=id;carSubTab='input';render();scrollTop();
-}
-function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
-
-/* ── 보고서 ─────────────────────────────── */
-let reportYear = new Date().getFullYear();
-let reportMonth = new Date().getMonth();
-let reportFormat = 'detail';
-let reportMode = 'daily';
-
-function openReportSheet() {
-  reportYear = new Date().getFullYear();
-  reportMonth = new Date().getMonth();
-  updateReportMonthLabel();
-  setReportFormat('detail');
-  document.getElementById('daily-area-name').value = areaName;
-  document.getElementById('daily-report-date').value = calSelectedDate || today();
-  dailyEdited = false;
-  setDailyType(dailyType);
-  setDailyStyle(dailyStyle);
-  switchReportMode('daily');
-  document.getElementById('report-sheet').classList.add('show');
-  requestAnimationFrame(()=>autosizePreview(document.getElementById('daily-preview')));
-}
-
-function switchReportMode(mode) {
-  reportMode = mode;
-  document.getElementById('mode-daily-btn').classList.toggle('active', mode === 'daily');
-  document.getElementById('mode-monthly-btn').classList.toggle('active', mode === 'monthly');
-  document.getElementById('report-daily-section').style.display = (mode === 'daily') ? 'block' : 'none';
-  document.getElementById('report-monthly-section').style.display = (mode === 'monthly') ? 'block' : 'none';
-  if (mode === 'daily') updateDailyPreview();
-}
-
-function setDailyType(type) {
-  dailyType = type;
-  lsSet('dlv-daily-type', type);
-  ['both','start','end'].forEach(t=>{
-    const btn=document.getElementById('d-type-'+t);
-    if(btn) btn.classList.toggle('active', t===type);
-  });
-  updateDailyPreview();
-}
-
-function setDailyStyle(st) {
-  dailyStyle = st;
-  lsSet('dlv-daily-style', st);
-  ['style1','style2'].forEach(s=>{
-    const btn=document.getElementById('d-style-'+s);
-    if(btn) btn.classList.toggle('active', s===st);
-  });
-  updateDailyPreview();
-}
-
-let dailyEdited=false;
-
-function autosizePreview(el){
-  if(!el) return;
-  el.style.height='auto';
-  el.style.height=Math.max(120,Math.min(el.scrollHeight+2,400))+'px';
-}
-function onDailyPreviewInput(){
-  const el=document.getElementById('daily-preview');
-  if(!el) return;
-  dailyEdited=(el.value.trim()!==generateDailyReportText().trim());
-  autosizePreview(el);
-  updateEditNote();
-}
-function updateEditNote(){
-  const note=document.getElementById('daily-edit-note');
-  if(note) note.classList.toggle('show',dailyEdited);
-  const btn=document.getElementById('daily-reset-btn');
-  if(btn) btn.style.opacity=dailyEdited?'1':'0.4';
-}
-function resetDailyPreview(){
-  dailyEdited=false;
-  updateDailyPreview();
-  showToast('🔄 기본 양식으로 되돌렸습니다');
-}
-function getDailyMessage(){
-  const el=document.getElementById('daily-preview');
-  const v=el?el.value.trim():'';
-  return v||generateDailyReportText();
-}
-
-function updateDailyPreview() {
-  const areaEl=document.getElementById('daily-area-name');
-  if(areaEl){
-    const v=safeName(areaEl.value)||'일원';
-    if(v!==areaName){ areaName=v; lsSet('dlv-area-name',areaName); }
-  }
-  const el=document.getElementById('daily-preview');
-  if(el&&!dailyEdited){ el.value=generateDailyReportText(); autosizePreview(el); }
-  updateEditNote();
-}
-
-function generateDailyReportText() {
-  const dateVal = document.getElementById('daily-report-date')?.value || today();
-  const areaVal = safeName(document.getElementById('daily-area-name')?.value) || areaName || '일원';
-  const d = toDate(dateVal);
-  const monthStr = String(d.getMonth() + 1).padStart(2, '0');
-  const dayStr = String(d.getDate()).padStart(2, '0');
-  const dowStr = DAYS[d.getDay()] + '요일';
-  const titleDate = `${monthStr}월${dayStr}일 ${dowStr}`;
-
-  const rec = records.find(r => r.date === dateVal);
-  const qA = rec ? (Number(rec.qtyA) || 0) : 0;
-  const qB = rec ? (Number(rec.qtyB) || 0) : 0;
-  const qC = rec ? (Number(rec.qtyC) || 0) : 0;
-  const qD = rec ? (Number(rec.qtyD) || 0) : 0;
-
-  const activeItems = [
-    { name: nameA, qty: qA },
-    { name: nameB, qty: qB },
-    { name: nameC, qty: qC },
-    { name: nameD, qty: qD }
-  ].filter(it => it.qty > 0);
-
-  let text = '';
-  if (dailyStyle === 'style1') {
-    if (activeItems.length === 0) {
-      text = `📦 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
-    } else {
-      const itemText = activeItems.map(it => `${it.name} ${it.qty}개`).join(' / ');
-      text = `📦 [${areaVal}] ${titleDate} 배송\n\n`;
-      if (dailyType === 'both') text += `🚚 출발 | ${itemText}\n✅ 완료 | ${itemText}`;
-      else if (dailyType === 'start') text += `🚚 출발 | ${itemText}`;
-      else text += `✅ 완료 | ${itemText}`;
-    }
-  } else {
-    text = `📦 [${areaVal}] ${monthStr}월 ${dayStr}일 ${dowStr} 배송\n──────────\n`;
-    if (activeItems.length === 0) {
-      text += `⚠️ 기록된 배송 물량이 없습니다.`;
-    } else {
-      if (dailyType === 'both' || dailyType === 'start') {
-        text += `🚛 출발\n`;
-        activeItems.forEach(it => { text += `▫️ ${it.name}: ${it.qty}개\n`; });
-      }
-      if (dailyType === 'both') text += `\n`;
-      if (dailyType === 'both' || dailyType === 'end') {
-        text += `🎯 완료\n`;
-        activeItems.forEach(it => { text += `▪️ ${it.name}: ${it.qty}개\n`; });
-      }
-    }
-  }
-  return text.trim();
-}
-
-function changeReportMonth(dir) {
-  reportMonth += dir;
-  if (reportMonth < 0) { reportMonth = 11; reportYear--; }
-  else if (reportMonth > 11) { reportMonth = 0; reportYear++; }
-  updateReportMonthLabel();
-}
-function updateReportMonthLabel() {
-  document.getElementById('report-month-label').textContent = `${reportYear}년 ${reportMonth + 1}월`;
-}
-function setReportFormat(fmt) {
-  reportFormat = fmt;
-  ['detail','summary','table'].forEach(f=>{
-    const el=document.getElementById('r-fmt-'+f);
-    if(el) el.classList.toggle('active', f===fmt);
-  });
-}
-
-function generateReportText() {
-  if (reportMode === 'daily') return getDailyMessage();
-
-  const ym = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
-  const mr = records.filter(r => r.date.startsWith(ym)).sort((a, b) => a.date.localeCompare(b.date));
-  if (mr.length === 0) return `📭 ${reportYear}년 ${reportMonth + 1}월 배송 기록이 없습니다.`;
-
-  const s = statsFor(mr);
-  const items = [
-    { name: nameA, qty: s.A, amt: s.amtA, emoji: '🅰', key:'qtyA' },
-    { name: nameB, qty: s.B, amt: s.amtB, emoji: '🅱', key:'qtyB' },
-    { name: nameC, qty: s.C, amt: s.amtC, emoji: '🅲', key:'qtyC' },
-    { name: nameD, qty: s.D, amt: s.amtD, emoji: '🅳', key:'qtyD' },
-  ].filter(it => it.qty > 0);
-
-  let text = `📦 ${reportYear}년 ${reportMonth + 1}월 배송 보고서\n`;
-  text += `━━━━━━━━━━━━━━━\n`;
-  text += `🗓 ${s.days}일 배송 · 총 ${s.Q.toLocaleString()}건\n`;
-  text += `💵 총액 ${won(s.G)}\n`;
-  text += `💰 실수령 ${won(s.N)} (3.3% 공제)\n`;
-  text += `━━━━━━━━━━━━━━━\n📊 물품별 정산\n`;
-  items.forEach(it => {
-    text += `${it.emoji} ${it.name}: ${it.qty.toLocaleString()}건 = ${won(it.amt)}\n`;
-  });
-  text += `━━━━━━━━━━━━━━━\n`;
-
-  if (reportFormat === 'detail') {
-    text += `📋 일자별 상세\n\n`;
-    mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
-      const spd = perHour(p.qty, r.startTime, r.endTime);
-      const parts = [];
-      if (p.A > 0) parts.push(`${nameA} ${p.A}`);
-      if (p.B > 0) parts.push(`${nameB} ${p.B}`);
-      if (p.C > 0) parts.push(`${nameC} ${p.C}`);
-      if (p.D > 0) parts.push(`${nameD} ${p.D}`);
-      text += `📅 ${r.date.slice(5).replace('-','/')} (${DAYS[toDate(r.date).getDay()]}) · 총 ${p.qty.toLocaleString()}건\n`;
-      text += `   ${parts.join(' / ')}\n`;
-      text += `   ⏱ ${r.startTime}~${r.endTime} · 실수령 ${won(p.net)}${spd ? ' · ⚡' + spd + '건/h' : ''}\n`;
-      if (r.memo) text += `   📝 ${r.memo}\n`;
-      text += '\n';
-    });
-  } else if (reportFormat === 'summary') {
-    text += `📋 일자별 요약\n\n`;
-    mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
-      text += `[${r.date.slice(5).replace('-','/')}] ${p.qty.toLocaleString()}건 · ${won(p.net)}\n`;
-    });
-  } else {
-    text += `📋 일자별 표\n\n`;
-    text += `날짜 | ${items.map(it=>it.name).join(' | ')} | 합계 | 실수령\n`;
-    mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
-      const cells = items.map(it => Number(r[it.key]) || 0);
-      text += `${r.date.slice(5)} | ${cells.join(' | ')} | ${p.qty}건 | ${p.net.toLocaleString()}원\n`;
-    });
-  }
-  return text.trim();
-}
-
-function shareReport() {
-  const text = generateReportText();
-  if (navigator.share) {
-    navigator.share({ text: text }).then(() => {
-      document.getElementById('report-sheet').classList.remove('show');
-    }).catch((error) => {
-      if (error && error.name === 'AbortError') return;
-      copyReport();
-    });
-  } else {
-    copyReport();
-  }
-}
-
-function copyReport() {
-  const text = generateReportText();
-  const done=()=>{document.getElementById('report-sheet').classList.remove('show');showToast('📋 보고서가 클립보드에 복사되었습니다');};
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
-  } else fallbackCopy(text,done);
-}
-
 /* ── 시작 & PWA 오프라인 캐시 ──────────────── */
 function refreshTodayLabel(){
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
@@ -2044,7 +2157,6 @@ document.addEventListener('visibilitychange',()=>{
   }
 });
 
-/* [보완 5] PWA Manifest 자동 등록 & 오프라인 Service Worker */
 try {
   const manifestData = {
     name: "배송 기록 관리",
@@ -2064,7 +2176,7 @@ try {
 
 if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
   const swCode = `
-    const CACHE_NAME = 'dlv-offline-v1';
+    const CACHE_NAME = 'dlv-offline-v2';
     self.addEventListener('install', e => { self.skipWaiting(); });
     self.addEventListener('activate', e => {
       e.waitUntil(
