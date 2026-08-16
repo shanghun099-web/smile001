@@ -197,8 +197,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cal-dow-cell:first-child{color:#e05555;}
 .cal-dow-cell:last-child{color:#4A9EFF;}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;position:relative;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
-.cal-day:active{background:var(--border);}
+.cal-day{min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:3px 1px;border-radius:10px;cursor:pointer;position:relative;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
 .cal-day.today{background:var(--orange);}
 .cal-day.today .cal-day-num{color:#fff;font-weight:900;}
 .cal-day.has-record{background:rgba(255,107,0,0.12);}
@@ -211,6 +210,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cal-dot{width:5px;height:5px;border-radius:50%;}
 .cal-dot.dlv{background:var(--orange2);}
 .cal-dot.car{background:var(--teal2);}
+.cal-day-fuel-tag{background:rgba(251,191,36,0.22);color:#fcd34d;font-size:9.5px;font-weight:800;padding:2px 3px;border-radius:4px;margin-top:2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;line-height:1.1;border:1px solid rgba(251,191,36,0.4);text-align:center;}
+.cal-day.today .cal-day-fuel-tag{background:rgba(255,255,255,0.25);color:#fff;border-color:rgba(255,255,255,0.5);}
 .cal-legend{display:flex;gap:14px;justify-content:center;margin-bottom:14px;}
 .cal-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);}
 .cal-legend-dot{width:8px;height:8px;border-radius:50%;}
@@ -991,13 +992,9 @@ function renderCalendar(){
     </div>
     <div class="cal-summary">
       <div class="cal-sum-item"><div class="cal-sum-val">${mr.length}</div><div class="cal-sum-lbl">배송일</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--green2);font-size:${netLabel.length>4?'14px':'18px'}">${netLabel}</div><div class="cal-sum-lbl">실수령(원)</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val">${mq.toLocaleString()}</div><div class="cal-sum-lbl">총 배송량</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--teal2);font-size:${cStats.totalKm>=1000?'15px':'18px'}">${cStats.totalKm>0?cStats.totalKm.toLocaleString():'-'}</div><div class="cal-sum-lbl">주행(km)</div></div>
-    </div>
-    <div class="cal-fuel-bar">
-      <span class="cal-fuel-lbl">⛽ 월 차량 지출 (주유+통행료)</span>
-      <span class="cal-fuel-val">${cStats.totalFl>0?cStats.totalFl+'L · ':''}${cStats.totalCost>0?won(cStats.totalCost):'0원'}</span>
+      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--green2);font-size:${netLabel.length>4?'13px':'17px'}">${netLabel}</div><div class="cal-sum-lbl">실수령(원)</div></div>
+      <div class="cal-sum-item"><div class="cal-sum-val" style="color:#fbbf24;font-size:${cStats.totalFc>=1000000?'13px':'17px'}">${cStats.totalFc>0?cStats.totalFc.toLocaleString():'0'}</div><div class="cal-sum-lbl">주유금액(원)</div></div>
+      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--teal2);font-size:${cStats.totalFl>=100?'14px':'17px'}">${cStats.totalFl>0?cStats.totalFl+'L':'0L'}</div><div class="cal-sum-lbl">주유량(L)</div></div>
     </div>
     ${detailHtml}
     <div class="cal-grid-wrap">
@@ -1009,15 +1006,34 @@ function renderCalendar(){
           const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
           const isToday=dateStr===todayStr;
           const hasDlv=!!dlvMap[dateStr];
-          const hasCar=!!(carMap[dateStr]&&carMap[dateStr].length);
+          const crs=carMap[dateStr]||[];
+          const hasCar=crs.length>0;
+          let dayFc=0, dayFl=0;
+          crs.forEach(c=>{
+            const fl=Number(c.fuelLiters)||0, fp=parseNum(c.fuelPrice), fc=parseNum(c.fuelCost);
+            const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
+            const tFc=fc>0?fc:autoFc;
+            const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
+            const tFl=fl>0?fl:autoFl;
+            dayFc+=tFc; dayFl+=tFl;
+          });
           const isSelected=calSelectedDate===dateStr;
           const dow=toDate(dateStr).getDay();
           let cls='cal-day';
           if(isToday) cls+=' today';
           else if(hasDlv||hasCar) cls+=' has-record';
           if(isSelected) cls+=' selected';
+
+          let fuelTagHtml = '';
+          if(dayFc > 0) {
+            fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFc.toLocaleString()}</div>`;
+          } else if(dayFl > 0) {
+            fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFl}L</div>`;
+          }
+
           return `<div class="${cls}${dow===0&&!isToday?' cal-day-sun':''}${dow===6&&!isToday?' cal-day-sat':''}" onclick="selectCalDay('${dateStr}')">
             <div class="cal-day-num">${day}</div>
+            ${fuelTagHtml}
             ${(hasDlv||hasCar)?`<div class="cal-day-dots">${hasDlv?'<div class="cal-dot dlv"></div>':''}${hasCar?'<div class="cal-dot car"></div>':''}</div>`:''}
           </div>`;
         }).join('')}
@@ -1400,7 +1416,6 @@ function renderCarStats(){
   if(!filtered.length) return periodBar+navHtml+`<div class="empty" style="padding:40px 0">🚗 해당 기간에 차량 기록이 없어요</div>`;
 
   const s=carStatsFor(filtered);
-  const chart=filtered.slice(0,7);
 
   // 배송 수입 대비 차량 지출 분석 (월별 조회 시)
   let incomeAnalysisHtml = '';
@@ -1424,14 +1439,6 @@ function renderCarStats(){
       </div>
     `;
   }
-
-  const flOf=r=>{
-    const fl=Number(r.fuelLiters)||0,fp=parseNum(r.fuelPrice),fc=parseNum(r.fuelCost);
-    const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
-    return fl>0?fl:autoFl;
-  };
-  const maxKm=chart.length?Math.max(...chart.map(r=>Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart))),1):1;
-  const maxFl=chart.length?Math.max(...chart.map(flOf),1):1;
 
   return periodBar+navHtml+incomeAnalysisHtml+`
     <div class="cs-summary-box">
@@ -1458,20 +1465,6 @@ function renderCarStats(){
       <div class="cs-card"><div class="cs-label">💸 일평균 주유비</div><div class="cs-val" style="color:#fbbf24">${s.days&&s.totalFc?Math.round(s.totalFc/s.days).toLocaleString():'-'}</div><div class="cs-sub">원 / 일</div></div>
       <div class="cs-card"><div class="cs-label">💰 일평균 총지출</div><div class="cs-val" style="color:#fb923c">${s.days&&s.totalCost?Math.round(s.totalCost/s.days).toLocaleString():'-'}</div><div class="cs-sub">원 / 일</div></div>
     </div>
-    ${chart.length?`<div class="car-chart-box">
-      <div class="chart-title">📊 주행거리 & 주유량 (최근 ${chart.length}일)</div>
-      ${[...chart].reverse().map(r=>{
-        const km=Math.max(0,parseNum(r.kmEnd)-parseNum(r.kmStart));
-        const tFl=flOf(r);
-        const eff=(km>0&&tFl>0)?Math.round(km/tFl*10)/10:null;
-        return `<div class="cs-bar-row">
-          <div class="cs-bar-meta"><span>${fmtDate(r.date)} (${fmtDay(r.date)})</span><span>${km.toLocaleString()}km${eff?' · ⚡'+eff+'km/L':''}</span></div>
-          <div class="cs-bar-track"><div class="cs-bar-fill km" style="width:${Math.round(km/maxKm*100)}%"></div></div>
-          ${tFl>0?`<div class="cs-bar-track"><div class="cs-bar-fill fuel" style="width:${Math.round(tFl/maxFl*100)}%"></div></div>`:''}
-          <div class="bar-legend">■ <span style="color:var(--teal)">주행거리</span> &nbsp;${tFl>0?'■ <span style="color:#fbbf24">주유량</span>':''}</div>
-        </div>`;
-      }).join('')}
-    </div>`:''}
     <div style="height:20px"></div>`;
 }
 
