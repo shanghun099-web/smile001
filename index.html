@@ -702,7 +702,6 @@ function render(){
   c.innerHTML=tab==='input'?renderInput():tab==='history'?renderHistory():tab==='car'?renderCarTab():tab==='weather'?renderWeather():renderStats();
   if(tab==='input') bindInputEvents();
   if(tab==='car'&&carSubTab==='input') bindCarEvents();
-  if(tab==='weather') requestAnimationFrame(()=>autosizePreview(document.getElementById('wx-bubble')));
 }
 
 /* ── 배송 입력 ──────────────────────────── */
@@ -958,6 +957,7 @@ carWeekIndex=currentWeekIndex(carWeekYear,carWeekMonth);
 
 function moveWeek(dir,iscar){
   if(!iscar){
+    calSelectedDate=null;
     const weeks=getCalWeeks(weekYear,weekMonth);
     const ni=weekIndex+dir;
     if(ni>=0&&ni<weeks.length){weekIndex=ni;}
@@ -974,7 +974,7 @@ function moveWeek(dir,iscar){
 }
 function jumpToCurrentWeek(iscar){
   const now=new Date();
-  if(!iscar){weekYear=now.getFullYear();weekMonth=now.getMonth();weekIndex=currentWeekIndex(weekYear,weekMonth);}
+  if(!iscar){calSelectedDate=null;weekYear=now.getFullYear();weekMonth=now.getMonth();weekIndex=currentWeekIndex(weekYear,weekMonth);}
   else{carWeekYear=now.getFullYear();carWeekMonth=now.getMonth();carWeekIndex=currentWeekIndex(carWeekYear,carWeekMonth);}
   render();
 }
@@ -1563,35 +1563,11 @@ function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
 const WX_LOC={name:'강남구',lat:37.4882,lon:127.0518};
 const WX_SPAN_HOURS=12;
 const WX_M15_COUNT=16;
-let customWeatherText=null;
 let wx={
   name:WX_LOC.name,lat:WX_LOC.lat,lon:WX_LOC.lon,
   now:null,timeline:null,minutely:null,air:null,sun:null,
   updated:null,err:null,alerted:0,loading:false,queue:false,showMap:false
 };
-
-const WX_TPL={
-  wx_heavy:`🚨 [기상 상황 전파]\n⏱️ {time} 기준 · {location} 실시간 예보\n━━━━━━━━━\n{status_msg}\n· 강도: {intensity} (시간당 약 {rain_mm}mm{prob})\n· 예상 지속: 약 {duration} ({end_time}경 그침)\n{snow}\n{dust}\n━━━━━━━━━\n{tip}\n오늘도 안전운행 하세요! 👍`,
-  wx_rain:`🌦️ [기상 안내]\n⏱️ {time} 기준 · {location} 실시간 예보\n━━━━━━━━━\n{status_msg}\n· 강도: {intensity} (시간당 약 {rain_mm}mm{prob})\n· 예상 지속: 약 {duration} ({end_time}경 그침)\n{snow}\n{dust}\n━━━━━━━━━\n{tip}`,
-  wx_clear:`☀️ [기상 안내]\n⏱️ {time} 기준 · {location} 실시간 예보\n━━━━━━━━━\n앞으로 약 {span_hours}시간 동안 배송 구역에 비 소식은 없습니다.\n{dust}\n━━━━━━━━━\n{tip}`,
-  tip_heavy:`폭우 구간입니다. 감속 운행하시고 침수 도로는 우회해 주세요.|안전거리 확보 및 전조등 켜고 주의 운행 부탁드립니다.`,
-  tip_normal:`빗길 노면이 미끄러우니 무리한 급제동 삼가주세요.|우천 시 시야 확보에 유의하세요.`,
-  tip_light:`약한 비가 내립니다. 노면 우천 주의하세요.`,
-  tip_clear:`오늘도 안전 운행하시고 화이팅입니다!|즐거운 하루 되세요!|오늘 기상 상황 양호합니다. 수고 많으시고 안전운행하세요! 👍`,
-  tip_snow:`눈길입니다. 경사로 감속하시고 발밑 미끄럼 특히 조심하세요.|적설 시에는 완배보다 안전이 우선입니다. 무리하지 마세요.|계단·경사면 결빙 주의하시고 천천히 움직이세요.`
-};
-
-function formatTemplate(tpl,dict){
-  let s=tpl;
-  for(const k in dict) s=s.split('{'+k+'}').join(dict[k]!==undefined?dict[k]:'');
-  return s;
-}
-function tidyLines(s){ return s.split(/\r?\n/).filter(l=>l.trim()!=='').join('\n'); }
-function tipPick(key){
-  const pool=(WX_TPL[key]||'').split('|').map(x=>x.trim()).filter(Boolean);
-  if(!pool.length) return '';
-  return pool[Math.floor(Math.random()*pool.length)];
-}
 
 function initWeather(){
   fetchWeather();
@@ -2004,105 +1980,10 @@ function updateWeatherDom(){
   set('wx-hour-wrap',wxHourHtml());
   const t=document.getElementById('wx-loc-time');
   if(t) t.textContent=wx.updated?`${fmtHM(wx.updated)} 갱신`:(wx.err||'불러오는 중…');
-  const bub=document.getElementById('wx-bubble');
-  if(bub&&customWeatherText===null){
-    bub.value=wxShareText();
-    autosizePreview(bub);
-  }
-}
-
-function wxSnowVar(a){
-  if(!a||!a.rain||a.level.kind!=='snow') return '';
-  let s=`❄️ 적설: 시간당 약 ${wxAmt(a.amtPerH)}cm`;
-  if(a.totalSnow>=0.5) s+=` · 예상 누적 ${wxAmt(a.totalSnow)}cm`;
-  return s;
-}
-function wxDustVar(){
-  const p10=aqGrade(wx.air?wx.air.pm10:null,'pm10');
-  const p25=aqGrade(wx.air?wx.air.pm25:null,'pm25');
-  if(!p10&&!p25) return '';
-  const worst=aqWorst();
-  let s=`${worst.emoji} 미세먼지: `;
-  const parts=[];
-  if(p10) parts.push(`미세 ${p10.label}(${p10.value})`);
-  if(p25) parts.push(`초미세 ${p25.label}(${p25.value})`);
-  s+=parts.join(' · ');
-  if(worst.idx>=2) s+=' — 마스크 권장';
-  return s;
-}
-function rainTip(perH,kind){
-  if(kind==='snow') return tipPick('tip_snow');
-  if(perH<1) return tipPick('tip_light');
-  if(perH<3) return tipPick('tip_normal');
-  return tipPick('tip_heavy');
-}
-
-function wxShareText(){
-  const a=wxAnalyze();
-  if(!a) return '';
-  const now=new Date();
-  const dust=wxDustVar();
-
-  if(!a.rain){
-    return tidyLines(formatTemplate(WX_TPL.wx_clear,{
-      time:fmtHM(now), location:wx.name, span_hours:a.spanH,
-      tip:tipPick('tip_clear'), snow:'', dust:dust
-    }));
-  }
-
-  const statusMsg=a.ongoing
-  ? `현재 배송 구역[${wx.name}]에 ${a.level.head}가 내리고 있습니다.`
-  : `약 ${wxDur(a.minsToStart)} 뒤(${fmtHM(new Date(a.startTime))}경)부터 배송 구역[${wx.name}]에 ${a.level.head} 소식이 있습니다.`;
-
-  const dict={
-    time:fmtHM(now),
-    location:wx.name,
-    status_msg:statusMsg,
-    intensity:a.level.head,
-    tip:rainTip(a.amtPerH,a.level.kind),
-    rain_mm:wxAmt(a.amtPerH),
-    prob:a.prob!=null?` · 강수확률 ${a.prob}%`:'',
-    duration:wxDur(a.durMin),
-    end_time:fmtHM(new Date(a.endTime)),
-    snow:wxSnowVar(a),
-    dust:dust
-  };
-
-  return tidyLines(formatTemplate(a.level.lv>=2?WX_TPL.wx_heavy:WX_TPL.wx_rain,dict));
-}
-
-function getWxMessage(){
-  const el=document.getElementById('wx-bubble');
-  const v=el?el.value.trim():'';
-  return v||wxShareText();
-}
-function shareWeather(){
-  const text=getWxMessage();
-  if(!text){ showToast('⚠️ 공유할 내용이 없습니다'); return; }
-  if(navigator.share){
-    navigator.share({text}).catch(err=>{
-      if(err&&err.name==='AbortError') return;
-      fallbackCopy(text,()=>showToast('📋 기상 안내가 복사되었습니다'));
-    });
-  }else fallbackCopy(text,()=>showToast('📋 기상 안내가 복사되었습니다'));
-}
-function copyWeather(){
-  const text=getWxMessage();
-  if(!text){ showToast('⚠️ 복사할 내용이 없습니다'); return; }
-  const done=()=>showToast('📋 기상 안내가 복사되었습니다');
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
-  else fallbackCopy(text,done);
-}
-function resetWeatherText(){
-  customWeatherText=null;
-  const el=document.getElementById('wx-bubble');
-  if(el){ el.value=wxShareText(); autosizePreview(el); }
-  showToast('🔄 기본 문구로 되돌렸습니다');
 }
 
 function renderWeather(){
   const windySrc=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&zoom=9&overlay=radar&product=radar&level=surface&lat=${wx.lat.toFixed(4)}&lon=${wx.lon.toFixed(4)}`;
-  const shareTxt=customWeatherText!==null?customWeatherText:wxShareText();
 
   return `
   <div class="wx-loc">
@@ -2130,14 +2011,6 @@ function renderWeather(){
     ${wx.showMap?'🗺️ 비구름 지도 접기 ▲':'🗺️ 비구름 지도 열기 (Windy) ▼'}
   </button>
   ${wx.showMap?`<div class="wx-frame-wrap"><iframe src="${windySrc}" allowfullscreen loading="lazy"></iframe></div>`:''}
-
-  <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 2px 6px;">
-    <div style="font-size:10px;color:var(--sub);letter-spacing:0.5px;">💬 단톡방 공유 문구 (직접 수정 가능)</div>
-    <button class="btn-preview-reset" onclick="resetWeatherText()">🔄 원래대로</button>
-  </div>
-  <textarea class="daily-preview-box" id="wx-bubble" spellcheck="false" oninput="customWeatherText=this.value;autosizePreview(this);" placeholder="예보가 로드되면 공유 문구가 자동으로 만들어집니다.">${esc(shareTxt)}</textarea>
-  <button class="btn-report-action btn-kakao-share" onclick="shareWeather()">💬 카톡 / 공유하기</button>
-  <button class="btn-report-action btn-clipboard" onclick="copyWeather()">📋 클립보드 복사</button>
 
   <div class="wx-note">10분마다 예보를 자동 갱신합니다 · 미세먼지는 유럽 대기질 모델 기준이라 에어코리아 수치와 약간 다를 수 있습니다</div>
   <div style="height:20px"></div>`;
@@ -2769,7 +2642,8 @@ document.addEventListener('visibilitychange',()=>{
       if(editId===null&&!form.qtyA&&!form.qtyB&&!form.qtyC&&!form.qtyD) form.date=lastDay;
       updateSummary();render();
     }
-    fetchWeather();
+    const stale = !wx.updated || (Date.now()-wx.updated.getTime())>5*60*1000;
+    if(stale) fetchWeather();
   }
 });
 
