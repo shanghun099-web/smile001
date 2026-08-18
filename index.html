@@ -15,13 +15,13 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
   --orange:#FF6B00;--orange2:#FF9A3C;
-  --blue:#4A9EFF;--blue2:#7BBFFF;
+  --blue:#4A9EFF;--blue2:#7BBFFF;--blue3:#9CCBFF;
   --green:#5cb85c;--green2:#7fd67f;
   --pink:#ec4899;--pink2:#f472b6;
-  --bg:#0f1117;--card:#1a1d27;--card2:#12141c;
-  --border:#2a2d3a;--text:#f0f0f0;--sub:#777;
-  --red:#e05555;
-  --teal:#2dd4bf;--teal2:#5eead4;
+  --bg:#0f1117;--card:#1a1d27;--card2:#12141c;--card3:#232735;
+  --border:#2a2d3a;--border2:#3a3f52;--text:#f0f0f0;--sub:#777;--dim:#5a6270;
+  --red:#e05555;--red2:#ef4444;
+  --teal:#2dd4bf;--teal2:#5eead4;--teal3:#5eead4;
   --purple:#a78bfa;--purple2:#c4b5fd;
   --amber:#fbbf24;--amber2:#fcd34d;
 }
@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .sum-sub{font-size:9px;color:#777;margin-top:2px;}
 
 .tabs{display:flex;margin:12px 14px 0;border-radius:12px;overflow:hidden;background:var(--card);flex-shrink:0;}
-.tab{flex:1;padding:11px 0;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+.tab{flex:1;padding:11px 0;border:none;font-size:11.5px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
 .tab.active{background:var(--orange);color:#fff;}
 .tab:not(.active){background:transparent;color:var(--sub);}
 .content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch;}
@@ -161,15 +161,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .month-total{font-size:22px;font-weight:900;color:var(--green2);margin-top:4px;}
 .month-net{font-size:17px;font-weight:900;color:var(--green);margin-top:4px;}
 .month-tax{font-size:10px;color:var(--red);margin-top:3px;}
-.chart-box,.car-chart-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:10px;}
-.chart-title{font-size:11px;color:var(--sub);margin-bottom:12px;}
-.bar-row{margin-bottom:10px;}
-.bar-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-bottom:3px;}
-.bar-track{background:var(--card2);border-radius:4px;height:7px;margin-bottom:2px;}
-.bar-fill{height:7px;border-radius:4px;}
-.bar-fill.qty{background:linear-gradient(90deg,var(--orange),var(--orange2));}
-.bar-fill.spd{background:linear-gradient(90deg,var(--purple),var(--purple2));}
-.bar-legend{font-size:9px;color:#777;}
 .period-tabs{display:flex;gap:6px;margin-bottom:12px;}
 .period-tab{flex:1;padding:9px 0;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:var(--sub);transition:all 0.2s;}
 .period-tab.active{background:var(--orange);border-color:var(--orange);color:#fff;}
@@ -177,18 +168,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .week-nav-btn{background:transparent;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;}
 .week-nav-label{font-size:12px;font-weight:700;color:var(--text);}
 
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.cal-nav-btn{background:var(--card);border:1.5px solid var(--border);border-radius:12px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--sub);-webkit-tap-highlight-color:transparent;}
-.cal-nav-btn:active{background:var(--border);}
-.cal-nav-title{font-size:18px;font-weight:900;letter-spacing:1px;}
-.cal-nav-sub{font-size:10px;color:var(--sub);font-weight:400;text-align:center;margin-top:2px;}
+.cal-section-title{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:0.5px;margin:16px 2px 8px;display:flex;justify-content:space-between;align-items:center;}
+.cal-section-title b{color:var(--orange2);}
 .cal-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:14px;overflow:hidden;margin-bottom:8px;}
 .cal-sum-item{background:var(--card);padding:12px 8px;text-align:center;}
 .cal-sum-val{font-size:18px;font-weight:900;color:var(--orange2);line-height:1;}
 .cal-sum-lbl{font-size:9px;color:var(--sub);margin-top:4px;}
-.cal-fuel-bar{background:linear-gradient(135deg,#1c1808,#121005);border:1px solid #3a3210;border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font-size:11px;}
-.cal-fuel-lbl{color:var(--amber2);font-weight:700;display:flex;align-items:center;gap:4px;}
-.cal-fuel-val{color:var(--amber2);font-weight:900;font-size:13px;}
 
 .cal-grid-wrap{background:var(--card);border-radius:14px;padding:14px;margin-bottom:14px;}
 .cal-grid-title{font-size:10px;color:var(--sub);margin-bottom:12px;letter-spacing:0.5px;}
@@ -276,12 +261,84 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cs-summary-val{font-size:14px;font-weight:900;}
 .cs-summary-sep{border:none;border-top:1px solid #1a3a3a;margin:8px 0;}
 .cs-summary-total{font-size:22px;font-weight:900;color:#fbbf24;margin-top:4px;}
-.cs-bar-row{margin-bottom:9px;}
-.cs-bar-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-bottom:3px;}
-.cs-bar-track{background:var(--card2);border-radius:4px;height:7px;margin-bottom:2px;}
-.cs-bar-fill{height:7px;border-radius:4px;}
-.cs-bar-fill.km{background:linear-gradient(90deg,var(--teal),var(--teal2));}
-.cs-bar-fill.fuel{background:linear-gradient(90deg,#fbbf24,#fcd34d);}
+
+/* ===== 날씨 탭 ===== */
+.wx-strip{display:none;background:linear-gradient(135deg,#3b0d0d,#4a1010);border:1px solid #6b1d1d;border-radius:12px;color:#ffb4b4;font-size:12.5px;font-weight:800;padding:11px 14px;cursor:pointer;flex-shrink:0;text-align:center;margin:10px 14px 0;}
+.wx-strip.show{display:block;animation:stripPulse 2s ease-in-out infinite;}
+@keyframes stripPulse{50%{opacity:0.72;}}
+
+.wx-loc{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;padding:0 2px;}
+.wx-loc-name{font-size:14px;font-weight:900;color:var(--orange2);letter-spacing:-0.3px;}
+.wx-loc-time{font-size:11px;color:var(--dim);font-weight:600;}
+.wx-refresh{background:none;border:none;font-size:15px;cursor:pointer;padding:2px 4px;border-radius:4px;color:var(--text);}
+
+.wx-head{padding:16px;border-radius:16px;margin-bottom:12px;border:1.5px solid var(--border2);}
+.wx-head-clear{background:linear-gradient(135deg,#0d2818,#051a0e);border-color:#166534;}
+.wx-head-rain{background:linear-gradient(135deg,#1e293b,#0f172a);border-color:var(--blue);}
+.wx-head-heavy{background:linear-gradient(135deg,#450a0a,#180202);border-color:var(--red2);}
+.wx-head-none{background:var(--card);text-align:center;}
+.wx-head-lbl{font-size:11.5px;font-weight:800;color:var(--sub);margin-bottom:6px;}
+.wx-head-big{font-size:20px;font-weight:900;color:#fff;line-height:1.3;}
+.wx-head-sub{font-size:13px;font-weight:600;color:var(--sub);margin-top:6px;}
+.wx-head-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.wx-chip{font-size:11px;font-weight:800;background:rgba(255,255,255,0.12);padding:4px 8px;border-radius:6px;color:#fff;}
+
+.wx-now{background:linear-gradient(140deg,#1a1d27,#12141c);border:1.5px solid var(--border2);border-radius:16px;padding:16px 18px;margin-bottom:12px;}
+.wx-now-top{display:flex;align-items:center;gap:14px;}
+.wx-now-ico{font-size:46px;line-height:1;flex-shrink:0;}
+.wx-now-temp{font-size:44px;font-weight:900;letter-spacing:-2.5px;line-height:1;color:#fff;}
+.wx-now-temp small{font-size:20px;font-weight:800;letter-spacing:0;}
+.wx-now-side{flex:1;min-width:0;}
+.wx-now-desc{font-size:14.5px;font-weight:800;color:var(--text);line-height:1.3;}
+.wx-now-feel{font-size:12px;color:var(--sub);margin-top:4px;font-weight:600;}
+.wx-now-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.wx-cellx{text-align:center;min-width:0;}
+.wx-cellx .k{font-size:9.5px;color:var(--dim);font-weight:700;}
+.wx-cellx .v{font-size:13px;font-weight:900;margin-top:4px;line-height:1.2;}
+.wx-cellx .u{font-size:9.5px;color:var(--dim);font-weight:600;margin-top:2px;}
+
+.wx-warns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.wx-warn{font-size:11.5px;font-weight:800;padding:7px 11px;border-radius:9px;border:1.5px solid;line-height:1.2;}
+.wx-warn.red{background:rgba(220,38,38,0.12);border-color:rgba(220,38,38,0.42);color:#f87171;}
+.wx-warn.amber{background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.42);color:var(--amber2);}
+.wx-warn.blue{background:rgba(74,158,255,0.14);border-color:rgba(74,158,255,0.42);color:var(--blue2);}
+.wx-warn.purple{background:rgba(124,58,237,0.14);border-color:rgba(124,58,237,0.42);color:var(--purple2);}
+
+.wx-m15{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:13px 13px 11px;margin-bottom:12px;}
+.wx-m15-cap{font-size:11.5px;font-weight:800;color:var(--sub);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.wx-m15-cap b{color:var(--blue2);}
+.wx-m15-bars{display:flex;align-items:flex-end;gap:4px;height:60px;padding-bottom:2px;border-bottom:1px solid var(--border2);}
+.wx-m15-col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}
+.wx-m15-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 0.3s;}
+.wx-m15-labels{display:flex;gap:4px;margin-top:6px;}
+.wx-m15-lb{flex:1;text-align:center;font-size:9px;color:var(--dim);font-weight:700;white-space:nowrap;}
+.wx-m15-empty{text-align:center;padding:14px 0;font-size:12.5px;color:var(--teal2);font-weight:700;}
+
+.wx-hstrip{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 10px;-webkit-overflow-scrolling:touch;margin-bottom:8px;}
+.wx-hstrip::-webkit-scrollbar{display:none;}
+.wx-hcard{flex:0 0 64px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:9px 4px 8px;text-align:center;}
+.wx-hcard.now{border-color:var(--orange);background:rgba(255,107,0,0.10);}
+.wx-hcard.danger{border-color:rgba(220,38,38,0.45);background:rgba(220,38,38,0.09);}
+.wx-hcard.night{background:rgba(255,255,255,0.02);}
+.wx-h-t{font-size:10.5px;font-weight:800;color:var(--sub);}
+.wx-h-i{font-size:23px;margin:6px 0 4px;line-height:1;}
+.wx-h-p{font-size:10px;font-weight:800;color:var(--blue2);min-height:13px;}
+.wx-h-mm{font-size:10px;font-weight:800;color:var(--teal2);min-height:13px;}
+.wx-h-tp{font-size:13.5px;font-weight:900;color:var(--text);margin-top:4px;}
+
+.wx-sec-title{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:0.5px;margin:4px 2px 8px;}
+.wx-sec-title b{color:var(--orange2);}
+.wx-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.wx-btn{padding:12px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);color:var(--sub);font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;transition:transform 0.1s;}
+.wx-btn:active{transform:scale(0.97);}
+.wx-btn.blue{border-color:#2a5a9a;color:var(--blue2);}
+.wx-btn.teal{border-color:#1a5a4a;color:var(--teal2);}
+.wx-btn.wide{width:100%;margin-bottom:8px;}
+.wx-frame-wrap{width:100%;height:320px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:12px;}
+.wx-frame-wrap iframe{width:100%;height:100%;border:none;}
+.wx-note{font-size:10px;color:#666;line-height:1.6;text-align:center;margin-top:10px;}
+.wx-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,154,60,0.3);border-top-color:var(--orange2);border-radius:50%;animation:wxspin 0.7s linear infinite;vertical-align:-1px;margin-right:5px;}
+@keyframes wxspin{to{transform:rotate(360deg);}}
 
 .bottom-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:flex-end;justify-content:center;}
 .bottom-sheet-overlay.show{display:flex;}
@@ -381,10 +438,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
   <div class="tabs">
     <button class="tab active" onclick="switchTab('input')" id="tab-input">✏️ 입력</button>
     <button class="tab" onclick="switchTab('history')" id="tab-history">📋 기록</button>
-    <button class="tab" onclick="switchTab('cal')" id="tab-cal">📅 월별</button>
     <button class="tab" onclick="switchTab('stats')" id="tab-stats">📊 통계</button>
     <button class="tab" onclick="switchTab('car')" id="tab-car">🚗 차량</button>
+    <button class="tab" onclick="switchTab('weather')" id="tab-weather">🌤 날씨</button>
   </div>
+  <div class="wx-strip" id="wx-strip" onclick="switchTab('weather')"></div>
   <div class="content" id="content"></div>
 </div>
 <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(event)">
@@ -537,6 +595,7 @@ function today(){
 function toDate(s){ return new Date(String(s)+'T00:00:00'); }
 function fmtDate(d){ const x=toDate(d); return `${x.getMonth()+1}월 ${x.getDate()}일`; }
 function fmtDay(d){ return DAYS[toDate(d).getDay()]+'요일'; }
+function fmtHM(d){ if(!d||isNaN(d)) return ''; return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 function won(n){ return Number(n||0).toLocaleString()+'원'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function safeName(s){ return String(s||'').replace(/[<>&"'`]/g,'').trim().slice(0,12); }
@@ -572,7 +631,6 @@ let statPeriod='month', weekYear=new Date().getFullYear(), weekMonth=new Date().
 let statYear=new Date().getFullYear(), statMonth=new Date().getMonth();
 let carSubTab='input', carStatPeriod='month', carWeekYear=new Date().getFullYear(), carWeekMonth=new Date().getMonth(), carWeekIndex=0;
 let carStatYear=new Date().getFullYear(), carStatMonth=new Date().getMonth();
-let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
 let calSelectedDate=null;
 let form=defForm();
 
@@ -632,17 +690,19 @@ function updateSummary(){
 
 function switchTab(t){
   tab=t;
-  ['input','history','cal','stats','car'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
+  ['input','history','stats','car','weather'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
   render();
   scrollTop();
+  if(t==='weather'&&!wx.timeline&&!wx.loading) fetchWeather();
 }
 function scrollTop(){ const c=document.getElementById('content'); if(c) c.scrollTop=0; }
 
 function render(){
   const c=document.getElementById('content');
-  c.innerHTML=tab==='input'?renderInput():tab==='history'?renderHistory():tab==='cal'?renderCalendar():tab==='car'?renderCarTab():renderStats();
+  c.innerHTML=tab==='input'?renderInput():tab==='history'?renderHistory():tab==='car'?renderCarTab():tab==='weather'?renderWeather():renderStats();
   if(tab==='input') bindInputEvents();
   if(tab==='car'&&carSubTab==='input') bindCarEvents();
+  if(tab==='weather') requestAnimationFrame(()=>autosizePreview(document.getElementById('wx-bubble')));
 }
 
 /* ── 배송 입력 ──────────────────────────── */
@@ -919,23 +979,22 @@ function jumpToCurrentWeek(iscar){
   render();
 }
 
-/* ── 월별 달력 ──────────────────────────── */
-function renderCalendar(){
-  const ym=`${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+/* ── 월별 달력 (통계 탭 내부) ────────────── */
+function renderCalSection(year,month){
+  const ym=`${year}-${String(month+1).padStart(2,'0')}`;
   const todayStr=today();
   const mr=records.filter(r=>r.date.startsWith(ym));
-  const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
   const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
-  
   const mCar=carRecords.filter(r=>r.date.startsWith(ym));
   const cStats=carStatsFor(mCar);
 
   const dlvMap={},carMap={};
   mr.forEach(r=>{dlvMap[r.date]=r;});
   mCar.forEach(r=>{ (carMap[r.date]=carMap[r.date]||[]).push(r); });
-  const firstDay=new Date(calYear,calMonth,1).getDay();
-  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  const prevDays=new Date(calYear,calMonth,0).getDate();
+
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const prevDays=new Date(year,month,0).getDate();
   const cells=[];
   for(let i=0;i<firstDay;i++) cells.push({day:prevDays-firstDay+1+i,cur:false});
   for(let i=1;i<=daysInMonth;i++) cells.push({day:i,cur:true});
@@ -979,16 +1038,14 @@ function renderCalendar(){
       }).join(''):''}
     </div>`;
   }
+
   const dowLabels=['일','월','화','수','목','금','토'];
   const netLabel = mn>=10000 ? Math.round(mn/10000)+'만' : (mn>0 ? mn.toLocaleString() : '-');
+
   return `
-    <div class="cal-nav">
-      <div class="cal-nav-btn" onclick="moveCalMonth(-1)">◀</div>
-      <div style="text-align:center">
-        <div class="cal-nav-title">${calYear}년 ${calMonth+1}월</div>
-        <div class="cal-nav-sub">${mr.length}일 배송 · ${mCar.length}일 운행</div>
-      </div>
-      <div class="cal-nav-btn" onclick="moveCalMonth(1)">▶</div>
+    <div class="cal-section-title">
+      <span>🗓 <b>${year}년 ${month+1}월</b> 기록 달력</span>
+      <span style="color:var(--sub);font-weight:600">${mr.length}일 배송 · ${mCar.length}일 운행</span>
     </div>
     <div class="cal-summary">
       <div class="cal-sum-item"><div class="cal-sum-val">${mr.length}</div><div class="cal-sum-lbl">배송일</div></div>
@@ -998,12 +1055,12 @@ function renderCalendar(){
     </div>
     ${detailHtml}
     <div class="cal-grid-wrap">
-      <div class="cal-grid-title">기록 현황</div>
+      <div class="cal-grid-title">날짜를 누르면 그날 상세 기록이 열립니다</div>
       <div class="cal-dow">${dowLabels.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('')}</div>
       <div class="cal-days">
         ${cells.map(({day,cur})=>{
           if(!cur) return `<div class="cal-day other-month"><div class="cal-day-num" style="font-size:11px;color:#333">${day}</div></div>`;
-          const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
           const isToday=dateStr===todayStr;
           const hasDlv=!!dlvMap[dateStr];
           const crs=carMap[dateStr]||[];
@@ -1025,11 +1082,8 @@ function renderCalendar(){
           if(isSelected) cls+=' selected';
 
           let fuelTagHtml = '';
-          if(dayFc > 0) {
-            fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFc.toLocaleString()}</div>`;
-          } else if(dayFl > 0) {
-            fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFl}L</div>`;
-          }
+          if(dayFc > 0) fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFc.toLocaleString()}</div>`;
+          else if(dayFl > 0) fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFl}L</div>`;
 
           return `<div class="${cls}${dow===0&&!isToday?' cal-day-sun':''}${dow===6&&!isToday?' cal-day-sat':''}" onclick="selectCalDay('${dateStr}')">
             <div class="cal-day-num">${day}</div>
@@ -1043,14 +1097,7 @@ function renderCalendar(){
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange2)"></div>배송 기록</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--teal2)"></div>차량 기록</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange)"></div>오늘</div>
-    </div>
-    <div style="height:20px"></div>`;
-}
-function moveCalMonth(dir){
-  calMonth+=dir;
-  if(calMonth<0){calMonth=11;calYear--;}
-  else if(calMonth>11){calMonth=0;calYear++;}
-  calSelectedDate=null; render();
+    </div>`;
 }
 function selectCalDay(dateStr){
   calSelectedDate=(calSelectedDate===dateStr)?null:dateStr;
@@ -1083,10 +1130,7 @@ function statsFor(list){
   return {A,B,C,D,amtA,amtB,amtC,amtD,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length};
 }
 
-function renderStatBlock(s,title,chartList){
-  const qtyOf=r=>(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0);
-  const maxQ=chartList.length?Math.max(...chartList.map(qtyOf),1):1;
-  const maxS=chartList.length?Math.max(...chartList.map(r=>perHour(qtyOf(r),r.startTime,r.endTime)||0),1):1;
+function renderStatBlock(s,title){
   const hourNet=s.totalMin>0?Math.round(s.N/(s.totalMin/60)):null;
   return `
     <div class="month-box">
@@ -1117,20 +1161,7 @@ function renderStatBlock(s,title,chartList){
     <div class="stat-card"><div class="stat-icon">📦</div><div><div class="stat-lbl">총 배송량</div><div class="stat-val">${s.Q.toLocaleString()} 건</div></div></div>
     <div class="stat-card"><div class="stat-icon">💵</div><div><div class="stat-lbl">총 금액</div><div class="stat-val" style="color:var(--green2)">${won(s.G)}</div></div></div>
     <div class="stat-card"><div class="stat-icon">💰</div><div><div class="stat-lbl">실수령 (3.3% 공제)</div><div class="stat-val" style="color:var(--green)">${won(s.N)}</div></div></div>
-    <div class="stat-card"><div class="stat-icon">📈</div><div><div class="stat-lbl">하루 평균 배송</div><div class="stat-val">${s.avg.toLocaleString()} 건</div></div></div>
-    ${chartList.length?`<div class="chart-box">
-      <div class="chart-title">📊 배송량 & 시간당 속도 (${chartList.length}일)</div>
-      ${[...chartList].reverse().map(r=>{
-        const q=qtyOf(r);
-        const sp=perHour(q,r.startTime,r.endTime)||0;
-        return `<div class="bar-row">
-          <div class="bar-meta"><span>${fmtDate(r.date)} (${fmtDay(r.date)})</span><span>${q.toLocaleString()}건 · ⚡${sp}건/h</span></div>
-          <div class="bar-track"><div class="bar-fill qty" style="width:${Math.round(q/maxQ*100)}%"></div></div>
-          <div class="bar-track"><div class="bar-fill spd" style="width:${maxS>0?Math.round(sp/maxS*100):0}%"></div></div>
-          <div class="bar-legend">■ 배송량 &nbsp;■ <span style="color:var(--purple)">시간당속도</span></div>
-        </div>`;
-      }).join('')}
-    </div>`:''}`;
+    <div class="stat-card"><div class="stat-icon">📈</div><div><div class="stat-lbl">하루 평균 배송</div><div class="stat-val">${s.avg.toLocaleString()} 건</div></div></div>`;
 }
 
 function renderStats(){
@@ -1139,9 +1170,9 @@ function renderStats(){
     <button class="period-tab ${statPeriod==='month'?'active':''}" onclick="statPeriod='month';render()">🗓 월별</button>
   </div>`;
 
-  if(!records.length) return periodBar+`<div class="empty">📊 기록이 쌓이면 통계가 보여요!</div>`;
+  if(!records.length&&!carRecords.length) return periodBar+`<div class="empty">📊 기록이 쌓이면 통계가 보여요!</div>`;
 
-  let filtered=[],navHtml='',blockTitle='';
+  let filtered=[],navHtml='',blockTitle='',calY,calM;
 
   if(statPeriod==='week'){
     const weeks=getCalWeeks(weekYear,weekMonth);
@@ -1149,6 +1180,7 @@ function renderStats(){
     const isCurrentWeek=(wr.start<=today()&&today()<=wr.end);
     blockTitle=`📅 ${wr.label}${isCurrentWeek?' (이번 주)':''}`;
     filtered=records.filter(r=>r.date>=wr.start&&r.date<=wr.end);
+    calY=weekYear; calM=weekMonth;
     navHtml=`<div class="week-nav">
       <button class="week-nav-btn" onclick="moveWeek(-1,false)">◀</button>
       <div style="text-align:center">
@@ -1162,6 +1194,7 @@ function renderStats(){
     const isCurrentMonth=(statYear===new Date().getFullYear()&&statMonth===new Date().getMonth());
     filtered=records.filter(r=>r.date.startsWith(ym));
     blockTitle=`🗓 ${statYear}년 ${statMonth+1}월 정산${isCurrentMonth?' (이번 달)':''}`;
+    calY=statYear; calM=statMonth;
     navHtml=`<div class="week-nav">
       <button class="week-nav-btn" onclick="moveStatMonth(-1)">◀</button>
       <div style="text-align:center">
@@ -1172,16 +1205,17 @@ function renderStats(){
     </div>`;
   }
 
-  if(!filtered.length) return periodBar+navHtml+`<div class="empty" style="padding:40px 0">📭 해당 기간에 기록이 없어요</div>`;
+  const body=filtered.length
+    ? renderStatBlock(statsFor(filtered),blockTitle)
+    : `<div class="empty" style="padding:34px 0">📭 해당 기간에 배송 기록이 없어요</div>`;
 
-  const s=statsFor(filtered);
-  const chart=filtered.slice(0,7);
-  return periodBar+navHtml+renderStatBlock(s,blockTitle,chart)+`<div style="height:20px"></div>`;
+  return periodBar+navHtml+body+renderCalSection(calY,calM)+`<div style="height:20px"></div>`;
 }
 function moveStatMonth(dir){
   statMonth+=dir;
   if(statMonth<0){statMonth=11;statYear--;}
   else if(statMonth>11){statMonth=0;statYear++;}
+  calSelectedDate=null;
   render();
 }
 
@@ -1417,7 +1451,6 @@ function renderCarStats(){
 
   const s=carStatsFor(filtered);
 
-  // 배송 수입 대비 차량 지출 분석 (월별 조회 시)
   let incomeAnalysisHtml = '';
   if(carStatPeriod==='month' && targetYm) {
     const dlvRecords = records.filter(r=>r.date.startsWith(targetYm));
@@ -1443,7 +1476,7 @@ function renderCarStats(){
   return periodBar+navHtml+incomeAnalysisHtml+`
     <div class="cs-summary-box">
       <div class="cs-summary-title">🚗 ${blockTitle} · ${s.days}일 운행</div>
-      <div class="cs-summary-row"><span class="cs-summary-lbl">GM 총 주행거리</span><span class="cs-summary-val" style="color:var(--teal2)">${s.totalKm.toLocaleString()} km</span></div>
+      <div class="cs-summary-row"><span class="cs-summary-lbl">🛣 총 주행거리</span><span class="cs-summary-val" style="color:var(--teal2)">${s.totalKm.toLocaleString()} km</span></div>
       <div class="cs-summary-row"><span class="cs-summary-lbl">⛽ 총 주유량</span><span class="cs-summary-val" style="color:#fcd34d">${s.totalFl>0?s.totalFl+' L':'-'}</span></div>
       <div class="cs-summary-row"><span class="cs-summary-lbl">💸 총 주유비</span><span class="cs-summary-val" style="color:#fbbf24">${s.totalFc>0?won(s.totalFc):'-'}</span></div>
       <div class="cs-summary-row"><span class="cs-summary-lbl">🛣 총 통행료</span><span class="cs-summary-val" style="color:#fb923c">${s.totalToll>0?won(s.totalToll):'-'}</span></div>
@@ -1520,9 +1553,595 @@ function handleCarSave(){
 function startCarEdit(id){
   const r=carRecords.find(x=>x.id===id);if(!r) return;
   carForm={date:r.date,kmStart:String(parseNum(r.kmStart)||''),kmEnd:String(parseNum(r.kmEnd)||''),fuelLiters:r.fuelLiters||'',fuelPrice:String(parseNum(r.fuelPrice)||''),fuelCost:String(parseNum(r.fuelCost)||''),tollCost:String(parseNum(r.tollCost)||''),memo:r.memo||''};
-  carEditId=id;carSubTab='input';render();scrollTop();
+  carEditId=id;carSubTab='input';tab='car';
+  ['input','history','stats','car','weather'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x==='car'));
+  render();scrollTop();
 }
 function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
+
+/* ── 날씨 (강남구 실시간 기상 감시) ─────────── */
+const WX_LOC={name:'강남구',lat:37.4882,lon:127.0518};
+const WX_SPAN_HOURS=12;
+const WX_M15_COUNT=16;
+let customWeatherText=null;
+let wx={
+  name:WX_LOC.name,lat:WX_LOC.lat,lon:WX_LOC.lon,
+  now:null,timeline:null,minutely:null,air:null,sun:null,
+  updated:null,err:null,alerted:0,loading:false,queue:false,showMap:false
+};
+
+const WX_TPL={
+  wx_heavy:`🚨 [기상 상황 전파]\n⏱️ {time} 기준 · {location} 실시간 예보\n━━━━━━━━━\n{status_msg}\n· 강도: {intensity} (시간당 약 {rain_mm}mm{prob})\n· 예상 지속: 약 {duration} ({end_time}경 그침)\n{snow}\n{dust}\n━━━━━━━━━\n{tip}\n오늘도 안전운행 하세요! 👍`,
+  wx_rain:`🌦️ [기상 안내]\n⏱️ {time} 기준 · {location} 실시간 예보\n━━━━━━━━━\n{status_msg}\n· 강도: {intensity} (시간당 약 {rain_mm}mm{prob})\n· 예상 지속: 약 {duration} ({end_time}경 그침)\n{snow}\n{dust}\n━━━━━━━━━\n{tip}`,
+  wx_clear:`☀️ [기상 안내]\n⏱️ {time} 기준 · {location} 실시간 예보\n━━━━━━━━━\n앞으로 약 {span_hours}시간 동안 배송 구역에 비 소식은 없습니다.\n{dust}\n━━━━━━━━━\n{tip}`,
+  tip_heavy:`폭우 구간입니다. 감속 운행하시고 침수 도로는 우회해 주세요.|안전거리 확보 및 전조등 켜고 주의 운행 부탁드립니다.`,
+  tip_normal:`빗길 노면이 미끄러우니 무리한 급제동 삼가주세요.|우천 시 시야 확보에 유의하세요.`,
+  tip_light:`약한 비가 내립니다. 노면 우천 주의하세요.`,
+  tip_clear:`오늘도 안전 운행하시고 화이팅입니다!|즐거운 하루 되세요!|오늘 기상 상황 양호합니다. 수고 많으시고 안전운행하세요! 👍`,
+  tip_snow:`눈길입니다. 경사로 감속하시고 발밑 미끄럼 특히 조심하세요.|적설 시에는 완배보다 안전이 우선입니다. 무리하지 마세요.|계단·경사면 결빙 주의하시고 천천히 움직이세요.`
+};
+
+function formatTemplate(tpl,dict){
+  let s=tpl;
+  for(const k in dict) s=s.split('{'+k+'}').join(dict[k]!==undefined?dict[k]:'');
+  return s;
+}
+function tidyLines(s){ return s.split(/\r?\n/).filter(l=>l.trim()!=='').join('\n'); }
+function tipPick(key){
+  const pool=(WX_TPL[key]||'').split('|').map(x=>x.trim()).filter(Boolean);
+  if(!pool.length) return '';
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function initWeather(){
+  fetchWeather();
+  setInterval(fetchWeather,10*60*1000);
+}
+
+async function fetchWeather(){
+  if(wx.loading){ wx.queue=true; return; }
+  wx.loading=true;
+  const la=wx.lat.toFixed(4), lo=wx.lon.toFixed(4);
+
+  const fUrl=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}`
+  +`&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,snowfall,weather_code,wind_speed_10m,wind_gusts_10m,is_day`
+  +`&minutely_15=precipitation,snowfall,weather_code`
+  +`&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,weather_code,is_day,wind_gusts_10m`
+  +`&daily=sunset&forecast_days=2&timeformat=unixtime&timezone=Asia%2FSeoul`;
+
+  const aUrl=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${la}&longitude=${lo}`
+  +`&current=pm10,pm2_5&timezone=Asia%2FSeoul`;
+
+  const grab=async(url)=>{
+    const ctrl=('AbortController' in window)?new AbortController():null;
+    const tm=ctrl?setTimeout(()=>ctrl.abort(),10000):null;
+    try{
+      const res=await fetch(url,ctrl?{signal:ctrl.signal}:undefined);
+      if(tm) clearTimeout(tm);
+      const j=await res.json().catch(()=>null);
+      if(!res.ok||!j||j.error) return null;
+      return j;
+    }catch(e){ if(tm) clearTimeout(tm); return null; }
+  };
+
+  const [f,a]=await Promise.all([grab(fUrl),grab(aUrl)]);
+
+  if(!f){
+    wx.err='예보를 불러오지 못했습니다';
+    wx.loading=false;
+    updateWeatherDom();
+    if(wx.queue){ wx.queue=false; fetchWeather(); }
+    return;
+  }
+
+  try{
+    const g=(o,k,i,def)=>(o&&o[k]&&o[k][i]!=null)?o[k][i]:def;
+    const now=Date.now();
+
+    if(f.current){
+      wx.now={
+        temp:f.current.temperature_2m,
+        feels:f.current.apparent_temperature,
+        hum:f.current.relative_humidity_2m,
+        mm:f.current.precipitation||0,
+        snow:f.current.snowfall||0,
+        code:f.current.weather_code,
+        wind:f.current.wind_speed_10m,
+        gust:f.current.wind_gusts_10m,
+        isDay:f.current.is_day
+      };
+    }
+
+    let m15=[];
+    if(f.minutely_15&&f.minutely_15.time){
+      f.minutely_15.time.forEach((t,i)=>m15.push({
+        time:t*1000, step:15,
+        mm:g(f.minutely_15,'precipitation',i,0),
+        snow:g(f.minutely_15,'snowfall',i,0),
+        code:g(f.minutely_15,'weather_code',i,null)
+      }));
+    }
+    m15=m15.filter(e=>e.time+e.step*60000>now).slice(0,16);
+
+    let tl=[];
+    if(f.hourly&&f.hourly.time){
+      f.hourly.time.forEach((t,i)=>tl.push({
+        time:t*1000, step:60,
+        mm:g(f.hourly,'precipitation',i,0),
+        snow:g(f.hourly,'snowfall',i,0),
+        temp:g(f.hourly,'temperature_2m',i,null),
+        feels:g(f.hourly,'apparent_temperature',i,null),
+        code:g(f.hourly,'weather_code',i,null),
+        isDay:g(f.hourly,'is_day',i,1),
+        gust:g(f.hourly,'wind_gusts_10m',i,null),
+        prob:g(f.hourly,'precipitation_probability',i,null)
+      }));
+    }
+    tl=tl.filter(e=>e.time+e.step*60000>now).slice(0,WX_SPAN_HOURS);
+    if(!tl.length) throw new Error('empty');
+
+    wx.timeline=tl;
+    wx.minutely=m15;
+
+    const suns=(f.daily&&f.daily.sunset)?f.daily.sunset.map(t=>t*1000):[];
+    wx.sun=suns.find(t=>t>now)||null;
+
+    wx.updated=new Date();
+    wx.err=null;
+  }catch(e){
+    wx.err='예보 해석에 실패했습니다';
+  }
+
+  if(a&&a.current) wx.air={pm10:a.current.pm10,pm25:a.current.pm2_5};
+
+  wx.loading=false;
+  updateWeatherDom();
+  if(wx.queue){ wx.queue=false; fetchWeather(); }
+}
+
+const WX_RAIN_STEPS=[
+  {min:0,lv:0,name:'-',head:'비 없음',color:'dim'},
+  {min:0.2,lv:1,name:'약한 비',head:'약한 비',color:'blue'},
+  {min:1,lv:1,name:'보통 비',head:'보통 비',color:'blue'},
+  {min:4,lv:2,name:'강한 비',head:'강한 비',color:'amber'},
+  {min:10,lv:2,name:'매우 강한 비',head:'매우 강한 비',color:'red'},
+  {min:20,lv:3,name:'폭우',head:'폭우',color:'red'}
+];
+const WX_SNOW_STEPS=[
+  {min:0,lv:0,name:'-',head:'눈 없음',color:'dim'},
+  {min:0.1,lv:1,name:'약한 눈',head:'약한 눈',color:'blue'},
+  {min:1,lv:2,name:'보통 눈',head:'보통 눈',color:'amber'},
+  {min:3,lv:3,name:'강한 눈',head:'강한 눈',color:'red'},
+  {min:5,lv:3,name:'대설',head:'대설',color:'red'}
+];
+
+function wxLevel(e){
+  const step=e.step||60;
+  const snowH=(e.snow||0)*(60/step);
+  const rainH=(e.mm||0)*(60/step);
+  if(snowH>=0.1){
+    let s=WX_SNOW_STEPS[0];
+    for(const x of WX_SNOW_STEPS){ if(snowH>=x.min) s=x; }
+    return {kind:'snow',lv:s.lv,label:s.name,head:s.head,color:s.color,perH:snowH,unit:'cm'};
+  }
+  let s=WX_RAIN_STEPS[0];
+  for(const x of WX_RAIN_STEPS){ if(rainH>=x.min) s=x; }
+  return {kind:'rain',lv:s.lv,label:s.name,head:s.head,color:s.color,perH:rainH,unit:'mm'};
+}
+
+function wxDur(m){
+  const h=Math.floor(m/60), r=m%60;
+  if(h>0) return r>0?`${h}시간${r}분`:`${h}시간`;
+  return `${r}분`;
+}
+function wxAmt(v){ return v<10?v.toFixed(1):String(Math.round(v)); }
+
+function wxAnalyze(){
+  if(!wx.timeline||!wx.timeline.length) return null;
+  const tl=wx.timeline, now=Date.now();
+  const spanH=Math.round(tl.reduce((s,e)=>s+e.step,0)/60);
+  const fine=(wx.minutely&&wx.minutely.length)?wx.minutely:tl;
+
+  const startIdx=fine.findIndex(e=>wxLevel(e).lv>=1);
+  if(startIdx<0){
+    const later=tl.findIndex(e=>wxLevel(e).lv>=1);
+    if(later<0) return {rain:false,spanH,timeline:tl};
+    const L=wxLevel(tl[later]);
+    let dur=0,end=later;
+    for(let i=later;i<tl.length;i++){ if(wxLevel(tl[i]).lv>=1){ dur+=tl[i].step; end=i; } else break; }
+    return {
+      rain:true,ongoing:false,spanH,timeline:tl,startIdx:later,endIdx:end,
+      startTime:tl[later].time,endTime:tl[end].time+tl[end].step*60000,
+      minsToStart:Math.max(0,Math.round((tl[later].time-now)/60000)),
+      minsToEnd:0,durMin:dur,level:L,amtPerH:L.perH,
+      prob:(tl[later].prob!=null)?Math.round(tl[later].prob):null,
+      totalSnow:tl.slice(later,end+1).reduce((s,e)=>s+(e.snow||0),0)
+    };
+  }
+
+  let durMin=0,endIdx=startIdx;
+  for(let i=startIdx;i<fine.length;i++){
+    if(wxLevel(fine[i]).lv>=1){ durMin+=fine[i].step; endIdx=i; } else break;
+  }
+  let peak=fine[startIdx];
+  for(let i=startIdx;i<=endIdx;i++){ if(wxLevel(fine[i]).perH>wxLevel(peak).perH) peak=fine[i]; }
+
+  const first=fine[startIdx];
+  const minsToStart=Math.max(0,Math.round((first.time-now)/60000));
+  const ongoing=startIdx===0||minsToStart<=3;
+  const endTime=fine[endIdx].time+fine[endIdx].step*60000;
+
+  return {
+    rain:true,ongoing,spanH,timeline:tl,
+    startIdx,endIdx,startTime:first.time,endTime,
+    minsToStart,minsToEnd:Math.max(0,Math.round((endTime-now)/60000)),durMin,
+    level:wxLevel(peak),amtPerH:wxLevel(peak).perH,
+    prob:(tl[0]&&tl[0].prob!=null)?Math.round(tl[0].prob):null,
+    totalSnow:tl.slice(0,Math.min(6,tl.length)).reduce((s,e)=>s+(e.snow||0),0)
+  };
+}
+
+function aqGrade(v,type){
+  if(v==null||isNaN(v)) return null;
+  const cuts=(type==='pm25')?[15,35,75]:[30,80,150];
+  const g=[
+    {label:'좋음',emoji:'😊',color:'var(--teal2)'},
+    {label:'보통',emoji:'🙂',color:'var(--blue2)'},
+    {label:'나쁨',emoji:'😷',color:'var(--amber2)'},
+    {label:'매우나쁨',emoji:'🚨',color:'var(--red2)'}
+  ];
+  let i=0;
+  if(v>cuts[2]) i=3; else if(v>cuts[1]) i=2; else if(v>cuts[0]) i=1;
+  return {...g[i],idx:i,value:Math.round(v)};
+}
+function aqWorst(){
+  if(!wx.air) return null;
+  const a=aqGrade(wx.air.pm10,'pm10'), b=aqGrade(wx.air.pm25,'pm25');
+  if(!a&&!b) return null;
+  if(!a) return b; if(!b) return a;
+  return (b.idx>=a.idx)?b:a;
+}
+
+function wxIcon(code,isDay,e){
+  if(e&&(e.snow||0)>0.05) return '🌨️';
+  if(e&&(e.mm||0)>0.05&&(!code||code<95)) return '☔';
+  if(code==null) return '☁️';
+  if(code===0) return isDay?'☀️':'🌙';
+  if(code<=2) return isDay?'🌤️':'☁️';
+  if(code===3) return '☁️';
+  if(code===45||code===48) return '🌫️';
+  if(code>=51&&code<=57) return '🌦️';
+  if(code>=61&&code<=67) return '🌧️';
+  if(code>=71&&code<=77) return '🌨️';
+  if(code>=80&&code<=82) return '🌧️';
+  if(code>=85&&code<=86) return '🌨️';
+  if(code>=95) return '⛈️';
+  return '☁️';
+}
+function wxCodeText(code,isDay){
+  if(code==null) return '-';
+  if(code===0) return isDay?'맑음':'맑은 밤';
+  if(code<=2) return '구름 조금';
+  if(code===3) return '흐림';
+  if(code===45||code===48) return '안개';
+  if(code>=51&&code<=57) return '이슬비';
+  if(code>=61&&code<=67) return '비';
+  if(code>=71&&code<=77) return '눈';
+  if(code>=80&&code<=82) return '소나기';
+  if(code>=85&&code<=86) return '소낙눈';
+  if(code>=95) return '천둥번개';
+  return '흐림';
+}
+
+function wxHeadlineHtml(){
+  if(wx.err&&!wx.timeline){
+    return `<div class="wx-head wx-head-none"><div class="wx-head-lbl">예보 없음</div><div class="wx-head-big">새로고침을 눌러 다시 받아오세요</div><div class="wx-head-sub">${esc(wx.err)}</div></div>`;
+  }
+  const a=wxAnalyze();
+  if(!a) return `<div class="wx-head wx-head-none"><div class="wx-head-big"><span class="wx-spinner"></span>예보 확인 중…</div></div>`;
+
+  if(!a.rain){
+    return `<div class="wx-head wx-head-clear">
+    <div class="wx-head-lbl">📍 ${esc(wx.name)} · 앞으로 ${a.spanH}시간</div>
+    <div class="wx-head-big">비·눈 소식 없음</div>
+    <div class="wx-head-sub">배송 구역에 강수 예보가 없습니다</div>
+    </div>`;
+  }
+
+  const cls=a.level.lv>=2?'wx-head-heavy':'wx-head-rain';
+  const lbl=a.ongoing?`📍 ${esc(wx.name)} · 지금`:`📍 ${esc(wx.name)} · 약 ${wxDur(a.minsToStart)} 뒤`;
+  const big=a.ongoing?`${a.level.head} 내리는 중`:a.level.head;
+  const sub=a.ongoing
+  ? `시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.minsToEnd)} 더 지속`
+  : `${fmtHM(new Date(a.startTime))} 시작 · 시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.durMin)} 지속`;
+
+  const chips=[];
+  if(a.prob!=null) chips.push(`강수확률 ${a.prob}%`);
+  chips.push(`${fmtHM(new Date(a.endTime))}경 그침`);
+  if(a.level.kind==='snow'&&a.totalSnow>=0.5) chips.push(`예상 적설 ${wxAmt(a.totalSnow)}cm`);
+
+  return `<div class="wx-head ${cls}">
+  <div class="wx-head-lbl">${lbl}</div>
+  <div class="wx-head-big">${esc(big)}</div>
+  <div class="wx-head-sub">${esc(sub)}</div>
+  <div class="wx-head-chips">${chips.map(c=>`<span class="wx-chip">${esc(c)}</span>`).join('')}</div>
+  </div>`;
+}
+
+function wxNowHtml(){
+  const n=wx.now;
+  if(!n) return '';
+  const air=wx.air||{};
+  const p10=aqGrade(air.pm10,'pm10'), p25=aqGrade(air.pm25,'pm25');
+
+  const gustKm=n.gust!=null?Math.round(n.gust):null;
+  const gustColor=(gustKm!=null&&gustKm>=35)?'var(--amber2)':'var(--text)';
+  const windMs=n.wind!=null?(n.wind/3.6).toFixed(1):'-';
+  const gustMs=n.gust!=null?(n.gust/3.6).toFixed(1):'-';
+
+  return `<div class="wx-now">
+  <div class="wx-now-top">
+  <div class="wx-now-ico">${wxIcon(n.code,n.isDay,n)}</div>
+  <div class="wx-now-temp">${n.temp!=null?Math.round(n.temp):'-'}<small>°</small></div>
+  <div class="wx-now-side">
+  <div class="wx-now-desc">${esc(wxCodeText(n.code,n.isDay))}</div>
+  <div class="wx-now-feel">체감 ${n.feels!=null?Math.round(n.feels):'-'}° · 습도 ${n.hum!=null?Math.round(n.hum):'-'}%</div>
+  </div>
+  </div>
+  <div class="wx-now-grid">
+  <div class="wx-cellx"><div class="k">바람</div><div class="v" style="color:var(--blue2)">${windMs}</div><div class="u">m/s</div></div>
+  <div class="wx-cellx"><div class="k">돌풍</div><div class="v" style="color:${gustColor}">${gustMs}</div><div class="u">m/s</div></div>
+  <div class="wx-cellx"><div class="k">미세먼지</div><div class="v" style="color:${p10?p10.color:'var(--dim)'}">${p10?p10.label:'-'}</div><div class="u">${p10?p10.value+' ㎍':'측정없음'}</div></div>
+  <div class="wx-cellx"><div class="k">초미세</div><div class="v" style="color:${p25?p25.color:'var(--dim)'}">${p25?p25.label:'-'}</div><div class="u">${p25?p25.value+' ㎍':'측정없음'}</div></div>
+  </div>
+  </div>`;
+}
+
+function wxWarnHtml(){
+  const w=[];
+  const n=wx.now;
+  const a=wxAnalyze();
+
+  if(n){
+    if(n.feels!=null&&n.feels>=33) w.push({c:'red',t:`🥵 체감 ${Math.round(n.feels)}° · 온열질환 주의, 수분 자주 드세요`});
+    else if(n.feels!=null&&n.feels<=0) w.push({c:'blue',t:`🥶 체감 ${Math.round(n.feels)}° · 노면 결빙 주의`});
+
+    if(n.gust!=null&&n.gust>=50) w.push({c:'red',t:`💨 돌풍 ${(n.gust/3.6).toFixed(1)}m/s (${Math.round(n.gust)}km/h) · 강풍, 적재문 개방 주의`});
+    else if(n.gust!=null&&n.gust>=35) w.push({c:'amber',t:`💨 돌풍 ${(n.gust/3.6).toFixed(1)}m/s (${Math.round(n.gust)}km/h) · 적재물 날림 주의`});
+  }
+  if(a&&a.rain&&a.level.kind==='snow') w.push({c:'purple',t:`❄️ 적설 예보 · 경사로 감속, 발밑 미끄럼 주의`});
+
+  const aq=aqWorst();
+  if(aq&&aq.idx>=2) w.push({c:aq.idx===3?'red':'amber',t:`${aq.emoji} 미세먼지 ${aq.label} · 야외 장시간 노출, 마스크 권장`});
+
+  if(wx.sun){
+    const mins=Math.round((wx.sun-Date.now())/60000);
+    if(mins>0&&mins<=90) w.push({c:'blue',t:`🌇 ${wxDur(mins)} 뒤 일몰(${fmtHM(new Date(wx.sun))}) · 전조등 확인`});
+  }
+  if(!w.length) return '';
+  return `<div class="wx-warns">${w.map(x=>`<span class="wx-warn ${x.c}">${esc(x.t)}</span>`).join('')}</div>`;
+}
+
+function wxM15Html(){
+  const m=wx.minutely;
+  if(!m||!m.length) return '';
+  const list=m.slice(0,WX_M15_COUNT);
+  const vals=list.map(e=>{ const L=wxLevel(e); return {L,amt:L.perH}; });
+  const maxV=Math.max(1,...vals.map(v=>v.amt));
+  const any=vals.some(v=>v.L.lv>=1);
+
+  if(!any){
+    return `<div class="wx-m15">
+    <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수</span></div>
+    <div class="wx-m15-empty">☀️ 앞으로 4시간 동안 비·눈 없음</div>
+    </div>`;
+  }
+
+  const cmap={dim:'var(--card3)',blue:'var(--blue)',amber:'var(--amber)',red:'var(--red2)'};
+  const bars=vals.map(v=>{
+    const h=v.L.lv>=1?Math.max(8,Math.round((v.amt/maxV)*100)):4;
+    return `<div class="wx-m15-col"><div class="wx-m15-fill" style="height:${h}%;background:${cmap[v.L.color]}"></div></div>`;
+  }).join('');
+
+  const labels=list.map((e,i)=>{
+    const txt=(i%4===0)?fmtHM(new Date(e.time)):'';
+    return `<div class="wx-m15-lb">${txt}</div>`;
+  }).join('');
+
+  const peak=vals.reduce((a,b)=>b.amt>a.amt?b:a,vals[0]);
+
+  return `<div class="wx-m15">
+  <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수 (15분 단위)</span><span style="color:var(--sub)">최대 ${wxAmt(peak.amt)}${peak.L.unit}/h</span></div>
+  <div class="wx-m15-bars">${bars}</div>
+  <div class="wx-m15-labels">${labels}</div>
+  </div>`;
+}
+
+function wxHourHtml(){
+  if(!wx.timeline) return '';
+  return `<div class="wx-hstrip">`+wx.timeline.map((e,i)=>{
+    const L=wxLevel(e);
+    const cls=['wx-hcard'];
+    if(i===0) cls.push('now');
+    if(L.lv>=2) cls.push('danger');
+    else if(!e.isDay) cls.push('night');
+    const amt=L.lv>=1?`${wxAmt(L.perH)}${L.unit}`:'';
+    const prob=(e.prob!=null&&e.prob>=10)?`${Math.round(e.prob)}%`:'';
+    return `<div class="${cls.join(' ')}">
+    <div class="wx-h-t">${i===0?'지금':fmtHM(new Date(e.time))}</div>
+    <div class="wx-h-i">${wxIcon(e.code,e.isDay,e)}</div>
+    <div class="wx-h-p">${prob}</div>
+    <div class="wx-h-mm">${amt}</div>
+    <div class="wx-h-tp">${e.temp!=null?Math.round(e.temp):'-'}°</div>
+    </div>`;
+  }).join('')+`</div>`;
+}
+
+function checkWxAlert(){
+  const strip=document.getElementById('wx-strip');
+  if(!strip) return;
+  const a=wxAnalyze();
+  if(!a||!a.rain||a.level.lv<2||a.minsToStart>=60){ strip.classList.remove('show'); return; }
+  strip.textContent=a.ongoing
+  ? `🚨 [${wx.name}] ${a.level.head} 내리는 중 — 탭하여 확인`
+  : `🚨 [${wx.name}] 약 ${wxDur(a.minsToStart)} 뒤 ${a.level.head} 예상 — 탭하여 확인`;
+  strip.classList.add('show');
+  if(wx.alerted!==a.startTime){
+    wx.alerted=a.startTime;
+    if(tab!=='weather') showToast(`🚨 ${a.level.head} 접근 — 날씨 탭을 확인하세요`);
+  }
+}
+
+function updateWeatherDom(){
+  checkWxAlert();
+  if(tab!=='weather') return;
+  const set=(id,html)=>{ const el=document.getElementById(id); if(el) el.innerHTML=html; };
+  if(!document.getElementById('wx-head-wrap')){ render(); return; }
+  set('wx-head-wrap',wxHeadlineHtml());
+  set('wx-now-wrap',wxNowHtml());
+  set('wx-warn-wrap',wxWarnHtml());
+  set('wx-m15-wrap',wxM15Html());
+  set('wx-hour-wrap',wxHourHtml());
+  const t=document.getElementById('wx-loc-time');
+  if(t) t.textContent=wx.updated?`${fmtHM(wx.updated)} 갱신`:(wx.err||'불러오는 중…');
+  const bub=document.getElementById('wx-bubble');
+  if(bub&&customWeatherText===null){
+    bub.value=wxShareText();
+    autosizePreview(bub);
+  }
+}
+
+function wxSnowVar(a){
+  if(!a||!a.rain||a.level.kind!=='snow') return '';
+  let s=`❄️ 적설: 시간당 약 ${wxAmt(a.amtPerH)}cm`;
+  if(a.totalSnow>=0.5) s+=` · 예상 누적 ${wxAmt(a.totalSnow)}cm`;
+  return s;
+}
+function wxDustVar(){
+  const p10=aqGrade(wx.air?wx.air.pm10:null,'pm10');
+  const p25=aqGrade(wx.air?wx.air.pm25:null,'pm25');
+  if(!p10&&!p25) return '';
+  const worst=aqWorst();
+  let s=`${worst.emoji} 미세먼지: `;
+  const parts=[];
+  if(p10) parts.push(`미세 ${p10.label}(${p10.value})`);
+  if(p25) parts.push(`초미세 ${p25.label}(${p25.value})`);
+  s+=parts.join(' · ');
+  if(worst.idx>=2) s+=' — 마스크 권장';
+  return s;
+}
+function rainTip(perH,kind){
+  if(kind==='snow') return tipPick('tip_snow');
+  if(perH<1) return tipPick('tip_light');
+  if(perH<3) return tipPick('tip_normal');
+  return tipPick('tip_heavy');
+}
+
+function wxShareText(){
+  const a=wxAnalyze();
+  if(!a) return '';
+  const now=new Date();
+  const dust=wxDustVar();
+
+  if(!a.rain){
+    return tidyLines(formatTemplate(WX_TPL.wx_clear,{
+      time:fmtHM(now), location:wx.name, span_hours:a.spanH,
+      tip:tipPick('tip_clear'), snow:'', dust:dust
+    }));
+  }
+
+  const statusMsg=a.ongoing
+  ? `현재 배송 구역[${wx.name}]에 ${a.level.head}가 내리고 있습니다.`
+  : `약 ${wxDur(a.minsToStart)} 뒤(${fmtHM(new Date(a.startTime))}경)부터 배송 구역[${wx.name}]에 ${a.level.head} 소식이 있습니다.`;
+
+  const dict={
+    time:fmtHM(now),
+    location:wx.name,
+    status_msg:statusMsg,
+    intensity:a.level.head,
+    tip:rainTip(a.amtPerH,a.level.kind),
+    rain_mm:wxAmt(a.amtPerH),
+    prob:a.prob!=null?` · 강수확률 ${a.prob}%`:'',
+    duration:wxDur(a.durMin),
+    end_time:fmtHM(new Date(a.endTime)),
+    snow:wxSnowVar(a),
+    dust:dust
+  };
+
+  return tidyLines(formatTemplate(a.level.lv>=2?WX_TPL.wx_heavy:WX_TPL.wx_rain,dict));
+}
+
+function getWxMessage(){
+  const el=document.getElementById('wx-bubble');
+  const v=el?el.value.trim():'';
+  return v||wxShareText();
+}
+function shareWeather(){
+  const text=getWxMessage();
+  if(!text){ showToast('⚠️ 공유할 내용이 없습니다'); return; }
+  if(navigator.share){
+    navigator.share({text}).catch(err=>{
+      if(err&&err.name==='AbortError') return;
+      fallbackCopy(text,()=>showToast('📋 기상 안내가 복사되었습니다'));
+    });
+  }else fallbackCopy(text,()=>showToast('📋 기상 안내가 복사되었습니다'));
+}
+function copyWeather(){
+  const text=getWxMessage();
+  if(!text){ showToast('⚠️ 복사할 내용이 없습니다'); return; }
+  const done=()=>showToast('📋 기상 안내가 복사되었습니다');
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  else fallbackCopy(text,done);
+}
+function resetWeatherText(){
+  customWeatherText=null;
+  const el=document.getElementById('wx-bubble');
+  if(el){ el.value=wxShareText(); autosizePreview(el); }
+  showToast('🔄 기본 문구로 되돌렸습니다');
+}
+
+function renderWeather(){
+  const windySrc=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&zoom=9&overlay=radar&product=radar&level=surface&lat=${wx.lat.toFixed(4)}&lon=${wx.lon.toFixed(4)}`;
+  const shareTxt=customWeatherText!==null?customWeatherText:wxShareText();
+
+  return `
+  <div class="wx-loc">
+    <span class="wx-loc-name">📍 ${esc(wx.name)} 배송 구역</span>
+    <span style="display:flex;align-items:center;gap:8px;">
+      <span class="wx-loc-time" id="wx-loc-time">${wx.updated?fmtHM(wx.updated)+' 갱신':(wx.err||'불러오는 중…')}</span>
+      <button class="wx-refresh" onclick="showToast('예보 갱신 중…');fetchWeather()">🔄</button>
+    </span>
+  </div>
+
+  <div id="wx-head-wrap">${wxHeadlineHtml()}</div>
+  <div id="wx-now-wrap">${wxNowHtml()}</div>
+  <div id="wx-warn-wrap">${wxWarnHtml()}</div>
+  <div id="wx-m15-wrap">${wxM15Html()}</div>
+
+  <div class="wx-sec-title">⏱ 시간별 예보 <b>${WX_SPAN_HOURS}시간</b></div>
+  <div id="wx-hour-wrap">${wxHourHtml()}</div>
+
+  <div class="wx-btn-row">
+    <button class="wx-btn blue" onclick="window.open('https://www.weather.go.kr/w/weather/radar/radar.do','_blank')">📡 기상청 레이더</button>
+    <button class="wx-btn teal" onclick="window.open('https://m.map.kakao.com','_blank')">📹 도로 CCTV</button>
+  </div>
+
+  <button class="wx-btn wide" onclick="wx.showMap=!wx.showMap;render();">
+    ${wx.showMap?'🗺️ 비구름 지도 접기 ▲':'🗺️ 비구름 지도 열기 (Windy) ▼'}
+  </button>
+  ${wx.showMap?`<div class="wx-frame-wrap"><iframe src="${windySrc}" allowfullscreen loading="lazy"></iframe></div>`:''}
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 2px 6px;">
+    <div style="font-size:10px;color:var(--sub);letter-spacing:0.5px;">💬 단톡방 공유 문구 (직접 수정 가능)</div>
+    <button class="btn-preview-reset" onclick="resetWeatherText()">🔄 원래대로</button>
+  </div>
+  <textarea class="daily-preview-box" id="wx-bubble" spellcheck="false" oninput="customWeatherText=this.value;autosizePreview(this);" placeholder="예보가 로드되면 공유 문구가 자동으로 만들어집니다.">${esc(shareTxt)}</textarea>
+  <button class="btn-report-action btn-kakao-share" onclick="shareWeather()">💬 카톡 / 공유하기</button>
+  <button class="btn-report-action btn-clipboard" onclick="copyWeather()">📋 클립보드 복사</button>
+
+  <div class="wx-note">10분마다 예보를 자동 갱신합니다 · 미세먼지는 유럽 대기질 모델 기준이라 에어코리아 수치와 약간 다를 수 있습니다</div>
+  <div style="height:20px"></div>`;
+}
 
 /* ── 보고서 ─────────────────────────────── */
 let reportYear = new Date().getFullYear();
@@ -1550,11 +2169,11 @@ function switchReportMode(mode) {
   document.getElementById('mode-daily-btn').classList.toggle('active', mode === 'daily');
   document.getElementById('mode-monthly-btn').classList.toggle('active', mode === 'monthly');
   document.getElementById('mode-car-btn').classList.toggle('active', mode === 'car');
-  
+
   document.getElementById('report-daily-section').style.display = (mode === 'daily') ? 'block' : 'none';
   document.getElementById('report-monthly-section').style.display = (mode === 'monthly') ? 'block' : 'none';
   document.getElementById('report-car-section').style.display = (mode === 'car') ? 'block' : 'none';
-  
+
   if (mode === 'daily') updateDailyPreview();
 }
 
@@ -2139,14 +2758,18 @@ function refreshTodayLabel(){
 refreshTodayLabel();
 updateSummary();
 render();
+initWeather();
 
 let lastDay=today();
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'&&today()!==lastDay){
-    lastDay=today();
-    refreshTodayLabel();
-    if(editId===null&&!form.qtyA&&!form.qtyB&&!form.qtyC&&!form.qtyD) form.date=lastDay;
-    updateSummary();render();
+  if(document.visibilityState==='visible'){
+    if(today()!==lastDay){
+      lastDay=today();
+      refreshTodayLabel();
+      if(editId===null&&!form.qtyA&&!form.qtyB&&!form.qtyC&&!form.qtyD) form.date=lastDay;
+      updateSummary();render();
+    }
+    fetchWeather();
   }
 });
 
@@ -2180,6 +2803,7 @@ if ('serviceWorker' in navigator && window.location.protocol.startsWith('http'))
     });
     self.addEventListener('fetch', e => {
       if (e.request.method !== 'GET') return;
+      if (e.request.url.indexOf('open-meteo.com') !== -1) return;
       e.respondWith(
         fetch(e.request).then(res => {
           if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
