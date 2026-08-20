@@ -15,15 +15,17 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
   --orange:#FF6B00;--orange2:#FF9A3C;
-  --blue:#4A9EFF;--blue2:#7BBFFF;--blue3:#9CCBFF;
+  --blue:#4A9EFF;--blue2:#7BBFFF;--blue3:#60a5fa;
   --green:#5cb85c;--green2:#7fd67f;
   --pink:#ec4899;--pink2:#f472b6;
-  --bg:#0f1117;--card:#1a1d27;--card2:#12141c;--card3:#232735;
-  --border:#2a2d3a;--border2:#3a3f52;--text:#f0f0f0;--sub:#777;--dim:#5a6270;
+  --bg:#0f1117;--card:#1a1d27;--card2:#12141c;--card3:#262c38;
+  --border:#2a2d3a;--border2:#3a4150;--text:#f0f0f0;--sub:#777;--dim:#5a6270;
   --red:#e05555;--red2:#ef4444;
   --teal:#2dd4bf;--teal2:#5eead4;--teal3:#5eead4;
   --purple:#a78bfa;--purple2:#c4b5fd;
   --amber:#fbbf24;--amber2:#fcd34d;
+  --kakao:#FEE500;
+  --lbl:#8f98a8;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow:hidden;}
 #app{display:flex;flex-direction:column;height:100vh;height:-webkit-fill-available;}
@@ -43,12 +45,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 
 .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 14px 0;flex-shrink:0;}
 .sum-card{background:var(--card);border-radius:12px;padding:11px 10px;border-top:3px solid var(--orange);}
-.sum-label{font-size:9px;color:var(--sub);margin-bottom:3px;}
+.sum-label{font-size:9px;color:var(--lbl);margin-bottom:3px;font-weight:700;}
 .sum-val{font-size:16px;font-weight:900;color:var(--orange2);line-height:1.2;}
 .sum-sub{font-size:9px;color:#777;margin-top:2px;}
 
 .tabs{display:flex;margin:12px 14px 0;border-radius:12px;overflow:hidden;background:var(--card);flex-shrink:0;}
-.tab{flex:1;padding:11px 0;border:none;font-size:11.5px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
+.tab{flex:1;padding:11px 0;border:none;font-size:10.5px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
 .tab.active{background:var(--orange);color:#fff;}
 .tab:not(.active){background:transparent;color:var(--sub);}
 .content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch;}
@@ -59,23 +61,25 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .field textarea{height:72px;resize:none;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
+.wx-strip{display:none;background:linear-gradient(135deg,#3b0d0d,#4a1010);border:1px solid #6b1d1d;border-radius:12px;color:#ffb4b4;font-size:12px;font-weight:800;padding:10px 12px;cursor:pointer;text-align:center;margin:10px 14px 0;flex-shrink:0;}
+.wx-strip.show{display:block;animation:stripPulse 2s ease-in-out infinite;}
+@keyframes stripPulse{50%{opacity:0.72;}}
+
 .ab-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);}
 .ab-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:12px;letter-spacing:0.5px;}
-.ab-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(75px, 1fr));gap:6px;}
+.ab-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(74px, 1fr));gap:6px;}
 .ab-item{background:var(--card2);border-radius:12px;padding:10px 5px;}
-.ab-item-label{font-size:10px;font-weight:700;margin-bottom:8px;text-align:center;}
-.ab-item-label.a{color:var(--orange2);}
-.ab-item-label.b{color:var(--blue2);}
-.ab-item-label.c{color:var(--green2);}
-.ab-item-label.d{color:var(--pink2);}
+.ab-item-label{font-size:10px;font-weight:700;margin-bottom:8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ab-item-label.a,.ab-item-sub.a{color:var(--orange2);}
+.ab-item-label.b,.ab-item-sub.b{color:var(--blue2);}
+.ab-item-label.c,.ab-item-sub.c{color:var(--green2);}
+.ab-item-label.d,.ab-item-sub.d{color:var(--pink2);}
+.ab-item-label.e,.ab-item-sub.e{color:var(--teal2);}
+.ab-item-label.f,.ab-item-sub.f{color:var(--amber2);}
 .ab-item input{width:100%;background:var(--card);border:2px solid var(--border);border-radius:10px;padding:12px 5px;font-size:20px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;letter-spacing:1px;}
 .ab-item input:focus{border-color:var(--orange);background:var(--card);}
 .ab-item-price{font-size:9px;color:var(--sub);margin-top:7px;text-align:center;white-space:nowrap;}
 .ab-item-sub{font-size:11px;font-weight:700;margin-top:5px;text-align:center;min-height:18px;transition:all 0.2s;}
-.ab-item-sub.a{color:var(--orange2);}
-.ab-item-sub.b{color:var(--blue2);}
-.ab-item-sub.c{color:var(--green2);}
-.ab-item-sub.d{color:var(--pink2);}
 
 .calc-box{background:linear-gradient(135deg,#151f15,#111a11);border:1.5px solid #254025;border-radius:14px;padding:16px;margin-bottom:14px;}
 .calc-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
@@ -115,22 +119,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .speed-badge-val{font-size:22px;font-weight:900;color:var(--purple2);}
 .speed-badge-hrs{font-size:12px;color:var(--sub);}
 .speed-badge-total{font-size:12px;color:var(--purple);margin-top:2px;font-weight:700;}
-.rec-items{display:grid;grid-template-columns:repeat(4, 1fr);gap:4px;margin-bottom:10px;}
+.rec-items{display:grid;grid-template-columns:repeat(auto-fit, minmax(70px, 1fr));gap:4px;margin-bottom:10px;}
 .rec-item{border-radius:10px;padding:8px 4px;text-align:center;}
 .rec-item.a{background:#1f1a10;border:1px solid #3a2800;}
 .rec-item.b{background:#101520;border:1px solid #0f2040;}
 .rec-item.c{background:#0f1a10;border:1px solid #0f3018;}
 .rec-item.d{background:#20101a;border:1px solid #400f2d;}
-.rec-item-lbl{font-size:10px;font-weight:700;margin-bottom:3px;}
-.rec-item-lbl.a{color:var(--orange2);}
-.rec-item-lbl.b{color:var(--blue2);}
-.rec-item-lbl.c{color:var(--green2);}
-.rec-item-lbl.d{color:var(--pink2);}
+.rec-item.e{background:#0d1a1a;border:1px solid #0f3030;}
+.rec-item.f{background:#1a1608;border:1px solid #3a3010;}
+.rec-item-lbl{font-size:10px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rec-item-lbl.a,.rec-item-qty.a{color:var(--orange2);}
+.rec-item-lbl.b,.rec-item-qty.b{color:var(--blue2);}
+.rec-item-lbl.c,.rec-item-qty.c{color:var(--green2);}
+.rec-item-lbl.d,.rec-item-qty.d{color:var(--pink2);}
+.rec-item-lbl.e,.rec-item-qty.e{color:var(--teal2);}
+.rec-item-lbl.f,.rec-item-qty.f{color:var(--amber2);}
 .rec-item-qty{font-size:16px;font-weight:900;}
-.rec-item-qty.a{color:var(--orange2);}
-.rec-item-qty.b{color:var(--blue2);}
-.rec-item-qty.c{color:var(--green2);}
-.rec-item-qty.d{color:var(--pink2);}
 .rec-item-amt{font-size:10px;color:var(--sub);margin-top:2px;white-space:nowrap;}
 .rec-pay{background:var(--card2);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
 .rec-pay-row{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);padding:2px 0;}
@@ -148,59 +152,71 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .btn-edit{background:#1a2a3a;color:#64b5f6;}
 .btn-del{background:#2d1414;color:#f06060;}
 
-.stat-card{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+/* ══ 📊 통계 (색상 · 가독성 개선) ══ */
+.stat-card{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;border-left:4px solid var(--border2);}
+.stat-card.c-qty{border-left-color:var(--orange);}
+.stat-card.c-gross{border-left-color:var(--green2);}
+.stat-card.c-net{border-left-color:var(--green);}
+.stat-card.c-avg{border-left-color:var(--blue);}
+.stat-card.c-spd{border-left-color:var(--purple);}
+.stat-card.c-hour{border-left-color:var(--teal);}
 .stat-icon{font-size:26px;flex-shrink:0;}
-.stat-lbl{font-size:10px;color:#777;margin-bottom:2px;}
+.stat-lbl{font-size:10.5px;color:var(--lbl);margin-bottom:3px;font-weight:700;}
 .stat-val{font-size:17px;font-weight:900;}
-.month-box{background:linear-gradient(135deg,#151f15,#111a11);border:1.5px solid #254025;border-radius:14px;padding:16px;margin-bottom:10px;}
-.month-title{font-size:11px;color:var(--sub);margin-bottom:12px;letter-spacing:0.5px;}
+.month-box{background:linear-gradient(135deg,#141d16,#0f1712);border:1.5px solid #2b4531;border-radius:14px;padding:16px;margin-bottom:10px;}
+.month-title{font-size:11.5px;color:var(--lbl);margin-bottom:12px;letter-spacing:0.3px;font-weight:800;}
 .month-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
-.month-lbl{font-size:12px;color:var(--sub);}
-.month-val{font-size:13px;font-weight:700;}
-.month-sep{border:none;border-top:1px solid #253025;margin:8px 0;}
+.month-lbl{font-size:12px;color:#9aa3b2;}
+.month-val{font-size:13px;font-weight:800;}
+.month-sep{border:none;border-top:1px solid #2b4531;margin:8px 0;}
 .month-total{font-size:22px;font-weight:900;color:var(--green2);margin-top:4px;}
 .month-net{font-size:17px;font-weight:900;color:var(--green);margin-top:4px;}
-.month-tax{font-size:10px;color:var(--red);margin-top:3px;}
+.month-tax{font-size:10.5px;color:#f08a8a;margin-top:3px;}
 .period-tabs{display:flex;gap:6px;margin-bottom:12px;}
 .period-tab{flex:1;padding:9px 0;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:var(--sub);transition:all 0.2s;}
 .period-tab.active{background:var(--orange);border-color:var(--orange);color:#fff;}
 .week-nav{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:12px;padding:9px 14px;margin-bottom:12px;}
-.week-nav-btn{background:transparent;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1;}
-.week-nav-label{font-size:12px;font-weight:700;color:var(--text);}
+.week-nav-btn{background:transparent;border:none;color:var(--blue2);font-size:20px;cursor:pointer;padding:2px 10px;line-height:1;}
+.week-nav-label{font-size:12.5px;font-weight:800;color:var(--text);}
 
-.cal-section-title{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:0.5px;margin:16px 2px 8px;display:flex;justify-content:space-between;align-items:center;}
-.cal-section-title b{color:var(--orange2);}
-.cal-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:14px;overflow:hidden;margin-bottom:8px;}
-.cal-sum-item{background:var(--card);padding:12px 8px;text-align:center;}
-.cal-sum-val{font-size:18px;font-weight:900;color:var(--orange2);line-height:1;}
-.cal-sum-lbl{font-size:9px;color:var(--sub);margin-top:4px;}
-
-.cal-grid-wrap{background:var(--card);border-radius:14px;padding:14px;margin-bottom:14px;}
-.cal-grid-title{font-size:10px;color:var(--sub);margin-bottom:12px;letter-spacing:0.5px;}
+.cal-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px;}
+.cal-sum-item{background:var(--card);padding:11px 5px 10px;text-align:center;border-radius:12px;border-top:3px solid var(--border2);}
+.cal-sum-item.c-dlv{border-top-color:var(--orange);}
+.cal-sum-item.c-net{border-top-color:var(--green);}
+.cal-sum-item.c-fuel{border-top-color:var(--amber);}
+.cal-sum-item.c-liter{border-top-color:var(--teal);}
+.cal-sum-val{font-size:18px;font-weight:900;line-height:1.05;}
+.cal-sum-unit{font-size:10px;font-weight:800;opacity:0.8;margin-left:1px;}
+.cal-sum-lbl{font-size:9.5px;color:var(--lbl);margin-top:5px;font-weight:700;}
+.cal-grid-wrap{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;}
+.cal-grid-title{font-size:10.5px;color:var(--lbl);margin-bottom:12px;letter-spacing:0.3px;font-weight:700;}
 .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;}
-.cal-dow-cell{text-align:center;font-size:10px;font-weight:700;color:var(--sub);padding:2px 0;}
-.cal-dow-cell:first-child{color:#e05555;}
-.cal-dow-cell:last-child{color:#4A9EFF;}
-.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-.cal-day{min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:3px 1px;border-radius:10px;cursor:pointer;position:relative;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
-.cal-day.today{background:var(--orange);}
+.cal-dow-cell{text-align:center;font-size:10px;font-weight:800;color:#9aa3b2;padding:2px 0;}
+.cal-dow-cell:first-child{color:#ff7a7a;}
+.cal-dow-cell:last-child{color:#7BBFFF;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:4px 1px;border-radius:10px;cursor:pointer;position:relative;transition:background 0.15s;-webkit-tap-highlight-color:transparent;background:var(--card2);}
+.cal-day.today{background:var(--orange);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.25);}
 .cal-day.today .cal-day-num{color:#fff;font-weight:900;}
-.cal-day.has-record{background:rgba(255,107,0,0.12);}
+.cal-day.has-record{background:rgba(255,107,0,0.13);box-shadow:inset 0 0 0 1px rgba(255,154,60,0.32);}
+.cal-day.car-only{background:rgba(45,212,191,0.10);box-shadow:inset 0 0 0 1px rgba(94,234,212,0.28);}
 .cal-day.selected{outline:2px solid var(--orange2);outline-offset:-2px;}
-.cal-day.other-month{opacity:0.2;pointer-events:none;}
-.cal-day-num{font-size:13px;font-weight:600;color:var(--text);line-height:1;}
-.cal-day-sun .cal-day-num{color:#e05555;}
-.cal-day-sat .cal-day-num{color:#4A9EFF;}
-.cal-day-dots{display:flex;gap:2px;margin-top:3px;flex-wrap:wrap;justify-content:center;}
+.cal-day.other-month{opacity:0.18;pointer-events:none;background:transparent;}
+.cal-day-num{font-size:13px;font-weight:700;color:#e2e6ee;line-height:1;}
+.cal-day-sun .cal-day-num{color:#ff7a7a;}
+.cal-day-sat .cal-day-num{color:#7BBFFF;}
+.cal-day-qty{font-size:10.5px;font-weight:900;color:#ffb571;margin-top:3px;line-height:1.1;}
+.cal-day.today .cal-day-qty{color:#fff;}
+.cal-day-dots{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap;justify-content:center;}
 .cal-dot{width:5px;height:5px;border-radius:50%;}
 .cal-dot.dlv{background:var(--orange2);}
 .cal-dot.car{background:var(--teal2);}
-.cal-day-fuel-tag{background:rgba(251,191,36,0.22);color:#fcd34d;font-size:9.5px;font-weight:800;padding:2px 3px;border-radius:4px;margin-top:2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;line-height:1.1;border:1px solid rgba(251,191,36,0.4);text-align:center;}
-.cal-day.today .cal-day-fuel-tag{background:rgba(255,255,255,0.25);color:#fff;border-color:rgba(255,255,255,0.5);}
-.cal-legend{display:flex;gap:14px;justify-content:center;margin-bottom:14px;}
-.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);}
+.cal-day-fuel-tag{background:rgba(251,191,36,0.20);color:#ffd977;font-size:9px;font-weight:800;padding:1px 3px;border-radius:4px;margin-top:2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;line-height:1.15;border:1px solid rgba(251,191,36,0.42);text-align:center;}
+.cal-day.today .cal-day-fuel-tag{background:rgba(255,255,255,0.28);color:#fff;border-color:rgba(255,255,255,0.55);}
+.cal-legend{display:flex;gap:14px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#9aa3b2;font-weight:600;}
 .cal-legend-dot{width:8px;height:8px;border-radius:50%;}
-.cal-day-detail{background:var(--card);border-radius:14px;padding:14px;margin-bottom:14px;border-left:4px solid var(--orange);}
+.cal-day-detail{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border-left:4px solid var(--orange);}
 .cal-day-detail-title{font-size:13px;font-weight:900;margin-bottom:10px;color:var(--orange2);}
 .cal-day-detail-empty{font-size:12px;color:var(--sub);text-align:center;padding:16px 0;}
 
@@ -244,34 +260,138 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .car-subtab.active{background:var(--teal);border-color:var(--teal);color:#0a1a1a;}
 .cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .cs-card{background:var(--card);border-radius:14px;padding:14px 12px;}
-.cs-label{font-size:10px;color:var(--sub);margin-bottom:4px;}
+.cs-label{font-size:10px;color:var(--lbl);margin-bottom:4px;font-weight:700;}
 .cs-val{font-size:20px;font-weight:900;line-height:1.1;}
 .cs-sub{font-size:10px;color:#777;margin-top:3px;}
 .cs-fullcard{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
 .cs-fullcard.teal{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;}
-.cs-fullcard.amber{background:linear-gradient(135deg,#1f1a08,#161205);border:1.5px solid #3a3010;}
 .cs-icon{font-size:26px;flex-shrink:0;}
 .cs-body{flex:1;}
-.cs-body-lbl{font-size:10px;color:var(--sub);margin-bottom:3px;}
+.cs-body-lbl{font-size:10px;color:var(--lbl);margin-bottom:3px;font-weight:700;}
 .cs-body-val{font-size:20px;font-weight:900;line-height:1.1;}
 .cs-summary-box{background:linear-gradient(135deg,#0f1f1f,#0a1a1a);border:1.5px solid #1a3a3a;border-radius:14px;padding:16px;margin-bottom:10px;}
-.cs-summary-title{font-size:11px;color:var(--sub);margin-bottom:12px;letter-spacing:0.5px;}
+.cs-summary-title{font-size:11px;color:var(--lbl);margin-bottom:12px;letter-spacing:0.3px;font-weight:800;}
 .cs-summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;}
-.cs-summary-lbl{font-size:12px;color:var(--sub);}
+.cs-summary-lbl{font-size:12px;color:#9aa3b2;}
 .cs-summary-val{font-size:14px;font-weight:900;}
 .cs-summary-sep{border:none;border-top:1px solid #1a3a3a;margin:8px 0;}
 .cs-summary-total{font-size:22px;font-weight:900;color:#fbbf24;margin-top:4px;}
 
-/* ===== 날씨 탭 ===== */
-.wx-strip{display:none;background:linear-gradient(135deg,#3b0d0d,#4a1010);border:1px solid #6b1d1d;border-radius:12px;color:#ffb4b4;font-size:12.5px;font-weight:800;padding:11px 14px;cursor:pointer;flex-shrink:0;text-align:center;margin:10px 14px 0;}
-.wx-strip.show{display:block;animation:stripPulse 2s ease-in-out infinite;}
-@keyframes stripPulse{50%{opacity:0.72;}}
+/* ══ 🔮 예상물량 탭 ══ */
+.est-sub-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.est-sub-tab{flex:1;padding:10px 0;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:var(--sub);transition:all .2s;}
+.est-sub-tab.active{background:var(--purple);border-color:var(--purple);color:#150f28;}
+.est-box{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;border:1.5px solid var(--border);}
+.est-box-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:10px;letter-spacing:.5px;}
+.est-head{display:grid;grid-template-columns:16px 1fr 70px 66px;gap:5px;font-size:9px;color:#666;font-weight:700;padding:0 2px 6px;}
+.est-head span:nth-child(3),.est-head span:nth-child(4){text-align:center;}
+.est-row{display:grid;grid-template-columns:16px 1fr 70px 66px;gap:5px;align-items:center;margin-bottom:6px;}
+.est-star{font-size:11px;text-align:center;}
+.est-row input{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:10px 7px;font-size:14px;color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none;}
+.est-row input:focus{border-color:var(--purple);}
+.est-row input.code{text-align:center;font-size:11px;color:var(--sub);}
+.est-row input.qty{text-align:center;font-weight:900;color:var(--teal2);}
+.est-row.target input{border-color:#4a3a75;background:#171225;}
+.est-row.target input.qty{color:var(--purple2);}
+.est-ratio-box{background:linear-gradient(135deg,#16141f,#12101c);border:1.5px solid #3a2f5a;border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.est-ratio-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.est-ratio-lbl{font-size:11px;color:var(--sub);font-weight:700;}
+.est-ratio-val{font-size:22px;font-weight:900;color:var(--purple2);}
+.est-ratio-box input[type=range]{width:100%;accent-color:var(--purple);}
+.est-ratio-box input[type=range]:disabled{opacity:.4;}
+.est-ratio-hint{font-size:10px;color:#666;margin-top:6px;text-align:center;line-height:1.5;}
+.est-lockbar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(0,0,0,.28);border-radius:10px;padding:9px 11px;margin-top:10px;}
+.est-lock-txt{font-size:11px;font-weight:700;color:#9aa3b2;line-height:1.5;}
+.est-lock-txt b{color:var(--amber2);}
+.est-lock-btn{flex-shrink:0;border:1.5px solid var(--border2);border-radius:9px;background:var(--card2);color:#9aa3b2;font-size:11.5px;font-weight:800;padding:8px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.est-lock-btn.on{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.5);color:var(--amber2);}
+.est-result-box{background:linear-gradient(135deg,#1a1430,#12101f);border:1.5px solid #3a2f5a;border-radius:14px;padding:16px;margin-bottom:12px;}
+.est-res-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;color:var(--sub);}
+.est-res-row b{color:var(--text);font-weight:700;font-size:13px;}
+.est-res-sep{border:none;border-top:1px solid #2a2440;margin:9px 0;}
+.est-res-total{font-size:30px;font-weight:900;color:var(--purple2);line-height:1.1;}
+.est-res-sub{font-size:10.5px;color:#666;margin-top:5px;line-height:1.6;}
+.est-learn{background:#111820;border:1px solid #223040;border-radius:10px;padding:10px 12px;font-size:11px;color:var(--blue2);margin-bottom:12px;line-height:1.7;}
+.est-learn b{color:#9ed0ff;}
+.est-learn-btn{background:#1a3a5c;border:1px solid #2a5a9a;border-radius:7px;color:#7bbfff;font-size:10.5px;font-weight:700;padding:4px 9px;margin-left:6px;cursor:pointer;font-family:inherit;}
+.est-keyhint{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:11px;color:#9aa3b2;line-height:1.5;}
+.est-keyhint b.ok{color:var(--teal2);}
+.est-keyhint b.no{color:#f0a060;}
+.est-keyhint button{flex-shrink:0;border:1.5px solid var(--border2);border-radius:9px;background:var(--card);color:var(--text);font-size:11px;font-weight:800;padding:8px 11px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.est-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.est-btn{padding:14px;border:none;border-radius:12px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .1s;}
+.est-btn:active{transform:scale(.97);}
+.est-btn.kakao{background:#FEE500;color:#191919;}
+.est-btn.ghost{background:var(--card2);color:var(--text);border:1.5px solid var(--border);}
+.est-btn.purple{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#150f28;}
+.est-btn.blue{background:#152a3f;color:#7bbfff;border:1.5px solid #24466b;}
+.est-drop{display:block;cursor:pointer;}
+.est-drop-inner{border:1.5px dashed var(--border);border-radius:12px;padding:24px 14px;text-align:center;}
+.est-drop.has-img .est-drop-inner{border-style:solid;border-color:var(--purple);padding:8px;}
+.est-drop-txt{font-size:12px;color:var(--sub);font-weight:600;margin-top:6px;}
+.est-prev{max-width:100%;max-height:200px;border-radius:8px;display:block;margin:0 auto;}
+.est-status{font-size:11.5px;text-align:center;margin-top:8px;min-height:16px;color:var(--sub);}
+.est-status.ok{color:var(--green2);}
+.est-status.err{color:#f06060;}
+.est-ta{width:100%;height:100px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;color:var(--text);outline:none;font-family:inherit;resize:vertical;-webkit-appearance:none;}
+.est-ta:focus{border-color:var(--purple);}
+.est-mini{display:flex;gap:8px;margin-top:9px;}
+.est-mini button{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--card2);color:var(--sub);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.est-mini button:active{background:var(--border);}
+.est-total-card{background:linear-gradient(135deg,#241a3d,#160f26);border:1.5px solid #4a3a75;border-radius:16px;padding:16px;margin-bottom:12px;}
+.est-total-title{font-size:11px;color:var(--purple2);font-weight:800;margin-bottom:12px;letter-spacing:.5px;}
+.est-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.est-split-item{background:rgba(0,0,0,.3);border-radius:12px;padding:12px 8px;text-align:center;}
+.est-split-lbl{font-size:10px;color:var(--sub);font-weight:700;margin-bottom:6px;}
+.est-split-val{font-size:26px;font-weight:900;line-height:1;}
+.est-split-unit{font-size:11px;color:var(--sub);font-weight:400;}
+.est-split-sub{font-size:9.5px;color:#6a6480;margin-top:6px;line-height:1.5;}
+.est-grand{background:rgba(167,139,250,.13);border:1px solid #4a3a75;border-radius:12px;padding:14px;text-align:center;}
+.est-grand-lbl{font-size:11px;color:var(--purple2);font-weight:800;letter-spacing:.5px;}
+.est-grand-val{font-size:40px;font-weight:900;color:var(--purple2);line-height:1.1;margin-top:2px;}
+.est-grand-sub{font-size:10.5px;color:#7a6fa0;margin-top:4px;line-height:1.5;}
+.est-minibar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(135deg,#1e1730,#161022);border:1px solid #3a2f5a;border-radius:12px;padding:10px 13px;margin-bottom:12px;cursor:pointer;}
+.est-minibar-seg{font-size:11.5px;font-weight:800;color:var(--sub);}
+.est-minibar-seg b{font-size:15px;font-weight:900;}
+.est-minibar-total{font-size:11px;color:var(--purple2);font-weight:800;white-space:nowrap;}
+.est-minibar-total b{font-size:18px;font-weight:900;}
+.est-multi{display:block;border:1.5px dashed #4a3a75;border-radius:12px;padding:20px 14px;text-align:center;cursor:pointer;background:rgba(167,139,250,.05);}
+.est-multi-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.est-multi-item{display:flex;align-items:center;gap:9px;background:var(--card2);border-radius:9px;padding:7px 9px;}
+.est-multi-item img{width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0;}
+.est-multi-name{flex:1;min-width:0;font-size:11px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.est-multi-tag{font-size:10px;font-weight:800;padding:4px 8px;border-radius:6px;white-space:nowrap;}
+.est-multi-tag.cj{background:rgba(167,139,250,.2);color:var(--purple2);}
+.est-multi-tag.rb{background:rgba(94,234,212,.16);color:var(--teal2);}
+.est-multi-tag.wait{background:rgba(255,255,255,.07);color:#666;}
 
+/* 학습 카드 */
+.lrn-box{background:linear-gradient(135deg,#101a26,#0d141d);border:1.5px solid #1e3550;border-radius:14px;padding:14px;margin-bottom:12px;}
+.lrn-title{font-size:11px;color:var(--blue2);font-weight:800;margin-bottom:10px;letter-spacing:.4px;display:flex;justify-content:space-between;align-items:center;}
+.lrn-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;}
+.lrn-kpi-item{background:rgba(0,0,0,.3);border-radius:10px;padding:9px 4px;text-align:center;}
+.lrn-kpi-val{font-size:17px;font-weight:900;line-height:1;}
+.lrn-kpi-lbl{font-size:9px;color:var(--sub);margin-top:4px;}
+.lrn-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.lrn-tbl th{color:#5c6675;font-weight:700;padding:4px 2px;border-bottom:1px solid #1e2833;font-size:9.5px;}
+.lrn-tbl td{padding:6px 2px;text-align:center;border-bottom:1px solid #161d26;color:var(--sub);}
+.lrn-tbl td.d{color:var(--text);font-weight:600;}
+.lrn-auto{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.25);border-radius:10px;padding:10px 12px;margin-top:10px;}
+.lrn-auto-txt{font-size:11.5px;font-weight:700;color:var(--text);}
+.lrn-auto-sub{font-size:9.5px;color:var(--sub);margin-top:2px;}
+.lrn-sw{position:relative;width:44px;height:26px;flex-shrink:0;}
+.lrn-sw input{opacity:0;width:0;height:0;}
+.lrn-sl{position:absolute;inset:0;background:#2a2d3a;border-radius:26px;transition:.2s;cursor:pointer;}
+.lrn-sl::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.lrn-sw input:checked+.lrn-sl{background:var(--purple);}
+.lrn-sw input:checked+.lrn-sl::before{transform:translateX(18px);}
+.lrn-badge{font-size:9.5px;font-weight:800;background:rgba(167,139,250,.2);color:var(--purple2);padding:3px 7px;border-radius:6px;}
+
+/* ══ 🌤 날씨 탭 ══ */
 .wx-loc{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;padding:0 2px;}
-.wx-loc-name{font-size:14px;font-weight:900;color:var(--orange2);letter-spacing:-0.3px;}
+.wx-loc-name{font-size:14px;font-weight:900;color:var(--blue2);letter-spacing:-0.3px;}
 .wx-loc-time{font-size:11px;color:var(--dim);font-weight:600;}
 .wx-refresh{background:none;border:none;font-size:15px;cursor:pointer;padding:2px 4px;border-radius:4px;color:var(--text);}
-
 .wx-head{padding:16px;border-radius:16px;margin-bottom:12px;border:1.5px solid var(--border2);}
 .wx-head-clear{background:linear-gradient(135deg,#0d2818,#051a0e);border-color:#166534;}
 .wx-head-rain{background:linear-gradient(135deg,#1e293b,#0f172a);border-color:var(--blue);}
@@ -282,8 +402,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .wx-head-sub{font-size:13px;font-weight:600;color:var(--sub);margin-top:6px;}
 .wx-head-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
 .wx-chip{font-size:11px;font-weight:800;background:rgba(255,255,255,0.12);padding:4px 8px;border-radius:6px;color:#fff;}
-
-.wx-now{background:linear-gradient(140deg,#1a1d27,#12141c);border:1.5px solid var(--border2);border-radius:16px;padding:16px 18px;margin-bottom:12px;}
+.wx-now{background:linear-gradient(140deg,#151b27,#0f141d);border:1.5px solid var(--border2);border-radius:16px;padding:16px 18px;margin-bottom:12px;}
 .wx-now-top{display:flex;align-items:center;gap:14px;}
 .wx-now-ico{font-size:46px;line-height:1;flex-shrink:0;}
 .wx-now-temp{font-size:44px;font-weight:900;letter-spacing:-2.5px;line-height:1;color:#fff;}
@@ -296,14 +415,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .wx-cellx .k{font-size:9.5px;color:var(--dim);font-weight:700;}
 .wx-cellx .v{font-size:13px;font-weight:900;margin-top:4px;line-height:1.2;}
 .wx-cellx .u{font-size:9.5px;color:var(--dim);font-weight:600;margin-top:2px;}
-
 .wx-warns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
 .wx-warn{font-size:11.5px;font-weight:800;padding:7px 11px;border-radius:9px;border:1.5px solid;line-height:1.2;}
 .wx-warn.red{background:rgba(220,38,38,0.12);border-color:rgba(220,38,38,0.42);color:#f87171;}
 .wx-warn.amber{background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.42);color:var(--amber2);}
-.wx-warn.blue{background:rgba(74,158,255,0.14);border-color:rgba(74,158,255,0.42);color:var(--blue2);}
+.wx-warn.blue{background:rgba(37,99,235,0.14);border-color:rgba(37,99,235,0.42);color:var(--blue3);}
 .wx-warn.purple{background:rgba(124,58,237,0.14);border-color:rgba(124,58,237,0.42);color:var(--purple2);}
-
 .wx-m15{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:13px 13px 11px;margin-bottom:12px;}
 .wx-m15-cap{font-size:11.5px;font-weight:800;color:var(--sub);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
 .wx-m15-cap b{color:var(--blue2);}
@@ -313,11 +430,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .wx-m15-labels{display:flex;gap:4px;margin-top:6px;}
 .wx-m15-lb{flex:1;text-align:center;font-size:9px;color:var(--dim);font-weight:700;white-space:nowrap;}
 .wx-m15-empty{text-align:center;padding:14px 0;font-size:12.5px;color:var(--teal2);font-weight:700;}
-
 .wx-hstrip{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 10px;-webkit-overflow-scrolling:touch;margin-bottom:8px;}
 .wx-hstrip::-webkit-scrollbar{display:none;}
 .wx-hcard{flex:0 0 64px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:9px 4px 8px;text-align:center;}
-.wx-hcard.now{border-color:var(--orange);background:rgba(255,107,0,0.10);}
+.wx-hcard.now{border-color:var(--blue);background:rgba(37,99,235,0.10);}
 .wx-hcard.danger{border-color:rgba(220,38,38,0.45);background:rgba(220,38,38,0.09);}
 .wx-hcard.night{background:rgba(255,255,255,0.02);}
 .wx-h-t{font-size:10.5px;font-weight:800;color:var(--sub);}
@@ -325,19 +441,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .wx-h-p{font-size:10px;font-weight:800;color:var(--blue2);min-height:13px;}
 .wx-h-mm{font-size:10px;font-weight:800;color:var(--teal2);min-height:13px;}
 .wx-h-tp{font-size:13.5px;font-weight:900;color:var(--text);margin-top:4px;}
-
-.wx-sec-title{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:0.5px;margin:4px 2px 8px;}
-.wx-sec-title b{color:var(--orange2);}
-.wx-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.wx-btn{padding:12px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);color:var(--sub);font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer;transition:transform 0.1s;}
-.wx-btn:active{transform:scale(0.97);}
-.wx-btn.blue{border-color:#2a5a9a;color:var(--blue2);}
-.wx-btn.teal{border-color:#1a5a4a;color:var(--teal2);}
-.wx-btn.wide{width:100%;margin-bottom:8px;}
-.wx-frame-wrap{width:100%;height:320px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:12px;}
+.wx-sec-title{font-size:11px;color:var(--sub);font-weight:700;margin:4px 2px 8px;letter-spacing:.3px;}
+.wx-sec-title b{color:var(--blue2);}
+.wx-frame-wrap{width:100%;height:320px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border);margin-top:8px;}
 .wx-frame-wrap iframe{width:100%;height:100%;border:none;}
-.wx-note{font-size:10px;color:#666;line-height:1.6;text-align:center;margin-top:10px;}
-.wx-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,154,60,0.3);border-top-color:var(--orange2);border-radius:50%;animation:wxspin 0.7s linear infinite;vertical-align:-1px;margin-right:5px;}
+.wx-linkbtn{width:100%;padding:12px;border-radius:12px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;border:1.5px solid var(--border);background:var(--card);color:var(--sub);}
+.wx-note{font-size:10.5px;color:var(--dim);line-height:1.5;text-align:center;margin-top:10px;}
+.wx-bubble{background:#fff;color:#191919;border-radius:4px 16px 16px 16px;padding:15px 16px;font-size:14px;line-height:1.66;white-space:pre-wrap;word-break:break-word;font-weight:500;box-shadow:0 2px 12px rgba(0,0,0,0.3);width:100%;min-height:100px;border:1.5px solid transparent;outline:none;resize:none;overflow-y:hidden;font-family:inherit;display:block;}
+.wx-bubble:focus{border-color:var(--blue);}
+.wx-prev-lbl{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--sub);font-weight:700;margin-bottom:8px;}
+.wx-prev-lbl::before{content:'';width:18px;height:18px;border-radius:5px;background:var(--kakao);display:inline-block;}
+.wx-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;}
+.wx-act-btn{padding:15px;border:none;border-radius:13px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+.wx-act-btn.share{background:var(--kakao);color:#191919;}
+.wx-act-btn.copy{background:var(--card3);color:var(--text);border:1.5px solid var(--border2);}
+.wx-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(96,165,250,0.3);border-top-color:var(--blue3);border-radius:50%;animation:wxspin 0.7s linear infinite;vertical-align:-1px;margin-right:5px;}
 @keyframes wxspin{to{transform:rotate(360deg);}}
 
 .bottom-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:flex-end;justify-content:center;}
@@ -345,16 +463,32 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .bottom-sheet{background:var(--card);border-radius:22px 22px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;}
 .sheet-title{font-size:14px;font-weight:900;margin-bottom:4px;}
 .sheet-sub{font-size:11px;color:var(--sub);margin-bottom:20px;}
-.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-.price-item{background:var(--card2);border-radius:14px;padding:14px;}
-.price-item-label{font-size:10px;font-weight:700;margin-bottom:8px;}
-.price-item-label.a{color:var(--orange2);}
-.price-item-label.b{color:var(--blue2);}
-.price-item-label.c{color:var(--green2);}
-.price-item-label.d{color:var(--pink2);}
-.price-item input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 10px;font-size:20px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;}
-.price-item input:focus{border-color:var(--orange);}
-.price-item-unit{font-size:10px;color:var(--sub);text-align:center;margin-top:6px;}
+
+/* ── ⚙️ 물품 · 단가 설정 (2열 카드) ── */
+#price-item-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.pi-card{background:var(--card2);border-radius:14px;padding:11px 10px;border:1.5px solid var(--border);transition:opacity .2s,border .2s;min-width:0;}
+.pi-card.off{opacity:.4;}
+.pi-top{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.pi-tag{font-size:14px;font-weight:800;flex-shrink:0;width:18px;text-align:center;}
+.pi-sw{position:relative;width:38px;height:22px;flex-shrink:0;margin-left:auto;}
+.pi-sw input{opacity:0;width:0;height:0;}
+.pi-sl{position:absolute;inset:0;background:#2a2d3a;border-radius:22px;transition:.2s;cursor:pointer;}
+.pi-sl::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.pi-sw input:checked+.pi-sl{background:var(--orange);}
+.pi-sw input:checked+.pi-sl::before{transform:translateX(16px);}
+.pi-name{width:100%;min-width:0;background:var(--card);border:1.5px solid var(--border);border-radius:9px;padding:9px 8px;font-size:13.5px;font-weight:700;color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none;margin-bottom:7px;}
+.pi-name:focus{border-color:var(--orange);}
+.pi-price{display:flex;align-items:center;gap:5px;}
+.pi-price input{flex:1;min-width:0;background:var(--card);border:1.5px solid var(--border);border-radius:9px;padding:9px 6px;font-size:15px;font-weight:900;text-align:center;color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none;}
+.pi-price input:focus{border-color:var(--orange);}
+.pi-unit{font-size:10px;color:var(--sub);flex-shrink:0;font-weight:700;}
+.pi-keybox{background:var(--card2);border:1.5px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:14px;}
+.pi-keybox label{display:block;font-size:11px;color:var(--lbl);font-weight:800;margin-bottom:7px;letter-spacing:.3px;}
+.pi-keybox input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none;}
+.pi-keybox input:focus{border-color:var(--purple);}
+.pi-keybox .k-hint{font-size:10px;color:#777;margin-top:7px;line-height:1.6;}
+.pi-keybox .k-state{font-size:10.5px;font-weight:800;margin-top:6px;}
+
 .btn-price-save{width:100%;padding:15px;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;margin-bottom:10px;}
 .btn-price-save:active{transform:scale(0.97);}
 .backup-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
@@ -414,7 +548,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
           <text x="50" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="33" fill="#FEE500" text-anchor="middle" letter-spacing="-1.5">TALK</text>
         </svg>
       </div>
-      <div class="header-icon-btn" onclick="openPriceSheet()" title="단가 설정">⚙️</div>
+      <div class="header-icon-btn" onclick="openPriceSheet()" title="설정">⚙️</div>
       <div class="header-icon-btn" onclick="openBackupSheet()" title="백업">💾</div>
     </div>
   </div>
@@ -437,12 +571,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
   </div>
   <div class="tabs">
     <button class="tab active" onclick="switchTab('input')" id="tab-input">✏️ 입력</button>
+    <button class="tab" onclick="switchTab('est')" id="tab-est">🔮 예상</button>
+    <button class="tab" onclick="switchTab('wx')" id="tab-wx">🌤 날씨</button>
     <button class="tab" onclick="switchTab('history')" id="tab-history">📋 기록</button>
     <button class="tab" onclick="switchTab('stats')" id="tab-stats">📊 통계</button>
     <button class="tab" onclick="switchTab('car')" id="tab-car">🚗 차량</button>
-    <button class="tab" onclick="switchTab('weather')" id="tab-weather">🌤 날씨</button>
   </div>
-  <div class="wx-strip" id="wx-strip" onclick="switchTab('weather')"></div>
+  <div class="wx-strip" id="wx-strip" onclick="switchTab('wx')"></div>
   <div class="content" id="content"></div>
 </div>
 <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(event)">
@@ -459,7 +594,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       <div class="report-mode-tab" id="mode-car-btn" onclick="switchReportMode('car')">🚗 차량 월간 지출</div>
     </div>
 
-    <!-- 1. 당일 보고 영역 -->
     <div id="report-daily-section">
       <div class="row2" style="margin-bottom:12px;">
         <div class="field" style="margin-bottom:0;">
@@ -493,7 +627,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       <div class="daily-edit-note" id="daily-edit-note">✏️ 직접 수정한 내용을 유지 중입니다 · 옵션을 바꿔도 덮어쓰지 않아요</div>
     </div>
 
-    <!-- 2. 월간 정산 보고 영역 -->
     <div id="report-monthly-section" style="display:none;">
       <div class="week-nav" style="margin-bottom: 16px;">
         <button class="week-nav-btn" onclick="changeReportMonth(-1)">◀</button>
@@ -511,7 +644,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       </div>
     </div>
 
-    <!-- 3. 차량 월간 지출 보고 영역 -->
     <div id="report-car-section" style="display:none;">
       <div class="week-nav" style="margin-bottom: 16px;">
         <button class="week-nav-btn" onclick="changeReportMonth(-1)">◀</button>
@@ -528,26 +660,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
   </div>
 </div>
 
-<!-- 단가 설정 시트 -->
+<!-- 설정 시트 (물품 · 단가 · API 키) -->
 <div class="bottom-sheet-overlay" id="price-sheet" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="bottom-sheet">
-    <div class="sheet-title">⚙️ 단가 설정</div>
-    <div class="sheet-sub" id="price-sheet-sub">현재 단가를 수정하고 저장하세요</div>
-    <div style="font-size:10px;color:var(--sub);margin-bottom:8px;letter-spacing:0.5px">✏️ 물품명 설정</div>
-    <div class="price-grid">
-      <div class="price-item"><div class="price-item-label a">🅰 물품 A 이름</div><input type="text" id="ps-na" placeholder="물품 A" maxlength="12" style="font-size:16px;text-align:center"></div>
-      <div class="price-item"><div class="price-item-label b">🅱 물품 B 이름</div><input type="text" id="ps-nb" placeholder="물품 B" maxlength="12" style="font-size:16px;text-align:center"></div>
-      <div class="price-item"><div class="price-item-label c">🅲 물품 C 이름</div><input type="text" id="ps-nc" placeholder="물품 C" maxlength="12" style="font-size:16px;text-align:center"></div>
-      <div class="price-item"><div class="price-item-label d">🅳 물품 D 이름</div><input type="text" id="ps-nd" placeholder="물품 D" maxlength="12" style="font-size:16px;text-align:center"></div>
+    <div class="sheet-title">⚙️ 설정 — 물품 · 단가 · API 키</div>
+    <div class="sheet-sub" id="price-sheet-sub">사용하는 물품만 켜두면 입력 · 기록 · 통계 화면에 그 물품만 나타납니다</div>
+    <div id="price-item-list"></div>
+    <div class="backup-hint" style="margin-bottom:14px">단가는 새로 저장하는 기록부터 적용되며, 지난 기록의 정산 금액은 안전하게 보존됩니다<br>물품을 꺼도 기존 기록의 수량 · 금액은 사라지지 않습니다</div>
+
+    <div class="pi-keybox">
+      <label>🔑 Gemini API 키 — 예상 탭 물량표 이미지 인식용</label>
+      <input type="password" id="ps-gemini-key" placeholder="AIza..." autocomplete="off" spellcheck="false" oninput="updateKeyState()">
+      <div class="k-state" id="ps-key-state"></div>
+      <div class="k-hint">이 기기에만 저장되며 외부로 전송되지 않습니다 · 비워두고 저장하면 삭제됩니다<br>발급: Google AI Studio → API key</div>
     </div>
-    <div style="font-size:10px;color:var(--sub);margin:12px 0 8px;letter-spacing:0.5px">💰 단가 설정 (원 / 건)</div>
-    <div class="price-grid">
-      <div class="price-item"><div class="price-item-label a">🅰 물품 A</div><input type="number" id="ps-pa" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
-      <div class="price-item"><div class="price-item-label b">🅱 물품 B</div><input type="number" id="ps-pb" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
-      <div class="price-item"><div class="price-item-label c">🅲 물품 C</div><input type="number" id="ps-pc" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
-      <div class="price-item"><div class="price-item-label d">🅳 물품 D</div><input type="number" id="ps-pd" inputmode="numeric" pattern="[0-9]*" placeholder="100"><div class="price-item-unit">원 / 건</div></div>
-    </div>
-    <div class="backup-hint" style="margin-bottom:12px">새로 저장하는 기록부터 적용되며, 지난 기록의 정산 금액은 안전하게 보존됩니다</div>
+
     <button class="btn-price-save" onclick="savePrices()">💾 저장 · 적용</button>
     <button class="btn-sheet-close" onclick="document.getElementById('price-sheet').classList.remove('show')">닫기</button>
   </div>
@@ -562,7 +689,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       <button class="btn-bk btn-bk-export" onclick="exportData()">📤 내보내기<br><span style="font-size:10px;font-weight:400;opacity:0.8">JSON 파일 저장</span></button>
       <button class="btn-bk btn-bk-import" onclick="document.getElementById('import-file').click()">📥 불러오기<br><span style="font-size:10px;font-weight:400;opacity:0.8">JSON 파일 복원</span></button>
     </div>
-    <button class="btn-bk btn-bk-excel" onclick="exportExcel()" style="width:100%;margin-bottom:10px">📊 엑셀 파일로 내보내기<br><span style="font-size:10px;font-weight:400;opacity:0.8">배송 · 차량 · 월별요약 3개 시트 (.xlsx)</span></button>
+    <button class="btn-bk btn-bk-excel" onclick="exportExcel()" style="width:100%;margin-bottom:10px">📊 엑셀 파일로 내보내기<br><span style="font-size:10px;font-weight:400;opacity:0.8">배송 · 차량 · 월별요약 · 예상학습 시트 (.xlsx)</span></button>
     <button class="btn-bk btn-bk-reset" onclick="confirmReset()" style="width:100%;margin-bottom:14px">🗑 전체 초기화<br><span style="font-size:10px;font-weight:400;opacity:0.8">모든 배송·차량 기록 삭제</span></button>
     <div class="backup-hint">복원은 JSON 파일로만 가능합니다 · 엑셀은 보관 · 정산 제출용<br>가져오기 시 기존 기록과 병합 · 중복 제외 · 주 1회 백업 권장</div>
     <button class="btn-sheet-close" onclick="document.getElementById('backup-sheet').classList.remove('show')">닫기</button>
@@ -587,6 +714,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 const TAX=0.033;
 const DAYS=['일','월','화','수','목','금','토'];
 
+/* ── 물품 6종 정의 ─────────────────────── */
+const KEYS=['A','B','C','D','E','F'];
+const KEMO={A:'🅰',B:'🅱',C:'🅲',D:'🅳',E:'🅴',F:'🅵'};
+const KCLS={A:'a',B:'b',C:'c',D:'d',E:'e',F:'f'};
+const KCOL={A:'var(--orange2)',B:'var(--blue2)',C:'var(--green2)',D:'var(--pink2)',E:'var(--teal2)',F:'var(--amber2)'};
+const DEF_NAME={A:'오네',B:'오네 책',C:'딜리',D:'물품 D',E:'물품 E',F:'물품 F'};
+const DEF_PRICE={A:1400,B:1200,C:1200,D:1000,E:1000,F:1000};
+
 /* ── 유틸 ───────────────────────────────── */
 function today(){
   const d=new Date();
@@ -605,14 +740,26 @@ function lsSet(k,v){
 }
 function lsGet(k,def){ try{ return localStorage.getItem(k)??def; }catch(e){ return def; } }
 
-let PA=Number(lsGet('price-A',0))||1400;
-let PB=Number(lsGet('price-B',0))||1200;
-let PC=Number(lsGet('price-C',0))||1200;
-let PD=Number(lsGet('price-D',0))||1000;
-let nameA=safeName(lsGet('name-A',''))||'오네';
-let nameB=safeName(lsGet('name-B',''))||'오네 책';
-let nameC=safeName(lsGet('name-C',''))||'딜리';
-let nameD=safeName(lsGet('name-D',''))||'물품 D';
+let PRICE={},NAME={},ON={};
+KEYS.forEach(k=>{
+  PRICE[k]=Number(lsGet('price-'+k,0))||DEF_PRICE[k];
+  NAME[k]=safeName(lsGet('name-'+k,''))||DEF_NAME[k];
+});
+let hasStoredOn=false;
+(function(){
+  let raw=null;
+  try{ raw=JSON.parse(lsGet('item-on','null')); }catch(e){}
+  if(raw&&typeof raw==='object'&&!Array.isArray(raw)){
+    hasStoredOn=true;
+    KEYS.forEach(k=>ON[k]=!!raw[k]);
+  } else {
+    KEYS.forEach(k=>ON[k]=(k==='A'||k==='B'||k==='C'));
+  }
+  if(!KEYS.some(k=>ON[k])) ON.A=true;
+})();
+function saveOn(){ lsSet('item-on',JSON.stringify(ON)); }
+function actKeys(){ return KEYS.filter(k=>ON[k]); }
+
 let areaName=safeName(lsGet('dlv-area-name',''))||'일원';
 let dailyStyle=lsGet('dlv-daily-style','style1')||'style1';
 let dailyType=lsGet('dlv-daily-type','both')||'both';
@@ -626,6 +773,19 @@ function loadRecords(key){
 }
 
 let records=loadRecords('dlv-v4');
+if(!hasStoredOn){
+  KEYS.forEach(k=>{ if(!ON[k]&&records.some(r=>(Number(r['qty'+k])||0)>0)) ON[k]=true; });
+}
+
+/* 기록에 실제 값이 있거나 사용중인 물품 */
+function usedKeys(list){
+  const src=Array.isArray(list)?list:records;
+  const s=new Set(actKeys());
+  src.forEach(r=>KEYS.forEach(k=>{ if((Number(r['qty'+k])||0)>0) s.add(k); }));
+  return KEYS.filter(k=>s.has(k));
+}
+function qtyOf(r){ let s=0; KEYS.forEach(k=>s+=Number(r&&r['qty'+k])||0); return s; }
+
 let tab='input', editId=null, deleteId=null, pendingDupId=null;
 let statPeriod='month', weekYear=new Date().getFullYear(), weekMonth=new Date().getMonth(), weekIndex=0;
 let statYear=new Date().getFullYear(), statMonth=new Date().getMonth();
@@ -634,7 +794,11 @@ let carStatYear=new Date().getFullYear(), carStatMonth=new Date().getMonth();
 let calSelectedDate=null;
 let form=defForm();
 
-function defForm(){ return{date:today(),qtyA:'',qtyB:'',qtyC:'',qtyD:'',startTime:'',endTime:'',memo:''}; }
+function defForm(){
+  const f={date:today(),startTime:'',endTime:'',memo:''};
+  KEYS.forEach(k=>f['qty'+k]='');
+  return f;
+}
 
 function workMin(s,e){
   if(!s||!e) return 0;
@@ -655,15 +819,19 @@ function perHour(qty,s,e){
   return Math.round((Number(qty)/m)*60*10)/10;
 }
 
-function calcPay(a,b,c,d,customRates){
-  const r = customRates || {};
-  const rA = (r.A !== undefined && r.A !== null && r.A !== '') ? Number(r.A) : PA;
-  const rB = (r.B !== undefined && r.B !== null && r.B !== '') ? Number(r.B) : PB;
-  const rC = (r.C !== undefined && r.C !== null && r.C !== '') ? Number(r.C) : PC;
-  const rD = (r.D !== undefined && r.D !== null && r.D !== '') ? Number(r.D) : PD;
-  const A=Number(a)||0,B=Number(b)||0,C=Number(c)||0,D=Number(d)||0;
-  const gross=A*rA+B*rB+C*rC+D*rD, net=Math.round(gross*(1-TAX));
-  return {A,B,C,D,gross,net,tax:gross-net,qty:A+B+C+D,rates:{A:rA,B:rB,C:rC,D:rD}};
+/* r : {qtyA..qtyF, rates?} */
+function calcPay(r,ratesOverride){
+  const rates=ratesOverride||(r&&r.rates)||null;
+  const out={q:{},amt:{},rates:{},qty:0,gross:0};
+  KEYS.forEach(k=>{
+    const q=Number(r&&r['qty'+k])||0;
+    const rv=(rates&&rates[k]!==undefined&&rates[k]!==null&&rates[k]!=='')?Number(rates[k]):PRICE[k];
+    out.q[k]=q; out.rates[k]=rv; out.amt[k]=q*rv;
+    out.qty+=q; out.gross+=q*rv;
+  });
+  out.net=Math.round(out.gross*(1-TAX));
+  out.tax=out.gross-out.net;
+  return out;
 }
 
 function saveAll(){ lsSet('dlv-v4',JSON.stringify(records)); updateSummary(); }
@@ -671,13 +839,13 @@ function saveAll(){ lsSet('dlv-v4',JSON.stringify(records)); updateSummary(); }
 function updateSummary(){
   const m=today().slice(0,7);
   const mr=records.filter(r=>r.date.startsWith(m));
-  const mq=mr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
-  const mg=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).gross,0);
-  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
+  const mq=mr.reduce((s,r)=>s+qtyOf(r),0);
+  const mg=mr.reduce((s,r)=>s+calcPay(r).gross,0);
+  const mn=mr.reduce((s,r)=>s+calcPay(r).net,0);
   const vr=mr.filter(r=>workMin(r.startTime,r.endTime)>0);
   let avgSpd=null;
   if(vr.length){
-    const tq=vr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
+    const tq=vr.reduce((s,r)=>s+qtyOf(r),0);
     const tm=vr.reduce((s,r)=>s+workMin(r.startTime,r.endTime),0);
     avgSpd=Math.round((tq/tm)*60*10)/10;
   }
@@ -690,53 +858,47 @@ function updateSummary(){
 
 function switchTab(t){
   tab=t;
-  ['input','history','stats','car','weather'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
+  ['input','est','wx','history','stats','car'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
   render();
   scrollTop();
-  if(t==='weather'&&!wx.timeline&&!wx.loading) fetchWeather();
 }
 function scrollTop(){ const c=document.getElementById('content'); if(c) c.scrollTop=0; }
 
 function render(){
   const c=document.getElementById('content');
-  c.innerHTML=tab==='input'?renderInput():tab==='history'?renderHistory():tab==='car'?renderCarTab():tab==='weather'?renderWeather():renderStats();
+  c.innerHTML=tab==='input'?renderInput()
+    :tab==='est'?renderEst()
+    :tab==='wx'?renderWeather()
+    :tab==='history'?renderHistory()
+    :tab==='car'?renderCarTab()
+    :renderStats();
   if(tab==='input') bindInputEvents();
   if(tab==='car'&&carSubTab==='input') bindCarEvents();
+  if(tab==='wx') afterWeatherRender();
 }
 
 /* ── 배송 입력 ──────────────────────────── */
+function formKeys(){
+  const s=new Set(actKeys());
+  KEYS.forEach(k=>{ if(String(form['qty'+k]||'').trim()!=='') s.add(k); });
+  return KEYS.filter(k=>s.has(k));
+}
+
 function renderInput(){
+  const keys=formKeys();
+  const itemsHtml=keys.map(k=>`
+        <div class="ab-item">
+          <div class="ab-item-label ${KCLS[k]}">${KEMO[k]} ${esc(NAME[k])}</div>
+          <input type="number" id="f-q${k}" value="${esc(form['qty'+k])}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
+          <div class="ab-item-price">${PRICE[k].toLocaleString()}원</div>
+          <div class="ab-item-sub ${KCLS[k]}" id="sub-${k}">${form['qty'+k]?won((Number(form['qty'+k])||0)*PRICE[k]):''}</div>
+        </div>`).join('');
   return `
     ${editId!==null?`<div class="edit-banner">✏️ 수정 모드 — 기존 기록을 수정하고 있습니다</div>`:''}
     <div class="field"><label>📅 날짜</label><input type="date" id="f-date" value="${form.date}"></div>
     <div class="ab-box">
-      <div class="ab-title">📦 배송 물품 수량 입력</div>
-      <div class="ab-row">
-        <div class="ab-item">
-          <div class="ab-item-label a">🅰 ${esc(nameA)}</div>
-          <input type="number" id="f-qA" value="${esc(form.qtyA)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
-          <div class="ab-item-price">${PA.toLocaleString()}원</div>
-          <div class="ab-item-sub a" id="sub-a">${form.qtyA?won((Number(form.qtyA)||0)*PA):''}</div>
-        </div>
-        <div class="ab-item">
-          <div class="ab-item-label b">🅱 ${esc(nameB)}</div>
-          <input type="number" id="f-qB" value="${esc(form.qtyB)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
-          <div class="ab-item-price">${PB.toLocaleString()}원</div>
-          <div class="ab-item-sub b" id="sub-b">${form.qtyB?won((Number(form.qtyB)||0)*PB):''}</div>
-        </div>
-        <div class="ab-item">
-          <div class="ab-item-label c">🅲 ${esc(nameC)}</div>
-          <input type="number" id="f-qC" value="${esc(form.qtyC)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
-          <div class="ab-item-price">${PC.toLocaleString()}원</div>
-          <div class="ab-item-sub c" id="sub-c">${form.qtyC?won((Number(form.qtyC)||0)*PC):''}</div>
-        </div>
-        <div class="ab-item">
-          <div class="ab-item-label d">🅳 ${esc(nameD)}</div>
-          <input type="number" id="f-qD" value="${esc(form.qtyD)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
-          <div class="ab-item-price">${PD.toLocaleString()}원</div>
-          <div class="ab-item-sub d" id="sub-d">${form.qtyD?won((Number(form.qtyD)||0)*PD):''}</div>
-        </div>
-      </div>
+      <div class="ab-title">📦 배송 물품 수량 입력 <span style="color:#555">· ⚙️에서 사용 물품을 켜고 끌 수 있어요</span></div>
+      <div class="ab-row">${itemsHtml}</div>
     </div>
     <div id="calc-area">${renderCalcArea()}</div>
     <div class="row2">
@@ -751,13 +913,13 @@ function renderInput(){
 }
 
 function renderCalcArea(){
-  const p=calcPay(form.qtyA,form.qtyB,form.qtyC,form.qtyD);
+  const p=calcPay(form,{A:PRICE.A,B:PRICE.B,C:PRICE.C,D:PRICE.D,E:PRICE.E,F:PRICE.F});
   if(p.qty===0) return '';
+  const rows=KEYS.filter(k=>p.q[k]>0).map(k=>
+    `<div class="calc-row"><span class="calc-label">${KEMO[k]} ${esc(NAME[k])} ${p.q[k].toLocaleString()}건</span><span class="calc-val" style="color:${KCOL[k]}">${won(p.amt[k])}</span></div>`
+  ).join('');
   return `<div class="calc-box">
-    ${p.A>0?`<div class="calc-row"><span class="calc-label">🅰 ${esc(nameA)} ${p.A.toLocaleString()}건</span><span class="calc-val" style="color:var(--orange2)">${won(p.A*PA)}</span></div>`:''}
-    ${p.B>0?`<div class="calc-row"><span class="calc-label">🅱 ${esc(nameB)} ${p.B.toLocaleString()}건</span><span class="calc-val" style="color:var(--blue2)">${won(p.B*PB)}</span></div>`:''}
-    ${p.C>0?`<div class="calc-row"><span class="calc-label">🅲 ${esc(nameC)} ${p.C.toLocaleString()}건</span><span class="calc-val" style="color:var(--green2)">${won(p.C*PC)}</span></div>`:''}
-    ${p.D>0?`<div class="calc-row"><span class="calc-label">🅳 ${esc(nameD)} ${p.D.toLocaleString()}건</span><span class="calc-val" style="color:var(--pink2)">${won(p.D*PD)}</span></div>`:''}
+    ${rows}
     <hr class="calc-divider">
     <div class="calc-row"><span class="calc-total-label">합계 ${p.qty.toLocaleString()}건</span><span class="calc-total-val">${won(p.gross)}</span></div>
     <div class="calc-row" style="margin-top:4px"><span class="calc-net-label">💰 실수령 (3.3% 공제)</span><span class="calc-net-val">${won(p.net)}</span></div>
@@ -768,12 +930,9 @@ function renderCalcArea(){
 function renderDurArea(){
   const st=document.getElementById('f-st')?.value||form.startTime||'';
   const et=document.getElementById('f-et')?.value||form.endTime||'';
-  const p=calcPay(
-    document.getElementById('f-qA')?.value??form.qtyA,
-    document.getElementById('f-qB')?.value??form.qtyB,
-    document.getElementById('f-qC')?.value??form.qtyC,
-    document.getElementById('f-qD')?.value??form.qtyD
-  );
+  const tmp={};
+  KEYS.forEach(k=>tmp['qty'+k]=document.getElementById('f-q'+k)?.value??form['qty'+k]);
+  const p=calcPay(tmp);
   const mins=workMin(st,et);
   const spd=perHour(p.qty,st,et);
   let html='';
@@ -799,14 +958,14 @@ function clampQty(el){
 
 function onQtyChange(e){
   clampQty(e&&e.target);
-  form.qtyA=document.getElementById('f-qA')?.value??'';
-  form.qtyB=document.getElementById('f-qB')?.value??'';
-  form.qtyC=document.getElementById('f-qC')?.value??'';
-  form.qtyD=document.getElementById('f-qD')?.value??'';
-  const A=Number(form.qtyA)||0,B=Number(form.qtyB)||0,C=Number(form.qtyC)||0,D=Number(form.qtyD)||0;
-  const set=(id,v)=>{const el=document.getElementById(id);if(el) el.textContent=v;};
-  set('sub-a',A>0?won(A*PA):''); set('sub-b',B>0?won(B*PB):'');
-  set('sub-c',C>0?won(C*PC):''); set('sub-d',D>0?won(D*PD):'');
+  KEYS.forEach(k=>{
+    const el=document.getElementById('f-q'+k);
+    if(el) form['qty'+k]=el.value;
+  });
+  KEYS.forEach(k=>{
+    const s=document.getElementById('sub-'+k);
+    if(s){ const q=Number(form['qty'+k])||0; s.textContent=q>0?won(q*PRICE[k]):''; }
+  });
   const ca=document.getElementById('calc-area'); if(ca) ca.innerHTML=renderCalcArea();
   const da=document.getElementById('dur-area'); if(da) da.innerHTML=renderDurArea();
   updateSaveBtn();
@@ -823,13 +982,14 @@ function onTimeChange(){
 function updateSaveBtn(){
   const btn=document.getElementById('btn-save-main');
   if(!btn) return;
-  const ok=form.date&&(form.qtyA||form.qtyB||form.qtyC||form.qtyD)&&form.startTime&&form.endTime;
+  const anyQty=KEYS.some(k=>String(form['qty'+k]||'').trim()!==''&&Number(form['qty'+k])>0);
+  const ok=form.date&&anyQty&&form.startTime&&form.endTime;
   btn.classList.toggle('disabled',!ok);
 }
 
 function bindInputEvents(){
   document.getElementById('f-date')?.addEventListener('change',e=>{ form.date=e.target.value; updateSaveBtn(); });
-  ['f-qA','f-qB','f-qC','f-qD'].forEach(id=>document.getElementById(id)?.addEventListener('input',onQtyChange));
+  KEYS.forEach(k=>document.getElementById('f-q'+k)?.addEventListener('input',onQtyChange));
   ['f-st','f-et'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     ['input','change','blur'].forEach(ev=>el.addEventListener(ev,onTimeChange));
@@ -841,10 +1001,7 @@ function bindInputEvents(){
 function readInputForm(){
   const g=id=>document.getElementById(id);
   if(g('f-date')) form.date=g('f-date').value;
-  if(g('f-qA')) form.qtyA=g('f-qA').value;
-  if(g('f-qB')) form.qtyB=g('f-qB').value;
-  if(g('f-qC')) form.qtyC=g('f-qC').value;
-  if(g('f-qD')) form.qtyD=g('f-qD').value;
+  KEYS.forEach(k=>{ if(g('f-q'+k)) form['qty'+k]=g('f-q'+k).value; });
   if(g('f-st')) form.startTime=g('f-st').value;
   if(g('f-et')) form.endTime=g('f-et').value;
   if(g('f-memo')) form.memo=g('f-memo').value;
@@ -854,7 +1011,7 @@ function handleSave(){
   readInputForm();
   const miss=[];
   if(!form.date) miss.push('날짜');
-  if(!form.qtyA&&!form.qtyB&&!form.qtyC&&!form.qtyD) miss.push('수량');
+  if(!KEYS.some(k=>Number(form['qty'+k])>0)) miss.push('수량');
   if(!form.startTime) miss.push('출발 시간');
   if(!form.endTime) miss.push('마무리 시간');
   if(miss.length){ showToast('⚠️ '+miss.join(' · ')+' 입력이 필요해요'); return; }
@@ -864,14 +1021,14 @@ function handleSave(){
 }
 
 function commitSave(){
-  const currentRates = { A: PA, B: PB, C: PC, D: PD };
-  const snapshotRates = (editId !== null)
-    ? (records.find(r => r.id === editId)?.rates || currentRates)
+  const currentRates={}; KEYS.forEach(k=>currentRates[k]=PRICE[k]);
+  const snapshotRates=(editId!==null)
+    ? Object.assign({},currentRates,(records.find(r=>r.id===editId)||{}).rates||{})
     : currentRates;
 
   if(pendingDupId!==null){ records=records.filter(r=>r.id!==pendingDupId); pendingDupId=null; }
-  if(editId!==null){ records=records.map(r=>r.id===editId?{...form, id:editId, rates: snapshotRates}:r); editId=null; }
-  else records.unshift({...form, id:Date.now(), rates: snapshotRates});
+  if(editId!==null){ records=records.map(r=>r.id===editId?{...form,id:editId,rates:snapshotRates}:r); editId=null; }
+  else records.unshift({...form,id:Date.now(),rates:snapshotRates});
   records.sort((a,b)=>b.date.localeCompare(a.date));
   saveAll();
   form=defForm();
@@ -881,7 +1038,8 @@ function commitSave(){
 
 function startEdit(id){
   const r=records.find(x=>x.id===id); if(!r) return;
-  form={date:r.date,qtyA:r.qtyA||'',qtyB:r.qtyB||'',qtyC:r.qtyC||'',qtyD:r.qtyD||'',startTime:r.startTime||'',endTime:r.endTime||'',memo:r.memo||''};
+  form={date:r.date,startTime:r.startTime||'',endTime:r.endTime||'',memo:r.memo||''};
+  KEYS.forEach(k=>form['qty'+k]=r['qty'+k]||'');
   editId=id; switchTab('input');
 }
 function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); render(); }
@@ -890,12 +1048,15 @@ function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); render();
 function renderHistory(){
   if(!records.length) return `<div class="empty">📭 아직 기록이 없어요<br><span style="font-size:12px">첫 배송을 기록해보세요!</span></div>`;
   return records.map(r=>{
-    const p=calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates);
+    const p=calcPay(r);
     const mins=workMin(r.startTime,r.endTime);
     const spd=perHour(p.qty,r.startTime,r.endTime);
     const h=Math.floor(mins/60),m=mins%60;
     const hStr=h>0?`${h}시간 ${m}분`:`${m}분`;
-    const rA=p.rates.A, rB=p.rates.B, rC=p.rates.C, rD=p.rates.D;
+    const shown=KEYS.filter(k=>p.q[k]>0);
+    const itemsHtml=(shown.length?shown:actKeys()).map(k=>
+      `<div class="rec-item ${KCLS[k]}"><div class="rec-item-lbl ${KCLS[k]}">${KEMO[k]} ${esc(NAME[k])}</div><div class="rec-item-qty ${KCLS[k]}">${p.q[k].toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.amt[k])}</div></div>`
+    ).join('');
     return `<div class="rec-card">
       <div class="rec-head">
         <div><div class="rec-date">${fmtDate(r.date)}<span class="rec-day">${fmtDay(r.date)}</span></div></div>
@@ -907,12 +1068,7 @@ function renderHistory(){
         </div>
         <div class="speed-badge-right"><div class="speed-badge-hrs">근무 ${hStr}</div><div class="speed-badge-total">총 ${p.qty.toLocaleString()}건</div></div>
       </div>`:''}
-      <div class="rec-items">
-        <div class="rec-item a"><div class="rec-item-lbl a">🅰 ${esc(nameA)}</div><div class="rec-item-qty a">${p.A.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.A*rA)}</div></div>
-        <div class="rec-item b"><div class="rec-item-lbl b">🅱 ${esc(nameB)}</div><div class="rec-item-qty b">${p.B.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.B*rB)}</div></div>
-        <div class="rec-item c"><div class="rec-item-lbl c">🅲 ${esc(nameC)}</div><div class="rec-item-qty c">${p.C.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.C*rC)}</div></div>
-        <div class="rec-item d"><div class="rec-item-lbl d">🅳 ${esc(nameD)}</div><div class="rec-item-qty d">${p.D.toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.D*rD)}</div></div>
-      </div>
+      <div class="rec-items">${itemsHtml}</div>
       <div class="rec-pay">
         <div class="rec-pay-row"><span>총 배송</span><b>${p.qty.toLocaleString()} 건</b></div>
         <hr class="rec-pay-sep">
@@ -957,7 +1113,6 @@ carWeekIndex=currentWeekIndex(carWeekYear,carWeekMonth);
 
 function moveWeek(dir,iscar){
   if(!iscar){
-    calSelectedDate=null;
     const weeks=getCalWeeks(weekYear,weekMonth);
     const ni=weekIndex+dir;
     if(ni>=0&&ni<weeks.length){weekIndex=ni;}
@@ -974,17 +1129,16 @@ function moveWeek(dir,iscar){
 }
 function jumpToCurrentWeek(iscar){
   const now=new Date();
-  if(!iscar){calSelectedDate=null;weekYear=now.getFullYear();weekMonth=now.getMonth();weekIndex=currentWeekIndex(weekYear,weekMonth);}
+  if(!iscar){weekYear=now.getFullYear();weekMonth=now.getMonth();weekIndex=currentWeekIndex(weekYear,weekMonth);}
   else{carWeekYear=now.getFullYear();carWeekMonth=now.getMonth();carWeekIndex=currentWeekIndex(carWeekYear,carWeekMonth);}
   render();
 }
 
-/* ── 월별 달력 (통계 탭 내부) ────────────── */
-function renderCalSection(year,month){
+/* ── 📅 월별 달력 (통계 탭 내부) ────────── */
+function renderCalBlock(year,month){
   const ym=`${year}-${String(month+1).padStart(2,'0')}`;
   const todayStr=today();
   const mr=records.filter(r=>r.date.startsWith(ym));
-  const mn=mr.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
   const mCar=carRecords.filter(r=>r.date.startsWith(ym));
   const cStats=carStatsFor(mCar);
 
@@ -1006,19 +1160,20 @@ function renderCalSection(year,month){
     const cr2=carMap[calSelectedDate]||[];
     const fd=toDate(calSelectedDate);
     const dayLabel=`${fd.getMonth()+1}월 ${fd.getDate()}일 (${DAYS[fd.getDay()]}요일)`;
-    const p=dr?calcPay(dr.qtyA,dr.qtyB,dr.qtyC,dr.qtyD,dr.rates):null;
+    const p=dr?calcPay(dr):null;
+    const itemLine=p?KEYS.filter(k=>p.q[k]>0).map(k=>`${KEMO[k]}${p.q[k]}`).join(' · '):'';
     detailHtml=`<div class="cal-day-detail">
       <div class="cal-day-detail-title">📌 ${dayLabel}</div>
       ${dr?`
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
-          <span style="color:var(--sub)">🅰${p.A} · 🅱${p.B} · 🅲${p.C}${p.D>0?' · 🅳'+p.D:''}</span>
-          <span style="color:var(--orange2);font-weight:700">총 ${p.qty}건</span>
+          <span style="color:#9aa3b2">${itemLine}</span>
+          <span style="color:var(--orange2);font-weight:800">총 ${p.qty}건</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:var(--sub)">💵 총액</span><span style="font-weight:700;color:var(--green2)">${won(p.gross)}</span>
+          <span style="color:#9aa3b2">💵 총액</span><span style="font-weight:800;color:var(--green2)">${won(p.gross)}</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:var(--sub)">💰 실수령</span><span style="font-weight:700;color:var(--green)">${won(p.net)}</span>
+          <span style="color:#9aa3b2">💰 실수령</span><span style="font-weight:800;color:var(--green)">${won(p.net)}</span>
         </div>
         <div style="font-size:11px;color:var(--sub);margin-top:4px">⏱ ${esc(dr.startTime||'-')} ~ ${esc(dr.endTime||'-')} · ${durStr(dr.startTime,dr.endTime)}</div>
         ${dr.memo?`<div style="font-size:11px;color:var(--sub);margin-top:4px;white-space:pre-wrap">📝 ${esc(dr.memo)}</div>`:''}
@@ -1031,8 +1186,8 @@ function renderCalSection(year,month){
         const tFl=fl>0?fl:autoFl,tFc=fc>0?fc:Math.round(fp*fl);
         return `<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
           <div style="display:flex;justify-content:space-between;font-size:12px">
-            <span style="color:var(--teal2)">🚗 주행 ${km.toLocaleString()}km</span>
-            ${tFl>0?`<span style="color:#fcd34d;font-size:11px">⛽ ${tFl}L ${tFc>0?'· '+won(tFc):''}</span>`:''}
+            <span style="color:var(--teal2);font-weight:700">🚗 주행 ${km.toLocaleString()}km</span>
+            ${tFl>0?`<span style="color:#ffd977;font-size:11px;font-weight:700">⛽ ${tFl}L ${tFc>0?'· '+won(tFc):''}</span>`:''}
           </div>
         </div>`;
       }).join(''):''}
@@ -1040,32 +1195,21 @@ function renderCalSection(year,month){
   }
 
   const dowLabels=['일','월','화','수','목','금','토'];
-  const netLabel = mn>=10000 ? Math.round(mn/10000)+'만' : (mn>0 ? mn.toLocaleString() : '-');
-
   return `
-    <div class="cal-section-title">
-      <span>🗓 <b>${year}년 ${month+1}월</b> 기록 달력</span>
-      <span style="color:var(--sub);font-weight:600">${mr.length}일 배송 · ${mCar.length}일 운행</span>
-    </div>
-    <div class="cal-summary">
-      <div class="cal-sum-item"><div class="cal-sum-val">${mr.length}</div><div class="cal-sum-lbl">배송일</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--green2);font-size:${netLabel.length>4?'13px':'17px'}">${netLabel}</div><div class="cal-sum-lbl">실수령(원)</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val" style="color:#fbbf24;font-size:${cStats.totalFc>=1000000?'13px':'17px'}">${cStats.totalFc>0?cStats.totalFc.toLocaleString():'0'}</div><div class="cal-sum-lbl">주유금액(원)</div></div>
-      <div class="cal-sum-item"><div class="cal-sum-val" style="color:var(--teal2);font-size:${cStats.totalFl>=100?'14px':'17px'}">${cStats.totalFl>0?cStats.totalFl+'L':'0L'}</div><div class="cal-sum-lbl">주유량(L)</div></div>
-    </div>
     ${detailHtml}
     <div class="cal-grid-wrap">
-      <div class="cal-grid-title">날짜를 누르면 그날 상세 기록이 열립니다</div>
+      <div class="cal-grid-title">📅 ${month+1}월 기록 달력 · <span style="color:var(--orange2)">${mr.length}일 배송</span> · <span style="color:var(--teal2)">${mCar.length}일 운행</span> ${cStats.totalFc>0?`· <span style="color:var(--amber2)">⛽ ${cStats.totalFc.toLocaleString()}원</span>`:''}</div>
       <div class="cal-dow">${dowLabels.map(d=>`<div class="cal-dow-cell">${d}</div>`).join('')}</div>
       <div class="cal-days">
         ${cells.map(({day,cur})=>{
           if(!cur) return `<div class="cal-day other-month"><div class="cal-day-num" style="font-size:11px;color:#333">${day}</div></div>`;
           const dateStr=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
           const isToday=dateStr===todayStr;
-          const hasDlv=!!dlvMap[dateStr];
+          const dr=dlvMap[dateStr];
+          const hasDlv=!!dr;
           const crs=carMap[dateStr]||[];
           const hasCar=crs.length>0;
-          let dayFc=0, dayFl=0;
+          let dayFc=0,dayFl=0;
           crs.forEach(c=>{
             const fl=Number(c.fuelLiters)||0, fp=parseNum(c.fuelPrice), fc=parseNum(c.fuelCost);
             const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
@@ -1078,15 +1222,16 @@ function renderCalSection(year,month){
           const dow=toDate(dateStr).getDay();
           let cls='cal-day';
           if(isToday) cls+=' today';
-          else if(hasDlv||hasCar) cls+=' has-record';
+          else if(hasDlv) cls+=' has-record';
+          else if(hasCar) cls+=' car-only';
           if(isSelected) cls+=' selected';
-
-          let fuelTagHtml = '';
-          if(dayFc > 0) fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFc.toLocaleString()}</div>`;
-          else if(dayFl > 0) fuelTagHtml = `<div class="cal-day-fuel-tag">${dayFl}L</div>`;
-
+          const dq=hasDlv?qtyOf(dr):0;
+          let fuelTagHtml='';
+          if(dayFc>0) fuelTagHtml=`<div class="cal-day-fuel-tag">${dayFc.toLocaleString()}</div>`;
+          else if(dayFl>0) fuelTagHtml=`<div class="cal-day-fuel-tag">${dayFl}L</div>`;
           return `<div class="${cls}${dow===0&&!isToday?' cal-day-sun':''}${dow===6&&!isToday?' cal-day-sat':''}" onclick="selectCalDay('${dateStr}')">
             <div class="cal-day-num">${day}</div>
+            ${dq>0?`<div class="cal-day-qty">${dq}</div>`:''}
             ${fuelTagHtml}
             ${(hasDlv||hasCar)?`<div class="cal-day-dots">${hasDlv?'<div class="cal-dot dlv"></div>':''}${hasCar?'<div class="cal-dot car"></div>':''}</div>`:''}
           </div>`;
@@ -1096,6 +1241,7 @@ function renderCalSection(year,month){
     <div class="cal-legend">
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange2)"></div>배송 기록</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--teal2)"></div>차량 기록</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--amber2)"></div>주유 금액</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--orange)"></div>오늘</div>
     </div>`;
 }
@@ -1106,62 +1252,65 @@ function selectCalDay(dateStr){
 
 /* ── 통계 ───────────────────────────────── */
 function statsFor(list){
-  const A=list.reduce((s,r)=>s+(Number(r.qtyA)||0),0);
-  const B=list.reduce((s,r)=>s+(Number(r.qtyB)||0),0);
-  const C=list.reduce((s,r)=>s+(Number(r.qtyC)||0),0);
-  const D=list.reduce((s,r)=>s+(Number(r.qtyD)||0),0);
-  const amtA=list.reduce((s,r)=>s+(Number(r.qtyA)||0)*((r.rates&&r.rates.A)||PA),0);
-  const amtB=list.reduce((s,r)=>s+(Number(r.qtyB)||0)*((r.rates&&r.rates.B)||PB),0);
-  const amtC=list.reduce((s,r)=>s+(Number(r.qtyC)||0)*((r.rates&&r.rates.C)||PC),0);
-  const amtD=list.reduce((s,r)=>s+(Number(r.qtyD)||0)*((r.rates&&r.rates.D)||PD),0);
-  const G=list.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).gross,0);
-  const N=list.reduce((s,r)=>s+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
-  const Q=A+B+C+D;
+  const q={},amt={};
+  KEYS.forEach(k=>{
+    q[k]=list.reduce((s,r)=>s+(Number(r['qty'+k])||0),0);
+    amt[k]=list.reduce((s,r)=>s+(Number(r['qty'+k])||0)*((r.rates&&r.rates[k])||PRICE[k]),0);
+  });
+  const G=list.reduce((s,r)=>s+calcPay(r).gross,0);
+  const N=list.reduce((s,r)=>s+calcPay(r).net,0);
+  const Q=KEYS.reduce((s,k)=>s+q[k],0);
   const avg=list.length?Math.round(Q/list.length):0;
   const vr=list.filter(r=>workMin(r.startTime,r.endTime)>0);
   let avgSpd=null,maxSpd=null,minSpd=null,totalMin=0;
   if(vr.length){
-    const tq=vr.reduce((s,r)=>s+(Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),0);
+    const tq=vr.reduce((s,r)=>s+qtyOf(r),0);
     totalMin=vr.reduce((s,r)=>s+workMin(r.startTime,r.endTime),0);
     avgSpd=Math.round((tq/totalMin)*60*10)/10;
-    const spds=vr.map(r=>perHour((Number(r.qtyA)||0)+(Number(r.qtyB)||0)+(Number(r.qtyC)||0)+(Number(r.qtyD)||0),r.startTime,r.endTime)).filter(v=>v!==null);
+    const spds=vr.map(r=>perHour(qtyOf(r),r.startTime,r.endTime)).filter(v=>v!==null);
     if(spds.length){maxSpd=Math.max(...spds);minSpd=Math.min(...spds);}
   }
-  return {A,B,C,D,amtA,amtB,amtC,amtD,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length};
+  return {q,amt,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length};
 }
 
 function renderStatBlock(s,title){
   const hourNet=s.totalMin>0?Math.round(s.N/(s.totalMin/60)):null;
+  const rows=KEYS.filter(k=>s.q[k]>0).map(k=>
+    `<div class="month-row"><span class="month-lbl"><span style="color:${KCOL[k]}">${KEMO[k]}</span> ${esc(NAME[k])} ${s.q[k].toLocaleString()}건</span><span class="month-val" style="color:${KCOL[k]}">${won(s.amt[k])}</span></div>`
+  ).join('');
   return `
     <div class="month-box">
       <div class="month-title">${title} · ${s.days}일</div>
-      ${s.A>0?`<div class="month-row"><span class="month-lbl">🅰 ${esc(nameA)} ${s.A.toLocaleString()}건</span><span class="month-val" style="color:var(--orange2)">${won(s.amtA)}</span></div>`:''}
-      ${s.B>0?`<div class="month-row"><span class="month-lbl">🅱 ${esc(nameB)} ${s.B.toLocaleString()}건</span><span class="month-val" style="color:var(--blue2)">${won(s.amtB)}</span></div>`:''}
-      ${s.C>0?`<div class="month-row"><span class="month-lbl">🅲 ${esc(nameC)} ${s.C.toLocaleString()}건</span><span class="month-val" style="color:var(--green2)">${won(s.amtC)}</span></div>`:''}
-      ${s.D>0?`<div class="month-row"><span class="month-lbl">🅳 ${esc(nameD)} ${s.D.toLocaleString()}건</span><span class="month-val" style="color:var(--pink2)">${won(s.amtD)}</span></div>`:''}
+      ${rows}
       <hr class="month-sep">
-      <div class="month-row"><span class="month-lbl" style="color:var(--sub)">총 배송 ${s.Q.toLocaleString()}건</span></div>
+      <div class="month-row"><span class="month-lbl">총 배송 <b style="color:var(--orange2)">${s.Q.toLocaleString()}건</b></span></div>
       <div class="month-total">${won(s.G)}</div>
       <div class="month-net">💰 실수령: ${won(s.N)}</div>
       <div class="month-tax">세금(3.3%) 공제: -${won(s.G-s.N)}</div>
     </div>
-    ${s.avgSpd!==null?`<div class="stat-card" style="background:linear-gradient(135deg,#16141f,#12101c);border:1px solid #3a2f5a">
+    ${s.avgSpd!==null?`<div class="stat-card c-spd" style="background:linear-gradient(135deg,#16141f,#12101c)">
       <div class="stat-icon">⚡</div>
       <div style="flex:1">
         <div class="stat-lbl">평균 시간당 배달 속도</div>
         <div class="stat-val" style="color:var(--purple2)">${s.avgSpd} <span style="font-size:13px;color:var(--sub);font-weight:400">건/시간</span></div>
         <div style="display:flex;gap:16px;margin-top:6px">
-          <div><div style="font-size:9px;color:#777">최고</div><div style="font-size:13px;font-weight:900;color:var(--green2)">${s.maxSpd}건</div></div>
-          <div><div style="font-size:9px;color:#777">최저</div><div style="font-size:13px;font-weight:900;color:var(--red)">${s.minSpd}건</div></div>
-          <div><div style="font-size:9px;color:#777">측정일수</div><div style="font-size:13px;font-weight:900;color:var(--sub)">${s.vr.length}일</div></div>
+          <div><div style="font-size:9px;color:var(--lbl)">최고</div><div style="font-size:13px;font-weight:900;color:var(--green2)">${s.maxSpd}건</div></div>
+          <div><div style="font-size:9px;color:var(--lbl)">최저</div><div style="font-size:13px;font-weight:900;color:#f08a8a">${s.minSpd}건</div></div>
+          <div><div style="font-size:9px;color:var(--lbl)">측정일수</div><div style="font-size:13px;font-weight:900;color:#9aa3b2">${s.vr.length}일</div></div>
         </div>
       </div>
     </div>`:''}
-    ${hourNet!==null?`<div class="stat-card"><div class="stat-icon">⏳</div><div><div class="stat-lbl">시간당 실수령 (총 ${Math.round(s.totalMin/6)/10}시간 기준)</div><div class="stat-val" style="color:var(--green)">${won(hourNet)}</div></div></div>`:''}
-    <div class="stat-card"><div class="stat-icon">📦</div><div><div class="stat-lbl">총 배송량</div><div class="stat-val">${s.Q.toLocaleString()} 건</div></div></div>
-    <div class="stat-card"><div class="stat-icon">💵</div><div><div class="stat-lbl">총 금액</div><div class="stat-val" style="color:var(--green2)">${won(s.G)}</div></div></div>
-    <div class="stat-card"><div class="stat-icon">💰</div><div><div class="stat-lbl">실수령 (3.3% 공제)</div><div class="stat-val" style="color:var(--green)">${won(s.N)}</div></div></div>
-    <div class="stat-card"><div class="stat-icon">📈</div><div><div class="stat-lbl">하루 평균 배송</div><div class="stat-val">${s.avg.toLocaleString()} 건</div></div></div>`;
+    ${hourNet!==null?`<div class="stat-card c-hour"><div class="stat-icon">⏳</div><div><div class="stat-lbl">시간당 실수령 (총 ${Math.round(s.totalMin/6)/10}시간 기준)</div><div class="stat-val" style="color:var(--teal2)">${won(hourNet)}</div></div></div>`:''}
+    <div class="stat-card c-qty"><div class="stat-icon">📦</div><div><div class="stat-lbl">총 배송량</div><div class="stat-val" style="color:var(--orange2)">${s.Q.toLocaleString()} 건</div></div></div>
+    <div class="stat-card c-gross"><div class="stat-icon">💵</div><div><div class="stat-lbl">총 금액</div><div class="stat-val" style="color:var(--green2)">${won(s.G)}</div></div></div>
+    <div class="stat-card c-net"><div class="stat-icon">💰</div><div><div class="stat-lbl">실수령 (3.3% 공제)</div><div class="stat-val" style="color:var(--green)">${won(s.N)}</div></div></div>
+    <div class="stat-card c-avg"><div class="stat-icon">📈</div><div><div class="stat-lbl">하루 평균 배송</div><div class="stat-val" style="color:var(--blue2)">${s.avg.toLocaleString()} 건</div></div></div>`;
+}
+
+function shortWon(n){
+  if(!n) return '0';
+  if(n>=10000) return (Math.round(n/1000)/10).toLocaleString()+'만';
+  return n.toLocaleString();
 }
 
 function renderStats(){
@@ -1170,9 +1319,7 @@ function renderStats(){
     <button class="period-tab ${statPeriod==='month'?'active':''}" onclick="statPeriod='month';render()">🗓 월별</button>
   </div>`;
 
-  if(!records.length&&!carRecords.length) return periodBar+`<div class="empty">📊 기록이 쌓이면 통계가 보여요!</div>`;
-
-  let filtered=[],navHtml='',blockTitle='',calY,calM;
+  let filtered=[],navHtml='',blockTitle='',calHtml='',sumHtml='';
 
   if(statPeriod==='week'){
     const weeks=getCalWeeks(weekYear,weekMonth);
@@ -1180,12 +1327,11 @@ function renderStats(){
     const isCurrentWeek=(wr.start<=today()&&today()<=wr.end);
     blockTitle=`📅 ${wr.label}${isCurrentWeek?' (이번 주)':''}`;
     filtered=records.filter(r=>r.date>=wr.start&&r.date<=wr.end);
-    calY=weekYear; calM=weekMonth;
     navHtml=`<div class="week-nav">
       <button class="week-nav-btn" onclick="moveWeek(-1,false)">◀</button>
       <div style="text-align:center">
         <div class="week-nav-label">${weekYear}년 ${weekMonth+1}월 ${wr.weekNum}주차</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:2px">${weekMonth+1}/${wr.start.slice(8)} ~ ${weekMonth+1}/${wr.end.slice(8)}</div>
+        <div style="font-size:10px;color:var(--lbl);margin-top:2px">${weekMonth+1}/${wr.start.slice(8)} ~ ${weekMonth+1}/${wr.end.slice(8)}</div>
       </div>
       <button class="week-nav-btn" onclick="moveWeek(1,false)">▶</button>
     </div>`;
@@ -1194,22 +1340,33 @@ function renderStats(){
     const isCurrentMonth=(statYear===new Date().getFullYear()&&statMonth===new Date().getMonth());
     filtered=records.filter(r=>r.date.startsWith(ym));
     blockTitle=`🗓 ${statYear}년 ${statMonth+1}월 정산${isCurrentMonth?' (이번 달)':''}`;
-    calY=statYear; calM=statMonth;
     navHtml=`<div class="week-nav">
       <button class="week-nav-btn" onclick="moveStatMonth(-1)">◀</button>
       <div style="text-align:center">
         <div class="week-nav-label">${statYear}년 ${statMonth+1}월</div>
-        ${isCurrentMonth?`<div style="font-size:10px;color:var(--orange2);margin-top:2px">이번 달</div>`:''}
+        ${isCurrentMonth?`<div style="font-size:10px;color:var(--orange2);margin-top:2px;font-weight:700">이번 달</div>`:''}
       </div>
       <button class="week-nav-btn" onclick="moveStatMonth(1)">▶</button>
     </div>`;
+
+    const mCarS=carStatsFor(carRecords.filter(r=>r.date.startsWith(ym)));
+    const mn=filtered.reduce((s,r)=>s+calcPay(r).net,0);
+    sumHtml=`<div class="cal-summary">
+      <div class="cal-sum-item c-dlv"><div class="cal-sum-val" style="color:var(--orange2)">${filtered.length}<span class="cal-sum-unit">일</span></div><div class="cal-sum-lbl">배송일</div></div>
+      <div class="cal-sum-item c-net"><div class="cal-sum-val" style="color:var(--green2)">${shortWon(mn)}<span class="cal-sum-unit">원</span></div><div class="cal-sum-lbl">실수령</div></div>
+      <div class="cal-sum-item c-fuel"><div class="cal-sum-val" style="color:var(--amber2)">${shortWon(mCarS.totalFc)}<span class="cal-sum-unit">원</span></div><div class="cal-sum-lbl">주유금액</div></div>
+      <div class="cal-sum-item c-liter"><div class="cal-sum-val" style="color:var(--teal2)">${mCarS.totalFl>0?Math.round(mCarS.totalFl):'0'}<span class="cal-sum-unit">L</span></div><div class="cal-sum-lbl">주유량</div></div>
+    </div>`;
+    calHtml=renderCalBlock(statYear,statMonth);
   }
+
+  if(!records.length) return periodBar+`<div class="empty">📊 기록이 쌓이면 통계가 보여요!</div>`;
 
   const body=filtered.length
     ? renderStatBlock(statsFor(filtered),blockTitle)
-    : `<div class="empty" style="padding:34px 0">📭 해당 기간에 배송 기록이 없어요</div>`;
+    : `<div class="empty" style="padding:40px 0">📭 해당 기간에 기록이 없어요</div>`;
 
-  return periodBar+navHtml+body+renderCalSection(calY,calM)+`<div style="height:20px"></div>`;
+  return periodBar+navHtml+sumHtml+calHtml+body+`<div style="height:20px"></div>`;
 }
 function moveStatMonth(dir){
   statMonth+=dir;
@@ -1425,7 +1582,7 @@ function renderCarStats(){
       <button class="week-nav-btn" onclick="moveWeek(-1,true)">◀</button>
       <div style="text-align:center">
         <div class="week-nav-label">${carWeekYear}년 ${carWeekMonth+1}월 ${wr.weekNum}주차</div>
-        <div style="font-size:10px;color:var(--sub);margin-top:2px">${carWeekMonth+1}/${wr.start.slice(8)} ~ ${carWeekMonth+1}/${wr.end.slice(8)}</div>
+        <div style="font-size:10px;color:var(--lbl);margin-top:2px">${carWeekMonth+1}/${wr.start.slice(8)} ~ ${carWeekMonth+1}/${wr.end.slice(8)}</div>
       </div>
       <button class="week-nav-btn" onclick="moveWeek(1,true)">▶</button>
     </div>`;
@@ -1438,7 +1595,7 @@ function renderCarStats(){
       <button class="week-nav-btn" onclick="moveCarStatMonth(-1)">◀</button>
       <div style="text-align:center">
         <div class="week-nav-label">${carStatYear}년 ${carStatMonth+1}월</div>
-        ${isCurrentMonth?`<div style="font-size:10px;color:var(--teal2);margin-top:2px">이번 달</div>`:''}
+        ${isCurrentMonth?`<div style="font-size:10px;color:var(--teal2);margin-top:2px;font-weight:700">이번 달</div>`:''}
       </div>
       <button class="week-nav-btn" onclick="moveCarStatMonth(1)">▶</button>
     </div>`;
@@ -1451,14 +1608,13 @@ function renderCarStats(){
 
   const s=carStatsFor(filtered);
 
-  let incomeAnalysisHtml = '';
-  if(carStatPeriod==='month' && targetYm) {
-    const dlvRecords = records.filter(r=>r.date.startsWith(targetYm));
-    const dlvNet = dlvRecords.reduce((acc,r)=>acc+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
-    const pureIncome = dlvNet - s.totalCost;
-    const costRatio = dlvNet > 0 ? Math.round((s.totalCost / dlvNet) * 1000) / 10 : null;
-
-    incomeAnalysisHtml = `
+  let incomeAnalysisHtml='';
+  if(carStatPeriod==='month'&&targetYm){
+    const dlvRecords=records.filter(r=>r.date.startsWith(targetYm));
+    const dlvNet=dlvRecords.reduce((acc,r)=>acc+calcPay(r).net,0);
+    const pureIncome=dlvNet-s.totalCost;
+    const costRatio=dlvNet>0?Math.round((s.totalCost/dlvNet)*1000)/10:null;
+    incomeAnalysisHtml=`
       <div class="cs-summary-box" style="background:linear-gradient(135deg,#121820,#0f141a);border-color:#203040;margin-bottom:10px;">
         <div class="cs-summary-title" style="color:var(--blue2)">💡 ${carStatMonth+1}월 수입 대비 차량비 분석</div>
         <div class="cs-summary-row"><span class="cs-summary-lbl">📦 배송 실수령액</span><span class="cs-summary-val" style="color:var(--green2)">${won(dlvNet)}</span></div>
@@ -1468,9 +1624,8 @@ function renderCarStats(){
           <span class="cs-summary-lbl" style="font-weight:700;color:var(--text)">💰 순수입 (실수령 - 차량비)</span>
           <span class="cs-summary-val" style="font-size:18px;font-weight:900;color:${pureIncome>=0?'var(--green)':'var(--red)'}">${won(pureIncome)}</span>
         </div>
-        ${costRatio!==null?`<div style="font-size:11px;color:var(--sub);margin-top:6px;text-align:right">실수령액의 <b style="color:#fbbf24">${costRatio}%</b>를 차량비로 지출함</div>`:''}
-      </div>
-    `;
+        ${costRatio!==null?`<div style="font-size:11px;color:var(--lbl);margin-top:6px;text-align:right">실수령액의 <b style="color:#fbbf24">${costRatio}%</b>를 차량비로 지출함</div>`:''}
+      </div>`;
   }
 
   return periodBar+navHtml+incomeAnalysisHtml+`
@@ -1553,40 +1708,29 @@ function handleCarSave(){
 function startCarEdit(id){
   const r=carRecords.find(x=>x.id===id);if(!r) return;
   carForm={date:r.date,kmStart:String(parseNum(r.kmStart)||''),kmEnd:String(parseNum(r.kmEnd)||''),fuelLiters:r.fuelLiters||'',fuelPrice:String(parseNum(r.fuelPrice)||''),fuelCost:String(parseNum(r.fuelCost)||''),tollCost:String(parseNum(r.tollCost)||''),memo:r.memo||''};
-  carEditId=id;carSubTab='input';tab='car';
-  ['input','history','stats','car','weather'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x==='car'));
-  render();scrollTop();
+  carEditId=id;carSubTab='input';render();scrollTop();
 }
 function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
 
-/* ── 날씨 (강남구 실시간 기상 감시) ─────────── */
+/* ═══════════════════════════════════════════
+   🌤 날씨 (강남구 실시간 기상 감시)
+   ═══════════════════════════════════════════ */
 const WX_LOC={name:'강남구',lat:37.4882,lon:127.0518};
 const WX_SPAN_HOURS=12;
 const WX_M15_COUNT=16;
-let wx={
-  name:WX_LOC.name,lat:WX_LOC.lat,lon:WX_LOC.lon,
-  now:null,timeline:null,minutely:null,air:null,sun:null,
-  updated:null,err:null,alerted:0,loading:false,queue:false,showMap:false
-};
-
-function initWeather(){
-  fetchWeather();
-  setInterval(fetchWeather,10*60*1000);
-}
+let wx={name:WX_LOC.name,lat:WX_LOC.lat,lon:WX_LOC.lon,now:null,timeline:null,minutely:null,air:null,sun:null,updated:null,err:null,alerted:0,loading:false,queue:false,showMap:false};
+let wxCustomText=null;
 
 async function fetchWeather(){
   if(wx.loading){ wx.queue=true; return; }
   wx.loading=true;
   const la=wx.lat.toFixed(4), lo=wx.lon.toFixed(4);
-
   const fUrl=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}`
-  +`&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,snowfall,weather_code,wind_speed_10m,wind_gusts_10m,is_day`
-  +`&minutely_15=precipitation,snowfall,weather_code`
-  +`&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,weather_code,is_day,wind_gusts_10m`
-  +`&daily=sunset&forecast_days=2&timeformat=unixtime&timezone=Asia%2FSeoul`;
-
-  const aUrl=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${la}&longitude=${lo}`
-  +`&current=pm10,pm2_5&timezone=Asia%2FSeoul`;
+    +`&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,snowfall,weather_code,wind_speed_10m,wind_gusts_10m,is_day`
+    +`&minutely_15=precipitation,snowfall,weather_code`
+    +`&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,weather_code,is_day,wind_gusts_10m`
+    +`&daily=sunset&forecast_days=2&timeformat=unixtime&timezone=Asia%2FSeoul`;
+  const aUrl=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${la}&longitude=${lo}&current=pm10,pm2_5&timezone=Asia%2FSeoul`;
 
   const grab=async(url)=>{
     const ctrl=('AbortController' in window)?new AbortController():null;
@@ -1613,60 +1757,37 @@ async function fetchWeather(){
   try{
     const g=(o,k,i,def)=>(o&&o[k]&&o[k][i]!=null)?o[k][i]:def;
     const now=Date.now();
-
     if(f.current){
       wx.now={
-        temp:f.current.temperature_2m,
-        feels:f.current.apparent_temperature,
-        hum:f.current.relative_humidity_2m,
-        mm:f.current.precipitation||0,
-        snow:f.current.snowfall||0,
-        code:f.current.weather_code,
-        wind:f.current.wind_speed_10m,
-        gust:f.current.wind_gusts_10m,
-        isDay:f.current.is_day
+        temp:f.current.temperature_2m, feels:f.current.apparent_temperature,
+        hum:f.current.relative_humidity_2m, mm:f.current.precipitation||0,
+        snow:f.current.snowfall||0, code:f.current.weather_code,
+        wind:f.current.wind_speed_10m, gust:f.current.wind_gusts_10m, isDay:f.current.is_day
       };
     }
-
     let m15=[];
     if(f.minutely_15&&f.minutely_15.time){
-      f.minutely_15.time.forEach((t,i)=>m15.push({
-        time:t*1000, step:15,
-        mm:g(f.minutely_15,'precipitation',i,0),
-        snow:g(f.minutely_15,'snowfall',i,0),
-        code:g(f.minutely_15,'weather_code',i,null)
-      }));
+      f.minutely_15.time.forEach((t,i)=>m15.push({time:t*1000,step:15,mm:g(f.minutely_15,'precipitation',i,0),snow:g(f.minutely_15,'snowfall',i,0),code:g(f.minutely_15,'weather_code',i,null)}));
     }
     m15=m15.filter(e=>e.time+e.step*60000>now).slice(0,16);
 
     let tl=[];
     if(f.hourly&&f.hourly.time){
       f.hourly.time.forEach((t,i)=>tl.push({
-        time:t*1000, step:60,
-        mm:g(f.hourly,'precipitation',i,0),
-        snow:g(f.hourly,'snowfall',i,0),
-        temp:g(f.hourly,'temperature_2m',i,null),
-        feels:g(f.hourly,'apparent_temperature',i,null),
-        code:g(f.hourly,'weather_code',i,null),
-        isDay:g(f.hourly,'is_day',i,1),
-        gust:g(f.hourly,'wind_gusts_10m',i,null),
-        prob:g(f.hourly,'precipitation_probability',i,null)
+        time:t*1000,step:60,mm:g(f.hourly,'precipitation',i,0),snow:g(f.hourly,'snowfall',i,0),
+        temp:g(f.hourly,'temperature_2m',i,null),feels:g(f.hourly,'apparent_temperature',i,null),
+        code:g(f.hourly,'weather_code',i,null),isDay:g(f.hourly,'is_day',i,1),
+        gust:g(f.hourly,'wind_gusts_10m',i,null),prob:g(f.hourly,'precipitation_probability',i,null)
       }));
     }
     tl=tl.filter(e=>e.time+e.step*60000>now).slice(0,WX_SPAN_HOURS);
     if(!tl.length) throw new Error('empty');
 
-    wx.timeline=tl;
-    wx.minutely=m15;
-
+    wx.timeline=tl; wx.minutely=m15;
     const suns=(f.daily&&f.daily.sunset)?f.daily.sunset.map(t=>t*1000):[];
     wx.sun=suns.find(t=>t>now)||null;
-
-    wx.updated=new Date();
-    wx.err=null;
-  }catch(e){
-    wx.err='예보 해석에 실패했습니다';
-  }
+    wx.updated=new Date(); wx.err=null;
+  }catch(e){ wx.err='예보 해석에 실패했습니다'; }
 
   if(a&&a.current) wx.air={pm10:a.current.pm10,pm25:a.current.pm2_5};
 
@@ -1690,7 +1811,6 @@ const WX_SNOW_STEPS=[
   {min:3,lv:3,name:'강한 눈',head:'강한 눈',color:'red'},
   {min:5,lv:3,name:'대설',head:'대설',color:'red'}
 ];
-
 function wxLevel(e){
   const step=e.step||60;
   const snowH=(e.snow||0)*(60/step);
@@ -1698,15 +1818,14 @@ function wxLevel(e){
   if(snowH>=0.1){
     let s=WX_SNOW_STEPS[0];
     for(const x of WX_SNOW_STEPS){ if(snowH>=x.min) s=x; }
-    return {kind:'snow',lv:s.lv,label:s.name,head:s.head,color:s.color,perH:snowH,unit:'cm'};
+    return{kind:'snow',lv:s.lv,label:s.name,head:s.head,color:s.color,perH:snowH,unit:'cm'};
   }
   let s=WX_RAIN_STEPS[0];
   for(const x of WX_RAIN_STEPS){ if(rainH>=x.min) s=x; }
-  return {kind:'rain',lv:s.lv,label:s.name,head:s.head,color:s.color,perH:rainH,unit:'mm'};
+  return{kind:'rain',lv:s.lv,label:s.name,head:s.head,color:s.color,perH:rainH,unit:'mm'};
 }
-
 function wxDur(m){
-  const h=Math.floor(m/60), r=m%60;
+  const h=Math.floor(m/60),r=m%60;
   if(h>0) return r>0?`${h}시간${r}분`:`${h}시간`;
   return `${r}분`;
 }
@@ -1725,7 +1844,7 @@ function wxAnalyze(){
     const L=wxLevel(tl[later]);
     let dur=0,end=later;
     for(let i=later;i<tl.length;i++){ if(wxLevel(tl[i]).lv>=1){ dur+=tl[i].step; end=i; } else break; }
-    return {
+    return{
       rain:true,ongoing:false,spanH,timeline:tl,startIdx:later,endIdx:end,
       startTime:tl[later].time,endTime:tl[end].time+tl[end].step*60000,
       minsToStart:Math.max(0,Math.round((tl[later].time-now)/60000)),
@@ -1734,22 +1853,18 @@ function wxAnalyze(){
       totalSnow:tl.slice(later,end+1).reduce((s,e)=>s+(e.snow||0),0)
     };
   }
-
   let durMin=0,endIdx=startIdx;
   for(let i=startIdx;i<fine.length;i++){
     if(wxLevel(fine[i]).lv>=1){ durMin+=fine[i].step; endIdx=i; } else break;
   }
   let peak=fine[startIdx];
   for(let i=startIdx;i<=endIdx;i++){ if(wxLevel(fine[i]).perH>wxLevel(peak).perH) peak=fine[i]; }
-
   const first=fine[startIdx];
   const minsToStart=Math.max(0,Math.round((first.time-now)/60000));
   const ongoing=startIdx===0||minsToStart<=3;
   const endTime=fine[endIdx].time+fine[endIdx].step*60000;
-
-  return {
-    rain:true,ongoing,spanH,timeline:tl,
-    startIdx,endIdx,startTime:first.time,endTime,
+  return{
+    rain:true,ongoing,spanH,timeline:tl,startIdx,endIdx,startTime:first.time,endTime,
     minsToStart,minsToEnd:Math.max(0,Math.round((endTime-now)/60000)),durMin,
     level:wxLevel(peak),amtPerH:wxLevel(peak).perH,
     prob:(tl[0]&&tl[0].prob!=null)?Math.round(tl[0].prob):null,
@@ -1777,7 +1892,6 @@ function aqWorst(){
   if(!a) return b; if(!b) return a;
   return (b.idx>=a.idx)?b:a;
 }
-
 function wxIcon(code,isDay,e){
   if(e&&(e.snow||0)>0.05) return '🌨️';
   if(e&&(e.mm||0)>0.05&&(!code||code<95)) return '☔';
@@ -1815,32 +1929,28 @@ function wxHeadlineHtml(){
   }
   const a=wxAnalyze();
   if(!a) return `<div class="wx-head wx-head-none"><div class="wx-head-big"><span class="wx-spinner"></span>예보 확인 중…</div></div>`;
-
   if(!a.rain){
     return `<div class="wx-head wx-head-clear">
-    <div class="wx-head-lbl">📍 ${esc(wx.name)} · 앞으로 ${a.spanH}시간</div>
-    <div class="wx-head-big">비·눈 소식 없음</div>
-    <div class="wx-head-sub">배송 구역에 강수 예보가 없습니다</div>
+      <div class="wx-head-lbl">📍 ${esc(wx.name)} · 앞으로 ${a.spanH}시간</div>
+      <div class="wx-head-big">비·눈 소식 없음</div>
+      <div class="wx-head-sub">배송 구역에 강수 예보가 없습니다</div>
     </div>`;
   }
-
   const cls=a.level.lv>=2?'wx-head-heavy':'wx-head-rain';
   const lbl=a.ongoing?`📍 ${esc(wx.name)} · 지금`:`📍 ${esc(wx.name)} · 약 ${wxDur(a.minsToStart)} 뒤`;
   const big=a.ongoing?`${a.level.head} 내리는 중`:a.level.head;
   const sub=a.ongoing
-  ? `시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.minsToEnd)} 더 지속`
-  : `${fmtHM(new Date(a.startTime))} 시작 · 시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.durMin)} 지속`;
-
+    ?`시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.minsToEnd)} 더 지속`
+    :`${fmtHM(new Date(a.startTime))} 시작 · 시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.durMin)} 지속`;
   const chips=[];
   if(a.prob!=null) chips.push(`강수확률 ${a.prob}%`);
   chips.push(`${fmtHM(new Date(a.endTime))}경 그침`);
   if(a.level.kind==='snow'&&a.totalSnow>=0.5) chips.push(`예상 적설 ${wxAmt(a.totalSnow)}cm`);
-
   return `<div class="wx-head ${cls}">
-  <div class="wx-head-lbl">${lbl}</div>
-  <div class="wx-head-big">${esc(big)}</div>
-  <div class="wx-head-sub">${esc(sub)}</div>
-  <div class="wx-head-chips">${chips.map(c=>`<span class="wx-chip">${esc(c)}</span>`).join('')}</div>
+    <div class="wx-head-lbl">${lbl}</div>
+    <div class="wx-head-big">${esc(big)}</div>
+    <div class="wx-head-sub">${esc(sub)}</div>
+    <div class="wx-head-chips">${chips.map(c=>`<span class="wx-chip">${esc(c)}</span>`).join('')}</div>
   </div>`;
 }
 
@@ -1849,47 +1959,40 @@ function wxNowHtml(){
   if(!n) return '';
   const air=wx.air||{};
   const p10=aqGrade(air.pm10,'pm10'), p25=aqGrade(air.pm25,'pm25');
-
   const gustKm=n.gust!=null?Math.round(n.gust):null;
   const gustColor=(gustKm!=null&&gustKm>=35)?'var(--amber2)':'var(--text)';
   const windMs=n.wind!=null?(n.wind/3.6).toFixed(1):'-';
   const gustMs=n.gust!=null?(n.gust/3.6).toFixed(1):'-';
-
   return `<div class="wx-now">
-  <div class="wx-now-top">
-  <div class="wx-now-ico">${wxIcon(n.code,n.isDay,n)}</div>
-  <div class="wx-now-temp">${n.temp!=null?Math.round(n.temp):'-'}<small>°</small></div>
-  <div class="wx-now-side">
-  <div class="wx-now-desc">${esc(wxCodeText(n.code,n.isDay))}</div>
-  <div class="wx-now-feel">체감 ${n.feels!=null?Math.round(n.feels):'-'}° · 습도 ${n.hum!=null?Math.round(n.hum):'-'}%</div>
-  </div>
-  </div>
-  <div class="wx-now-grid">
-  <div class="wx-cellx"><div class="k">바람</div><div class="v" style="color:var(--blue2)">${windMs}</div><div class="u">m/s</div></div>
-  <div class="wx-cellx"><div class="k">돌풍</div><div class="v" style="color:${gustColor}">${gustMs}</div><div class="u">m/s</div></div>
-  <div class="wx-cellx"><div class="k">미세먼지</div><div class="v" style="color:${p10?p10.color:'var(--dim)'}">${p10?p10.label:'-'}</div><div class="u">${p10?p10.value+' ㎍':'측정없음'}</div></div>
-  <div class="wx-cellx"><div class="k">초미세</div><div class="v" style="color:${p25?p25.color:'var(--dim)'}">${p25?p25.label:'-'}</div><div class="u">${p25?p25.value+' ㎍':'측정없음'}</div></div>
-  </div>
+    <div class="wx-now-top">
+      <div class="wx-now-ico">${wxIcon(n.code,n.isDay,n)}</div>
+      <div class="wx-now-temp">${n.temp!=null?Math.round(n.temp):'-'}<small>°</small></div>
+      <div class="wx-now-side">
+        <div class="wx-now-desc">${esc(wxCodeText(n.code,n.isDay))}</div>
+        <div class="wx-now-feel">체감 ${n.feels!=null?Math.round(n.feels):'-'}° · 습도 ${n.hum!=null?Math.round(n.hum):'-'}%</div>
+      </div>
+    </div>
+    <div class="wx-now-grid">
+      <div class="wx-cellx"><div class="k">바람</div><div class="v" style="color:var(--blue2)">${windMs}</div><div class="u">m/s</div></div>
+      <div class="wx-cellx"><div class="k">돌풍</div><div class="v" style="color:${gustColor}">${gustMs}</div><div class="u">m/s</div></div>
+      <div class="wx-cellx"><div class="k">미세먼지</div><div class="v" style="color:${p10?p10.color:'var(--dim)'}">${p10?p10.label:'-'}</div><div class="u">${p10?p10.value+' ㎍':'측정없음'}</div></div>
+      <div class="wx-cellx"><div class="k">초미세</div><div class="v" style="color:${p25?p25.color:'var(--dim)'}">${p25?p25.label:'-'}</div><div class="u">${p25?p25.value+' ㎍':'측정없음'}</div></div>
+    </div>
   </div>`;
 }
 
 function wxWarnHtml(){
   const w=[];
-  const n=wx.now;
-  const a=wxAnalyze();
-
+  const n=wx.now, a=wxAnalyze();
   if(n){
     if(n.feels!=null&&n.feels>=33) w.push({c:'red',t:`🥵 체감 ${Math.round(n.feels)}° · 온열질환 주의, 수분 자주 드세요`});
     else if(n.feels!=null&&n.feels<=0) w.push({c:'blue',t:`🥶 체감 ${Math.round(n.feels)}° · 노면 결빙 주의`});
-
-    if(n.gust!=null&&n.gust>=50) w.push({c:'red',t:`💨 돌풍 ${(n.gust/3.6).toFixed(1)}m/s (${Math.round(n.gust)}km/h) · 강풍, 적재문 개방 주의`});
-    else if(n.gust!=null&&n.gust>=35) w.push({c:'amber',t:`💨 돌풍 ${(n.gust/3.6).toFixed(1)}m/s (${Math.round(n.gust)}km/h) · 적재물 날림 주의`});
+    if(n.gust!=null&&n.gust>=50) w.push({c:'red',t:`💨 돌풍 ${(n.gust/3.6).toFixed(1)}m/s · 강풍, 적재문 개방 주의`});
+    else if(n.gust!=null&&n.gust>=35) w.push({c:'amber',t:`💨 돌풍 ${(n.gust/3.6).toFixed(1)}m/s · 적재물 날림 주의`});
   }
   if(a&&a.rain&&a.level.kind==='snow') w.push({c:'purple',t:`❄️ 적설 예보 · 경사로 감속, 발밑 미끄럼 주의`});
-
   const aq=aqWorst();
   if(aq&&aq.idx>=2) w.push({c:aq.idx===3?'red':'amber',t:`${aq.emoji} 미세먼지 ${aq.label} · 야외 장시간 노출, 마스크 권장`});
-
   if(wx.sun){
     const mins=Math.round((wx.sun-Date.now())/60000);
     if(mins>0&&mins<=90) w.push({c:'blue',t:`🌇 ${wxDur(mins)} 뒤 일몰(${fmtHM(new Date(wx.sun))}) · 전조등 확인`});
@@ -1905,31 +2008,23 @@ function wxM15Html(){
   const vals=list.map(e=>{ const L=wxLevel(e); return {L,amt:L.perH}; });
   const maxV=Math.max(1,...vals.map(v=>v.amt));
   const any=vals.some(v=>v.L.lv>=1);
-
   if(!any){
     return `<div class="wx-m15">
-    <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수</span></div>
-    <div class="wx-m15-empty">☀️ 앞으로 4시간 동안 비·눈 없음</div>
+      <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수</span></div>
+      <div class="wx-m15-empty">☀️ 앞으로 4시간 동안 비·눈 없음</div>
     </div>`;
   }
-
-  const cmap={dim:'var(--card3)',blue:'var(--blue)',amber:'var(--amber)',red:'var(--red2)'};
+  const cmap={dim:'var(--card3)',blue:'var(--blue)',amber:'var(--amber2)',red:'var(--red2)'};
   const bars=vals.map(v=>{
     const h=v.L.lv>=1?Math.max(8,Math.round((v.amt/maxV)*100)):4;
     return `<div class="wx-m15-col"><div class="wx-m15-fill" style="height:${h}%;background:${cmap[v.L.color]}"></div></div>`;
   }).join('');
-
-  const labels=list.map((e,i)=>{
-    const txt=(i%4===0)?fmtHM(new Date(e.time)):'';
-    return `<div class="wx-m15-lb">${txt}</div>`;
-  }).join('');
-
+  const labels=list.map((e,i)=>`<div class="wx-m15-lb">${(i%4===0)?fmtHM(new Date(e.time)):''}</div>`).join('');
   const peak=vals.reduce((a,b)=>b.amt>a.amt?b:a,vals[0]);
-
   return `<div class="wx-m15">
-  <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수 (15분 단위)</span><span style="color:var(--sub)">최대 ${wxAmt(peak.amt)}${peak.L.unit}/h</span></div>
-  <div class="wx-m15-bars">${bars}</div>
-  <div class="wx-m15-labels">${labels}</div>
+    <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수 (15분 단위)</span><span style="color:var(--sub)">최대 ${wxAmt(peak.amt)}${peak.L.unit}/h</span></div>
+    <div class="wx-m15-bars">${bars}</div>
+    <div class="wx-m15-labels">${labels}</div>
   </div>`;
 }
 
@@ -1944,13 +2039,60 @@ function wxHourHtml(){
     const amt=L.lv>=1?`${wxAmt(L.perH)}${L.unit}`:'';
     const prob=(e.prob!=null&&e.prob>=10)?`${Math.round(e.prob)}%`:'';
     return `<div class="${cls.join(' ')}">
-    <div class="wx-h-t">${i===0?'지금':fmtHM(new Date(e.time))}</div>
-    <div class="wx-h-i">${wxIcon(e.code,e.isDay,e)}</div>
-    <div class="wx-h-p">${prob}</div>
-    <div class="wx-h-mm">${amt}</div>
-    <div class="wx-h-tp">${e.temp!=null?Math.round(e.temp):'-'}°</div>
+      <div class="wx-h-t">${i===0?'지금':fmtHM(new Date(e.time))}</div>
+      <div class="wx-h-i">${wxIcon(e.code,e.isDay,e)}</div>
+      <div class="wx-h-p">${prob}</div>
+      <div class="wx-h-mm">${amt}</div>
+      <div class="wx-h-tp">${e.temp!=null?Math.round(e.temp):'-'}°</div>
     </div>`;
   }).join('')+`</div>`;
+}
+
+const WX_TIPS={
+  clear:['오늘도 안전 운행하시고 화이팅입니다!','즐거운 하루 되세요!','오늘 기상 상황 양호합니다. 수고 많으시고 안전운행하세요! 👍'],
+  light:['약한 비가 내립니다. 노면 우천 주의하세요.'],
+  normal:['빗길 노면이 미끄러우니 무리한 급제동 삼가주세요.','우천 시 시야 확보에 유의하세요.'],
+  heavy:['폭우 구간입니다. 감속 운행하시고 침수 도로는 우회해 주세요.','안전거리 확보 및 전조등 켜고 주의 운행 부탁드립니다.'],
+  snow:['눈길입니다. 경사로 감속하시고 발밑 미끄럼 특히 조심하세요.','적설 시에는 완배보다 안전이 우선입니다. 무리하지 마세요.']
+};
+function wxTip(key){ const p=WX_TIPS[key]||[]; return p.length?p[Math.floor(Math.random()*p.length)]:''; }
+function wxRainTip(perH,kind){
+  if(kind==='snow') return wxTip('snow');
+  if(perH<1) return wxTip('light');
+  if(perH<3) return wxTip('normal');
+  return wxTip('heavy');
+}
+function wxDustVar(){
+  const p10=aqGrade(wx.air?wx.air.pm10:null,'pm10');
+  const p25=aqGrade(wx.air?wx.air.pm25:null,'pm25');
+  if(!p10&&!p25) return '';
+  const worst=aqWorst();
+  const parts=[];
+  if(p10) parts.push(`미세 ${p10.label}(${p10.value})`);
+  if(p25) parts.push(`초미세 ${p25.label}(${p25.value})`);
+  let s=`${worst.emoji} 미세먼지: `+parts.join(' · ');
+  if(worst.idx>=2) s+=' — 마스크 권장';
+  return s;
+}
+function wxTidy(s){ return s.split(/\r?\n/).filter(l=>l.trim()!=='').join('\n'); }
+
+function wxShareText(){
+  const a=wxAnalyze();
+  if(!a) return '';
+  const t=fmtHM(new Date());
+  const dust=wxDustVar();
+  if(!a.rain){
+    return wxTidy(`☀️ [기상 안내]\n⏱️ ${t} 기준 · ${wx.name} 실시간 예보\n━━━━━━━━━\n앞으로 약 ${a.spanH}시간 동안 배송 구역에 비 소식은 없습니다.\n${dust}\n━━━━━━━━━\n${wxTip('clear')}`);
+  }
+  const head=a.level.lv>=2?'🚨 [기상 상황 전파]':'🌦️ [기상 안내]';
+  const statusMsg=a.ongoing
+    ? `현재 배송 구역[${wx.name}]에 ${a.level.head}가 내리고 있습니다.`
+    : `약 ${wxDur(a.minsToStart)} 뒤(${fmtHM(new Date(a.startTime))}경)부터 배송 구역[${wx.name}]에 ${a.level.head} 소식이 있습니다.`;
+  const snowLine=(a.level.kind==='snow')
+    ? `❄️ 적설: 시간당 약 ${wxAmt(a.amtPerH)}cm${a.totalSnow>=0.5?` · 예상 누적 ${wxAmt(a.totalSnow)}cm`:''}`
+    : '';
+  const prob=a.prob!=null?` · 강수확률 ${a.prob}%`:'';
+  return wxTidy(`${head}\n⏱️ ${t} 기준 · ${wx.name} 실시간 예보\n━━━━━━━━━\n${statusMsg}\n· 강도: ${a.level.head} (시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit}${prob})\n· 예상 지속: 약 ${wxDur(a.durMin)} (${fmtHM(new Date(a.endTime))}경 그침)\n${snowLine}\n${dust}\n━━━━━━━━━\n${wxRainTip(a.amtPerH,a.level.kind)}\n오늘도 안전운행 하세요! 👍`);
 }
 
 function checkWxAlert(){
@@ -1959,18 +2101,25 @@ function checkWxAlert(){
   const a=wxAnalyze();
   if(!a||!a.rain||a.level.lv<2||a.minsToStart>=60){ strip.classList.remove('show'); return; }
   strip.textContent=a.ongoing
-  ? `🚨 [${wx.name}] ${a.level.head} 내리는 중 — 탭하여 확인`
-  : `🚨 [${wx.name}] 약 ${wxDur(a.minsToStart)} 뒤 ${a.level.head} 예상 — 탭하여 확인`;
+    ? `🚨 [${wx.name}] ${a.level.head} 내리는 중 — 탭하여 확인`
+    : `🚨 [${wx.name}] 약 ${wxDur(a.minsToStart)} 뒤 ${a.level.head} 예상 — 탭하여 확인`;
   strip.classList.add('show');
   if(wx.alerted!==a.startTime){
     wx.alerted=a.startTime;
-    if(tab!=='weather') showToast(`🚨 ${a.level.head} 접근 — 날씨 탭을 확인하세요`);
+    if(tab!=='wx') showToast(`🚨 ${a.level.head} 접근 — 날씨 탭을 확인하세요`);
   }
+}
+
+function wxAutosize(){
+  const el=document.getElementById('wx-bubble');
+  if(!el) return;
+  el.style.height='auto';
+  el.style.height=Math.max(100,Math.min(el.scrollHeight+2,480))+'px';
 }
 
 function updateWeatherDom(){
   checkWxAlert();
-  if(tab!=='weather') return;
+  if(tab!=='wx') return;
   const set=(id,html)=>{ const el=document.getElementById(id); if(el) el.innerHTML=html; };
   if(!document.getElementById('wx-head-wrap')){ render(); return; }
   set('wx-head-wrap',wxHeadlineHtml());
@@ -1980,40 +2129,822 @@ function updateWeatherDom(){
   set('wx-hour-wrap',wxHourHtml());
   const t=document.getElementById('wx-loc-time');
   if(t) t.textContent=wx.updated?`${fmtHM(wx.updated)} 갱신`:(wx.err||'불러오는 중…');
+  const bub=document.getElementById('wx-bubble');
+  if(bub&&wxCustomText===null){ bub.value=wxShareText(); wxAutosize(); }
 }
 
 function renderWeather(){
   const windySrc=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&zoom=9&overlay=radar&product=radar&level=surface&lat=${wx.lat.toFixed(4)}&lon=${wx.lon.toFixed(4)}`;
+  const shareTxt=wxCustomText!==null?wxCustomText:wxShareText();
+  return `
+    <div class="wx-loc">
+      <span class="wx-loc-name">📍 ${esc(wx.name)} 배송 구역</span>
+      <span style="display:flex;align-items:center;gap:8px;">
+        <span class="wx-loc-time" id="wx-loc-time">${wx.updated?fmtHM(wx.updated)+' 갱신':'불러오는 중…'}</span>
+        <button class="wx-refresh" onclick="showToast('예보 갱신 중…');fetchWeather()">🔄</button>
+      </span>
+    </div>
+    <div id="wx-head-wrap">${wxHeadlineHtml()}</div>
+    <div id="wx-now-wrap">${wxNowHtml()}</div>
+    <div id="wx-warn-wrap">${wxWarnHtml()}</div>
+    <div id="wx-m15-wrap">${wxM15Html()}</div>
+    <div class="wx-sec-title">⏱ 시간별 예보 <b>${WX_SPAN_HOURS}시간</b></div>
+    <div id="wx-hour-wrap">${wxHourHtml()}</div>
+    <div class="row2" style="margin-bottom:12px">
+      <button class="wx-linkbtn" style="border-color:#2a5a9a;color:var(--blue2)" onclick="window.open('https://www.weather.go.kr/w/weather/radar/radar.do','_blank')">📡 기상청 레이더</button>
+      <button class="wx-linkbtn" style="border-color:#155244;color:var(--teal2)" onclick="window.open('https://m.map.kakao.com','_blank')">📹 도로 CCTV</button>
+    </div>
+    <button class="wx-linkbtn" style="margin-bottom:6px" onclick="wx.showMap=!wx.showMap;render()">${wx.showMap?'🗺️ 비구름 지도 접기 ▲':'🗺️ 비구름 지도 열기 (Windy) ▼'}</button>
+    ${wx.showMap?`<div class="wx-frame-wrap"><iframe src="${windySrc}" allowfullscreen loading="lazy"></iframe></div>`:''}
+    <div style="height:16px"></div>
+    <div class="wx-prev-lbl">카톡 미리보기 — 실제 예보로 자동 작성 (직접 편집 가능)</div>
+    <textarea class="wx-bubble" id="wx-bubble" oninput="wxCustomText=this.value;wxAutosize()" placeholder="예보가 로드되면 공유 문구가 자동으로 만들어집니다.">${esc(shareTxt)}</textarea>
+    <div class="wx-actions">
+      <button class="wx-act-btn share" onclick="wxShare()">💬 단톡방 공유</button>
+      <button class="wx-act-btn copy" onclick="wxCopy()">📋 복사</button>
+    </div>
+    <button class="wx-linkbtn" style="margin-top:9px" onclick="wxCustomText=null;render();showToast('🔄 기본 문구로 되돌렸습니다')">🔄 문구 원래대로</button>
+    <div class="wx-note">10분마다 예보를 자동 갱신합니다 · 미세먼지는 유럽 대기질 모델 기준이라 에어코리아 수치와 약간 다를 수 있습니다</div>
+    <div style="height:20px"></div>`;
+}
+
+function afterWeatherRender(){
+  wxAutosize();
+  if(!wx.timeline||!wx.updated||(Date.now()-wx.updated.getTime())>10*60*1000) fetchWeather();
+}
+function wxCurText(){
+  const el=document.getElementById('wx-bubble');
+  const v=el?el.value.trim():'';
+  return v||wxShareText();
+}
+function wxShare(){
+  const t=wxCurText();
+  if(!t){ showToast('⚠️ 공유할 내용이 없어요'); return; }
+  if(navigator.share) navigator.share({text:t}).catch(err=>{ if(!err||err.name!=='AbortError') wxCopy(); });
+  else wxCopy();
+}
+function wxCopy(){
+  const t=wxCurText();
+  if(!t){ showToast('⚠️ 복사할 내용이 없어요'); return; }
+  const done=()=>showToast('📋 복사되었습니다');
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done));
+  else fallbackCopy(t,done);
+}
+
+/* ═══════════════════════════════════════════
+   🔮 예상 물량 (CJ 오네 일원동 · 딜리래빗)
+   ═══════════════════════════════════════════ */
+const EST_CJ_DEFAULT=['개포동','논현동','대치동','도곡동','삼성동','세곡동','수서동','신사동','압구정동','역삼동','율현동','일원동','자곡동','청담동'];
+const EST_RB_DEFAULT=[['개포1동','강남가101'],['개포2동','강남가102'],['개포3동','강남가103'],['개포4동','강남가104'],['세곡동','강남가114'],['수서동','강남가115'],['일원1동','강남가120'],['일원본동','강남가121']];
+
+function estNorm(s){ return String(s==null?'':s).replace(/\s+/g,''); }
+function estN(v){ const n=Number(String(v==null?'':v).replace(/[^0-9]/g,'')); return isNaN(n)?0:n; }
+function estIsIlwon(r){ return /일원/.test(estNorm(r.dong)); }
+function estIsK2(r){ return /개포2/.test(estNorm(r.dong))||estNorm(r.code)==='강남가102'; }
+
+function estDefault(){
+  return {
+    set:'cj', cjRatio:75, k2Ratio:50, useAdj:true, autoLearn:false, lockRatio:false,
+    cjKey:'A', rbKey:'C',
+    cj:{date:today(),rows:EST_CJ_DEFAULT.map(d=>({dong:d,code:'',qty:''}))},
+    rabbit:{date:today(),rows:EST_RB_DEFAULT.map(a=>({dong:a[0],code:a[1],qty:''}))},
+    hist:[]
+  };
+}
+function estSanitize(s){
+  const out=estDefault();
+  if(!s||typeof s!=='object'||Array.isArray(s)) return out;
+  out.set=(s.set==='rabbit'||s.set==='both')?s.set:'cj';
+  out.cjRatio=Math.min(100,Math.max(1,Number(s.cjRatio)||75));
+  out.k2Ratio=Math.min(100,Math.max(0,isNaN(Number(s.k2Ratio))?50:Number(s.k2Ratio)));
+  out.useAdj=s.useAdj!==false;
+  out.autoLearn=!!s.autoLearn;
+  out.lockRatio=!!s.lockRatio;
+  out.cjKey=KEYS.includes(s.cjKey)?s.cjKey:'A';
+  out.rbKey=KEYS.includes(s.rbKey)?s.rbKey:'C';
+  ['cj','rabbit'].forEach(k=>{
+    const src=s[k];
+    if(src&&typeof src==='object'&&Array.isArray(src.rows)&&src.rows.length){
+      out[k]={
+        date:/^\d{4}-\d{2}-\d{2}$/.test(src.date)?src.date:today(),
+        rows:src.rows.map(r=>({
+          dong:String((r&&r.dong)||''),
+          code:String((r&&r.code)||''),
+          qty:String((r&&r.qty)||'').replace(/[^0-9]/g,'')
+        }))
+      };
+    }
+  });
+  out.hist=Array.isArray(s.hist)?s.hist.filter(h=>h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)).slice(-200):[];
+  return out;
+}
+let estStore=(function(){ try{ return estSanitize(JSON.parse(lsGet('est-v1','null'))); }catch(e){ return estDefault(); } })();
+function saveEst(){ lsSet('est-v1',JSON.stringify(estStore)); }
+function estCur(){ return estStore.set==='rabbit'?estStore.rabbit:estStore.cj; }
+function estKeyOf(type){ return type==='rabbit'?estStore.rbKey:estStore.cjKey; }
+function estLabel(type){ return type==='rabbit'?'🐰 딜리래빗':'🟪 CJ 오네'; }
+
+/* ── 실측 학습 ── */
+function estHistStats(type){
+  const key=estKeyOf(type);
+  const rows=[];
+  estStore.hist.forEach(h=>{
+    if(h.type!==type) return;
+    const rec=records.find(r=>r.date===h.date); if(!rec) return;
+    const actual=Number(rec['qty'+key])||0;
+    const base=Number(h.base)||0;
+    const est=Number(h.est)||0;
+    if(actual<=0||base<=0) return;
+    const diff=actual-est;
+    const acc=est>0?Math.max(0,100-Math.abs(diff)/Math.max(1,actual)*100):null;
+    rows.push({date:h.date,actual,base,est,diff,acc,val:actual/base});
+  });
+  if(!rows.length) return null;
+  rows.sort((a,b)=>a.date.localeCompare(b.date));
+  const use=rows.slice(-10);
+  const avg=use.reduce((s,x)=>s+x.val,0)/use.length;
+  const avgAll=rows.reduce((s,x)=>s+x.val,0)/rows.length;
+  const accs=use.filter(x=>x.acc!==null).map(x=>x.acc);
+  const accAvg=accs.length?accs.reduce((s,x)=>s+x,0)/accs.length:null;
+  const biasArr=use.filter(x=>x.est>0).map(x=>x.diff);
+  const bias=biasArr.length?Math.round(biasArr.reduce((s,x)=>s+x,0)/biasArr.length):null;
+  return {count:rows.length,rows,recent:use,avg,avgAll,accAvg,bias};
+}
+function estAdj(type){ const s=estHistStats(type); return s?s.avg:null; }
+
+/* 자동학습이 켜져 있으면 실측 평균 비율을 적용 */
+function estEffCjRatio(){
+  if(estStore.autoLearn&&!estStore.lockRatio){
+    const s=estHistStats('cj');
+    if(s) return Math.min(100,Math.max(1,Math.round(s.avg*100)));
+  }
+  return estStore.cjRatio;
+}
+function estUseRbAdj(){ return (estStore.useAdj||estStore.autoLearn)&&!estStore.lockRatio; }
+
+/* ── 계산 ── */
+function estCalcFor(type){
+  const rows=(type==='rabbit'?estStore.rabbit:estStore.cj).rows;
+  let total=0,ilwon=0,k2=0;
+  rows.forEach(r=>{
+    const q=estN(r.qty); total+=q;
+    if(estIsK2(r)) k2+=q;
+    else if(estIsIlwon(r)) ilwon+=q;
+  });
+  if(type!=='rabbit'){
+    const ratio=estEffCjRatio();
+    return{type:'cj',total,ilwon,k2:0,share:0,ratio,raw:ilwon,
+      est:Math.round(ilwon*ratio/100),
+      lo:Math.round(ilwon*0.7),hi:Math.round(ilwon*0.8),adj:null,
+      learned:estStore.autoLearn&&!estStore.lockRatio&&!!estHistStats('cj')};
+  }
+  const share=Math.round(k2*estStore.k2Ratio/100);
+  const raw=share+ilwon;
+  const adj=estAdj('rabbit');
+  return{type:'rabbit',total,ilwon,k2,share,raw,adj,
+    est:(estUseRbAdj()&&adj)?Math.round(raw*adj):raw,
+    learned:estStore.autoLearn&&!estStore.lockRatio&&!!adj};
+}
+function estCalc(){ return estCalcFor(estStore.set==='rabbit'?'rabbit':'cj'); }
+function estCombined(){
+  const cj=estCalcFor('cj'), rb=estCalcFor('rabbit');
+  return{cj,rb,total:cj.est+rb.est,lo:cj.lo+rb.est,hi:cj.hi+rb.est};
+}
+
+/* ── 🔒 비율 고정 ── */
+function estToggleLock(){
+  estStore.lockRatio=!estStore.lockRatio;
+  saveEst(); render();
+  showToast(estStore.lockRatio
+    ? `🔒 비율 고정 — 오네 ${estStore.cjRatio}% · 개포2동 ${estStore.k2Ratio}%로 계속 계산합니다`
+    : '🔓 비율 고정 해제 — 이제 슬라이더로 조정할 수 있어요');
+}
+function estLockBar(){
+  const on=estStore.lockRatio;
+  return `<div class="est-lockbar">
+    <div class="est-lock-txt">${on
+      ? `🔒 <b>고정됨</b> · 오네 ${estStore.cjRatio}% · 개포2동 ${estStore.k2Ratio}%<br><span style="color:#6b7482">자동학습 · 실측보정도 잠시 멈춥니다</span>`
+      : `🔓 고정 해제 상태 · 지금 값으로 계속 쓰려면 고정하세요`}</div>
+    <button class="est-lock-btn ${on?'on':''}" onclick="estToggleLock()">${on?'🔓 해제':'🔒 고정'}</button>
+  </div>`;
+}
+
+/* ── 🔑 API 키 안내 (설정 시트로 이동) ── */
+function estKeyHint(){
+  const has=!!estKey();
+  return `<div class="est-keyhint">
+    <span>🔑 Gemini API 키 — <b class="${has?'ok':'no'}">${has?'등록됨':'미등록'}</b><br><span style="color:#6b7482">이미지 인식 키는 상단 ⚙️ 설정에서 관리합니다</span></span>
+    <button onclick="openPriceSheet()">⚙️ 설정 열기</button>
+  </div>`;
+}
+
+/* ── 학습 카드 UI ── */
+function estLearnCard(type){
+  const s=estHistStats(type);
+  const label=estLabel(type);
+  const keyName=NAME[estKeyOf(type)];
+  if(!s){
+    return `<div class="lrn-box">
+      <div class="lrn-title"><span>🤖 ${label} 예상 ↔ 실제 학습</span></div>
+      <div style="font-size:11.5px;color:var(--sub);line-height:1.7">
+        아직 비교할 데이터가 없습니다.<br>
+        ① 아래 <b style="color:var(--purple2)">예상값 기록 저장</b>을 누르고<br>
+        ② 그날 실제 배송(<b style="color:${KCOL[estKeyOf(type)]}">${esc(keyName)}</b>)을 입력 탭에 저장하면<br>
+        예상 대비 실제 비율을 자동으로 학습해 다음 예상에 반영합니다.
+      </div>
+      ${estAutoSwitch()}
+    </div>`;
+  }
+  const rows=s.rows.slice(-7).reverse().map(r=>{
+    const accCol=r.acc===null?'var(--sub)':(r.acc>=90?'var(--green2)':r.acc>=75?'var(--amber2)':'#f06060');
+    return `<tr>
+      <td class="d">${r.date.slice(5).replace('-','/')}</td>
+      <td>${r.est.toLocaleString()}</td>
+      <td style="color:var(--teal2);font-weight:800">${r.actual.toLocaleString()}</td>
+      <td style="color:${r.diff>=0?'var(--green2)':'#f06060'}">${r.diff>=0?'+':''}${r.diff}</td>
+      <td style="color:${accCol};font-weight:800">${r.acc===null?'-':r.acc.toFixed(0)+'%'}</td>
+    </tr>`;
+  }).join('');
+  const ratioTxt=(type==='cj')?`${(s.avg*100).toFixed(1)}%`:`×${s.avg.toFixed(2)}`;
+  const accCol=s.accAvg===null?'var(--sub)':(s.accAvg>=90?'var(--green2)':s.accAvg>=75?'var(--amber2)':'#f06060');
+  return `<div class="lrn-box">
+    <div class="lrn-title">
+      <span>🤖 ${label} 예상 ↔ 실제 학습</span>
+      <span style="color:var(--sub);font-weight:600">누적 ${s.count}일</span>
+    </div>
+    <div class="lrn-kpi">
+      <div class="lrn-kpi-item"><div class="lrn-kpi-val" style="color:var(--purple2)">${ratioTxt}</div><div class="lrn-kpi-lbl">최근 ${s.recent.length}일 평균비율</div></div>
+      <div class="lrn-kpi-item"><div class="lrn-kpi-val" style="color:${accCol}">${s.accAvg===null?'-':s.accAvg.toFixed(0)+'%'}</div><div class="lrn-kpi-lbl">예상 정확도</div></div>
+      <div class="lrn-kpi-item"><div class="lrn-kpi-val" style="color:${s.bias===null?'var(--sub)':(s.bias>=0?'var(--green2)':'#f06060')}">${s.bias===null?'-':(s.bias>=0?'+':'')+s.bias}</div><div class="lrn-kpi-lbl">평균 오차(건)</div></div>
+    </div>
+    <table class="lrn-tbl">
+      <thead><tr><th>날짜</th><th>예상</th><th>실제</th><th>차이</th><th>정확도</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="font-size:10px;color:var(--sub);margin-top:8px;line-height:1.6">
+      ${type==='cj'
+        ? `평균비율 = 실제 배송 ÷ 일원동 전체 물량 · 이 값이 곧 내 담당 비율입니다`
+        : `평균비율 = 실제 배송 ÷ (개포2동 ${estStore.k2Ratio}% + 일원동) 단순합계`}
+    </div>
+    ${estAutoSwitch()}
+    ${!estStore.autoLearn&&!estStore.lockRatio&&type==='cj'?`<button class="est-btn blue" style="width:100%;margin-top:8px;padding:11px;font-size:12.5px" onclick="estApplyLearned()">📌 학습된 ${(s.avg*100).toFixed(1)}% 를 지금 비율로 적용</button>`:''}
+  </div>`;
+}
+function estAutoSwitch(){
+  const locked=estStore.lockRatio;
+  return `<div class="lrn-auto">
+    <div>
+      <div class="lrn-auto-txt">🤖 자동 학습 적용</div>
+      <div class="lrn-auto-sub">${locked?'🔒 비율이 고정되어 지금은 적용되지 않습니다':'실측 평균비율을 예상 계산에 자동 반영합니다'}</div>
+    </div>
+    <label class="lrn-sw"><input type="checkbox" ${estStore.autoLearn?'checked':''} ${locked?'disabled':''} onchange="estToggleAutoLearn()"><span class="lrn-sl"></span></label>
+  </div>`;
+}
+
+/* ── 조작 ── */
+function estSwitchSet(s){ estStore.set=s; saveEst(); render(); scrollTop(); }
+function estSetDate(v){ estCur().date=v; saveEst(); render(); }
+function estSet(i,key,v){ const c=estCur(); if(!c.rows[i]) return; c.rows[i][key]=String(v).trim(); saveEst(); render(); }
+function estSetQty(i,el){
+  const c=estCur(); if(!c.rows[i]) return;
+  el.value=el.value.replace(/[^0-9]/g,'');
+  c.rows[i].qty=el.value; saveEst(); estRefresh();
+}
+function estRefresh(){ const el=document.getElementById('est-result'); if(el) el.innerHTML=estResultHtml(); }
+function estSetRatio(v){
+  if(estStore.lockRatio) return;
+  estStore.cjRatio=Math.min(100,Math.max(1,Number(v)||75)); saveEst();
+  const l=document.getElementById('est-ratio-val'); if(l) l.textContent=estStore.cjRatio+'%';
+  estRefresh();
+}
+function estSetK2(v){
+  if(estStore.lockRatio) return;
+  estStore.k2Ratio=Math.min(100,Math.max(0,Number(v)||0)); saveEst();
+  const l=document.getElementById('est-ratio-val'); if(l) l.textContent=estStore.k2Ratio+'%';
+  estRefresh();
+}
+function estApplyLearned(){
+  if(estStore.lockRatio){ showToast('🔒 비율이 고정되어 있어요 — 먼저 고정을 해제해 주세요'); return; }
+  const s=estHistStats('cj'); if(!s) return;
+  estStore.cjRatio=Math.min(100,Math.max(1,Math.round(s.avg*100)));
+  saveEst(); render();
+  showToast(`✅ 실측 평균 ${estStore.cjRatio}% 적용`);
+}
+function estToggleAdj(){
+  estStore.useAdj=!estStore.useAdj; saveEst(); render();
+  showToast(estStore.useAdj?'✅ 실측 보정 적용':'⏸ 실측 보정 해제');
+}
+function estToggleAutoLearn(){
+  if(estStore.lockRatio){ showToast('🔒 비율이 고정되어 있어요 — 먼저 고정을 해제해 주세요'); render(); return; }
+  estStore.autoLearn=!estStore.autoLearn; saveEst(); render();
+  showToast(estStore.autoLearn?'🤖 자동 학습 켜짐 — 실측 평균으로 예상합니다':'⏸ 자동 학습 꺼짐 — 수동 비율을 사용합니다');
+}
+function estClearQty(){ estCur().rows.forEach(r=>r.qty=''); saveEst(); render(); showToast('🗑 건수를 비웠어요'); }
+function estAddRow(){ estCur().rows.push({dong:'',code:'',qty:''}); saveEst(); render(); }
+function estDelRow(i){
+  const c=estCur(); c.rows.splice(i,1);
+  if(!c.rows.length) c.rows.push({dong:'',code:'',qty:''});
+  saveEst(); render();
+}
+function estResetRows(){
+  if(estStore.set==='cj') estStore.cj.rows=EST_CJ_DEFAULT.map(d=>({dong:d,code:'',qty:''}));
+  else estStore.rabbit.rows=EST_RB_DEFAULT.map(a=>({dong:a[0],code:a[1],qty:''}));
+  saveEst(); render(); showToast('↩️ 기본 동 목록으로 되돌렸어요');
+}
+
+function estSaveHist(){
+  const c=estCalc(), cur=estCur();
+  if(c.raw<=0){ showToast('⚠️ 먼저 물량을 입력해 주세요'); return; }
+  estStore.hist=estStore.hist.filter(h=>!(h.date===cur.date&&h.type===estStore.set));
+  estStore.hist.push({date:cur.date,type:estStore.set,base:c.raw,est:c.est});
+  estStore.hist=estStore.hist.slice(-200);
+  saveEst(); render();
+  showToast('📌 예상 저장 — 실제 배송을 입력하면 비율이 학습됩니다');
+}
+function estToInput(){
+  const c=estCalc();
+  if(c.est<=0){ showToast('⚠️ 예상 물량이 0건입니다'); return; }
+  const k=estKeyOf(estStore.set==='rabbit'?'rabbit':'cj');
+  form.date=estCur().date;
+  form['qty'+k]=String(c.est);
+  switchTab('input');
+  showToast(`✅ ${NAME[k]} ${c.est}건 반영`);
+}
+
+/* ── 공유 ── */
+function estShareText(){
+  const c=estCalc(), cur=estCur(), d=toDate(cur.date);
+  const dt=`${d.getMonth()+1}월 ${d.getDate()}일(${DAYS[d.getDay()]})`;
+  if(estStore.set==='cj'){
+    return `📦 [CJ 오네] ${dt} 일원동 예상물량\n━━━━━━━━━━\n· 일원동 전체: ${c.ilwon.toLocaleString()}건\n· 내 담당 비율: ${c.ratio}%${c.learned?' (실측 학습)':''}${estStore.lockRatio?' 🔒':''}\n· 참고 범위(70~80%): ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건\n━━━━━━━━━━\n🔮 오늘 예상 ${c.est.toLocaleString()}건`;
+  }
+  return `🐰 [딜리래빗] ${dt} 예상물량\n━━━━━━━━━━\n· 개포2동 ${c.k2.toLocaleString()}건 × ${estStore.k2Ratio}% = ${c.share.toLocaleString()}건\n· 일원동 전체 = ${c.ilwon.toLocaleString()}건\n━━━━━━━━━━\n🔮 예상 합계 ${c.est.toLocaleString()}건${(estUseRbAdj()&&c.adj)?`\n(실측 보정 ×${c.adj.toFixed(2)} · 단순합계 ${c.raw.toLocaleString()}건)`:''}`;
+}
+function estShare(){
+  const t=estShareText();
+  if(navigator.share) navigator.share({text:t}).catch(err=>{ if(!err||err.name!=='AbortError') estCopy(); });
+  else estCopy();
+}
+function estCopy(){
+  const t=estShareText(), done=()=>showToast('📋 복사되었습니다');
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done));
+  else fallbackCopy(t,done);
+}
+
+/* ── 이미지 인식 · 표 붙여넣기 ── */
+let estImg=null;
+function estKey(){ return lsGet('gemini-key','')||''; }
+function estModel(){
+  const m=lsGet('gemini-model','');
+  return ['gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash'].includes(m)?m:'gemini-2.5-flash';
+}
+function estStatus(msg,type){
+  const el=document.getElementById('est-status'); if(!el) return;
+  el.className='est-status'+(type?' '+type:''); el.textContent=msg;
+}
+function onEstImg(e){
+  const file=e.target.files&&e.target.files[0]; if(!file) return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=1600; let url=ev.target.result, mime=file.type||'image/jpeg';
+      if(Math.max(img.width,img.height)>MAX){
+        const sc=MAX/Math.max(img.width,img.height), cv=document.createElement('canvas');
+        cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+        cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+        url=cv.toDataURL('image/jpeg',0.88); mime='image/jpeg';
+      }
+      estImg={base64:String(url).split(',')[1],mime};
+      const drop=document.getElementById('est-drop'), inner=document.getElementById('est-drop-inner');
+      if(drop&&inner){ drop.classList.add('has-img'); inner.innerHTML=`<img class="est-prev" src="${url}">`; }
+      const b=document.getElementById('est-ocr-btns'); if(b) b.style.display='flex';
+      estStatus('이미지 준비 완료 — 아래 버튼을 눌러주세요','ok');
+    };
+    img.src=ev.target.result;
+  };
+  rd.readAsDataURL(file);
+  e.target.value='';
+}
+async function estRunOCR(mode){
+  const key=estKey();
+  if(!key){ showToast('⚠️ ⚙️ 설정에서 Gemini API 키를 먼저 등록해 주세요'); return; }
+  if(!estImg){ showToast('⚠️ 이미지를 먼저 선택하세요'); return; }
+  estStatus('이미지를 읽는 중…','');
+  const prompt='이 이미지는 배송 물량표입니다. 각 행의 "동 이름", "식별 코드"(있으면), "건수(숫자)"를 추출하세요. 합계·소계 행은 제외하세요. JSON 배열로만 답하세요. 예: [{"dong":"개포동","code":"","qty":"205"}]';
+  try{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${estModel()}:generateContent`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt},{inline_data:{mime_type:estImg.mime,data:estImg.base64}}]}],
+        generationConfig:{responseMimeType:'application/json'}
+      })
+    });
+    if(!res.ok){ estStatus(`오류 (${res.status}) — API 키·모델을 확인해 주세요`,'err'); return; }
+    const data=await res.json();
+    const parts=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts)||[];
+    const txt=parts.filter(p=>p.text&&!p.thought).map(p=>p.text).join('');
+    let arr;
+    try{ arr=JSON.parse(txt.split('```json').join('').split('```').join('').trim()); }
+    catch(e){ estStatus('표 해석 실패 — 더 선명한 사진으로 시도해 주세요','err'); return; }
+    if(!Array.isArray(arr)||!arr.length){ estStatus('인식된 행이 없어요','err'); return; }
+    const r=estApply(arr,mode);
+    showToast(`✅ ${r.matched}개 갱신${r.added?` · ${r.added}개 추가`:''}`);
+  }catch(e){ estStatus('네트워크 오류','err'); }
+}
+function estApply(list,mode,type){
+  const cur=type?(type==='rabbit'?estStore.rabbit:estStore.cj):estCur();
+  let matched=0,added=0;
+  list.map(r=>({
+    dong:String((r&&r.dong)||'').trim(),
+    code:String((r&&r.code)||'').trim(),
+    qty:String((r&&r.qty)||'').replace(/[^0-9]/g,'')
+  }))
+  .filter(r=>r.dong&&r.qty!=='')
+  .forEach(c=>{
+    const row=cur.rows.find(r=>estNorm(r.dong)===estNorm(c.dong)||(c.code&&r.code&&estNorm(r.code)===estNorm(c.code)));
+    if(row){ row.qty=c.qty; if(c.code&&!row.code) row.code=c.code; matched++; }
+    else if(mode==='append'){ cur.rows.push(c); added++; }
+  });
+  saveEst(); render();
+  return{matched,added};
+}
+function estParsePaste(mode){
+  const ta=document.getElementById('est-ta');
+  const raw=ta?ta.value:'';
+  if(!raw.trim()){ showToast('⚠️ 붙여넣은 내용이 없어요'); return; }
+  const skip=/시군구|법정동|상세\s*동|식별\s*코드|소계|합계|total|건수|기준/i;
+  const parsed=[];
+  raw.split(/\r?\n/).forEach(line=>{
+    const s=line.trim(); if(!s||skip.test(s)) return;
+    const cells=s.split(/\t|\s{2,}/).map(c=>c.trim()).filter(Boolean);
+    const tk=cells.length>1?cells:s.split(/\s+/);
+    const dong=tk.find(t=>/[동가]$/.test(t)&&!/^\d/.test(t))||tk[0]||'';
+    const code=tk.find(t=>/[가-힣]+\d+$/.test(t)&&t!==dong)||'';
+    const nums=s.replace(/,/g,'').match(/\b\d+\b/g)||[];
+    const clean=code?(s.split(code).join(' ').replace(/,/g,'').match(/\b\d+\b/g)||nums):nums;
+    const qty=clean.length?clean[clean.length-1]:'';
+    if(!dong||qty==='') return;
+    parsed.push({dong,code,qty});
+  });
+  if(!parsed.length){ showToast('⚠️ 인식된 행이 없어요'); return; }
+  const r=estApply(parsed,mode);
+  showToast(`✅ ${r.matched}개 갱신${r.added?` · ${r.added}개 추가`:''}`);
+}
+function estSaveKey(v){
+  const k=String(v||'').trim();
+  if(k) lsSet('gemini-key',k); else { try{ localStorage.removeItem('gemini-key'); }catch(e){} }
+}
+
+/* ── 결과 카드 ── */
+function estResultHtml(){
+  const c=estCalc();
+  const lockBadge=estStore.lockRatio?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 고정</span>':'';
+  if(c.type==='cj'){
+    const s=estHistStats('cj');
+    return `
+      <div class="est-res-row"><span>🏘 일원동 전체 물량</span><b>${c.ilwon.toLocaleString()}건</b></div>
+      <div class="est-res-row"><span>🎯 내 담당 비율${c.learned?' <span class="lrn-badge">🤖 학습</span>':''}${lockBadge}</span><b style="color:var(--purple2)">${c.ratio}%</b></div>
+      <hr class="est-res-sep">
+      <div class="est-res-row" style="align-items:flex-end">
+        <span style="font-weight:800;color:var(--purple2);font-size:13px">🔮 예상 물량</span>
+        <span class="est-res-total">${c.est.toLocaleString()}<span style="font-size:14px;color:var(--sub);font-weight:400"> 건</span></span>
+      </div>
+      <div class="est-res-sub">70~80% 범위 → <b style="color:#9d8bd8">${c.lo.toLocaleString()} ~ ${c.hi.toLocaleString()}건</b> · 강남구 전체 ${c.total.toLocaleString()}건</div>
+      ${s?`<div class="est-res-sub" style="color:var(--blue2)">📈 실측 평균 비율 ${(s.avg*100).toFixed(1)}% · 정확도 ${s.accAvg===null?'-':s.accAvg.toFixed(0)+'%'} (최근 ${s.recent.length}일)</div>`:''}`;
+  }
+  const s=estHistStats('rabbit');
+  return `
+    <div class="est-res-row"><span>🏘 개포2동 ${c.k2.toLocaleString()}건 × ${estStore.k2Ratio}%${lockBadge}</span><b>${c.share.toLocaleString()}건</b></div>
+    <div class="est-res-row"><span>🏘 일원동 전체 (100%)</span><b>${c.ilwon.toLocaleString()}건</b></div>
+    <hr class="est-res-sep">
+    <div class="est-res-row" style="align-items:flex-end">
+      <span style="font-weight:800;color:var(--purple2);font-size:13px">🔮 예상 물량${c.learned?' <span class="lrn-badge">🤖 학습</span>':''}</span>
+      <span class="est-res-total">${c.est.toLocaleString()}<span style="font-size:14px;color:var(--sub);font-weight:400"> 건</span></span>
+    </div>
+    <div class="est-res-sub">단순 합계 ${c.raw.toLocaleString()}건${(estUseRbAdj()&&c.adj)?` · 실측 보정 ×${c.adj.toFixed(2)} 적용`:''} · 표 전체 ${c.total.toLocaleString()}건</div>
+    ${s?`<div class="est-res-sub" style="color:var(--blue2)">📈 실측/예상 평균 ×${s.avg.toFixed(2)} · 정확도 ${s.accAvg===null?'-':s.accAvg.toFixed(0)+'%'} (최근 ${s.recent.length}일)</div>`:''}`;
+}
+
+/* ── 통합(2개 합산) ── */
+function estCombinedShareText(){
+  const c=estCombined();
+  const d=toDate(estStore.cj.date);
+  const dt=`${d.getMonth()+1}월 ${d.getDate()}일(${DAYS[d.getDay()]})`;
+  let t=`🔮 ${dt} 내 예상 물량\n━━━━━━━━━━\n`;
+  t+=`🟪 CJ 오네(일원동) ${c.cj.est.toLocaleString()}건\n`;
+  t+=`   └ 일원동 전체 ${c.cj.ilwon.toLocaleString()}건 × ${c.cj.ratio}%\n`;
+  t+=`🐰 딜리래빗 ${c.rb.est.toLocaleString()}건\n`;
+  t+=`   └ 개포2동 ${c.rb.k2.toLocaleString()}건 × ${estStore.k2Ratio}% + 일원 ${c.rb.ilwon.toLocaleString()}건\n`;
+  t+=`━━━━━━━━━━\n📦 총 예상 ${c.total.toLocaleString()}건`;
+  if(c.lo!==c.hi) t+=`\n(오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건)`;
+  return t;
+}
+function estShareBoth(){
+  const t=estCombinedShareText();
+  if(navigator.share) navigator.share({text:t}).catch(err=>{ if(!err||err.name!=='AbortError') estCopyBoth(); });
+  else estCopyBoth();
+}
+function estCopyBoth(){
+  const t=estCombinedShareText(), done=()=>showToast('📋 복사되었습니다');
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done));
+  else fallbackCopy(t,done);
+}
+function estSetBothDate(v){
+  estStore.cj.date=v; estStore.rabbit.date=v; saveEst(); render();
+}
+function estSaveHistBoth(){
+  const c=estCombined();
+  if(c.cj.raw<=0&&c.rb.raw<=0){ showToast('⚠️ 먼저 물량을 입력해 주세요'); return; }
+  [['cj',c.cj,estStore.cj.date],['rabbit',c.rb,estStore.rabbit.date]].forEach(([type,v,date])=>{
+    if(v.raw<=0) return;
+    estStore.hist=estStore.hist.filter(h=>!(h.date===date&&h.type===type));
+    estStore.hist.push({date,type,base:v.raw,est:v.est});
+  });
+  estStore.hist=estStore.hist.slice(-200);
+  saveEst(); render();
+  showToast('📌 오네·딜리 예상값을 모두 저장했어요');
+}
+
+/* ── 이미지 자동 구분 ── */
+function estDetectType(list){
+  let rb=0,cj=0;
+  list.forEach(r=>{
+    const d=estNorm(r.dong), c=estNorm(r.code);
+    if(/^강남[가-힣]?\d+$/.test(c)) rb+=3;
+    if(/^(개포[1-4]동|일원1동|일원본동)$/.test(d)) rb+=3;
+    if(/^(논현동|삼성동|역삼동|청담동|신사동|압구정동|도곡동|대치동|율현동|자곡동)$/.test(d)) cj+=3;
+    if(/^(일원동|개포동)$/.test(d)) cj+=2;
+  });
+  return rb>cj?'rabbit':'cj';
+}
+
+let estMultiImgs=[];
+function onEstMultiImg(e){
+  const files=Array.from(e.target.files||[]);
+  e.target.value='';
+  if(!files.length) return;
+  let left=files.length;
+  files.slice(0,6).forEach(file=>{
+    const rd=new FileReader();
+    rd.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=1600; let url=ev.target.result, mime=file.type||'image/jpeg';
+        if(Math.max(img.width,img.height)>MAX){
+          const sc=MAX/Math.max(img.width,img.height), cv=document.createElement('canvas');
+          cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+          cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+          url=cv.toDataURL('image/jpeg',0.88); mime='image/jpeg';
+        }
+        estMultiImgs.push({base64:String(url).split(',')[1],mime,url,name:file.name||'물량표',type:null});
+        if(--left<=0) render();
+      };
+      img.onerror=()=>{ if(--left<=0) render(); };
+      img.src=ev.target.result;
+    };
+    rd.onerror=()=>{ if(--left<=0) render(); };
+    rd.readAsDataURL(file);
+  });
+}
+function estClearMulti(){ estMultiImgs=[]; render(); }
+function estMultiStatus(msg,type){
+  const el=document.getElementById('est-multi-status'); if(!el) return;
+  el.className='est-status'+(type?' '+type:''); el.textContent=msg;
+}
+async function estOcrOne(img){
+  const prompt='이 이미지는 배송 물량표입니다. 각 행의 "동 이름", "식별 코드"(있으면), "건수(숫자)"를 추출하세요. 합계·소계 행은 제외하세요. JSON 배열로만 답하세요. 예: [{"dong":"개포동","code":"","qty":"205"}]';
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${estModel()}:generateContent`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-goog-api-key':estKey()},
+    body:JSON.stringify({
+      contents:[{parts:[{text:prompt},{inline_data:{mime_type:img.mime,data:img.base64}}]}],
+      generationConfig:{responseMimeType:'application/json'}
+    })
+  });
+  if(!res.ok) throw new Error('API '+res.status);
+  const data=await res.json();
+  const parts=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts)||[];
+  const txt=parts.filter(x=>x.text&&!x.thought).map(x=>x.text).join('');
+  const arr=JSON.parse(txt.split('```json').join('').split('```').join('').trim());
+  if(!Array.isArray(arr)) throw new Error('형식 오류');
+  return arr.map(r=>({
+    dong:String((r&&r.dong)||'').trim(),
+    code:String((r&&r.code)||'').trim(),
+    qty:String((r&&r.qty)||'').replace(/[^0-9]/g,'')
+  })).filter(r=>r.dong&&r.qty!=='');
+}
+async function estRunMultiOCR(){
+  if(!estKey()){ showToast('⚠️ ⚙️ 설정에서 Gemini API 키를 먼저 등록해 주세요'); return; }
+  if(!estMultiImgs.length){ showToast('⚠️ 이미지를 먼저 선택하세요'); return; }
+  const done=[];
+  for(let i=0;i<estMultiImgs.length;i++){
+    estMultiStatus(`${i+1}/${estMultiImgs.length}번째 물량표를 읽는 중…`,'');
+    try{
+      const rows=await estOcrOne(estMultiImgs[i]);
+      if(!rows.length){ done.push('인식 실패'); continue; }
+      const type=estDetectType(rows);
+      estMultiImgs[i].type=type;
+      const r=estApply(rows,'merge',type);
+      done.push(`${type==='cj'?'🟪 오네':'🐰 딜리'} ${r.matched}건 갱신`);
+    }catch(e){ done.push('오류: '+e.message); }
+  }
+  saveEst(); render();
+  estMultiStatus('✅ '+done.join(' · '),'ok');
+}
+
+function estTabsHtml(){
+  const v=estStore.set;
+  return `<div class="est-sub-tabs">
+    <button class="est-sub-tab ${v==='cj'?'active':''}" onclick="estSwitchSet('cj')">🟪 CJ 오네</button>
+    <button class="est-sub-tab ${v==='rabbit'?'active':''}" onclick="estSwitchSet('rabbit')">🐰 딜리래빗</button>
+    <button class="est-sub-tab ${v==='both'?'active':''}" onclick="estSwitchSet('both')">🎯 통합</button>
+  </div>`;
+}
+function estMiniTotalHtml(){
+  const c=estCombined();
+  return `<div class="est-minibar" onclick="estSwitchSet('both')">
+    <span class="est-minibar-seg">🟪 오네 <b style="color:var(--purple2)">${c.cj.est.toLocaleString()}</b>건</span>
+    <span class="est-minibar-seg">🐰 딜리 <b style="color:var(--teal2)">${c.rb.est.toLocaleString()}</b>건</span>
+    <span class="est-minibar-total">총 <b>${c.total.toLocaleString()}</b>건 ›</span>
+  </div>`;
+}
+
+/* ── 통합 화면 ── */
+function renderEstBoth(){
+  const c=estCombined();
+  const locked=estStore.lockRatio;
+  const imgList=estMultiImgs.length?`<div class="est-multi-list">${estMultiImgs.map((im,i)=>`
+    <div class="est-multi-item">
+      <img src="${im.url}">
+      <span class="est-multi-name">${esc(im.name)}</span>
+      <span class="est-multi-tag ${im.type==='cj'?'cj':(im.type==='rabbit'?'rb':'wait')}">${im.type==='cj'?'🟪 오네':(im.type==='rabbit'?'🐰 딜리':'대기중')}</span>
+    </div>`).join('')}</div>`:'';
 
   return `
-  <div class="wx-loc">
-    <span class="wx-loc-name">📍 ${esc(wx.name)} 배송 구역</span>
-    <span style="display:flex;align-items:center;gap:8px;">
-      <span class="wx-loc-time" id="wx-loc-time">${wx.updated?fmtHM(wx.updated)+' 갱신':(wx.err||'불러오는 중…')}</span>
-      <button class="wx-refresh" onclick="showToast('예보 갱신 중…');fetchWeather()">🔄</button>
-    </span>
-  </div>
+    ${estTabsHtml()}
 
-  <div id="wx-head-wrap">${wxHeadlineHtml()}</div>
-  <div id="wx-now-wrap">${wxNowHtml()}</div>
-  <div id="wx-warn-wrap">${wxWarnHtml()}</div>
-  <div id="wx-m15-wrap">${wxM15Html()}</div>
+    <div class="est-total-card">
+      <div class="est-total-title">🔮 오늘 내가 배달할 예상 물량${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 비율 고정</span>':(estStore.autoLearn?' <span class="lrn-badge">🤖 자동학습 ON</span>':'')}</div>
+      <div class="est-split">
+        <div class="est-split-item">
+          <div class="est-split-lbl">🟪 CJ 오네 (일원동)</div>
+          <div class="est-split-val" style="color:var(--purple2)">${c.cj.est.toLocaleString()}<span class="est-split-unit">건</span></div>
+          <div class="est-split-sub">일원동 ${c.cj.ilwon.toLocaleString()}건 × ${c.cj.ratio}%<br>범위 ${c.cj.lo.toLocaleString()}~${c.cj.hi.toLocaleString()}건</div>
+        </div>
+        <div class="est-split-item">
+          <div class="est-split-lbl">🐰 딜리래빗</div>
+          <div class="est-split-val" style="color:var(--teal2)">${c.rb.est.toLocaleString()}<span class="est-split-unit">건</span></div>
+          <div class="est-split-sub">개포2동 ${c.rb.k2.toLocaleString()}×${estStore.k2Ratio}% = ${c.rb.share.toLocaleString()}건<br>+ 일원 ${c.rb.ilwon.toLocaleString()}건</div>
+        </div>
+      </div>
+      <div class="est-grand">
+        <div class="est-grand-lbl">📦 총 예상 물량</div>
+        <div class="est-grand-val">${c.total.toLocaleString()}<span style="font-size:16px;color:var(--sub);font-weight:400"> 건</span></div>
+        <div class="est-grand-sub">오네 ${c.cj.est.toLocaleString()} + 딜리 ${c.rb.est.toLocaleString()}${c.lo!==c.hi?` · 오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건`:''}</div>
+      </div>
+    </div>
 
-  <div class="wx-sec-title">⏱ 시간별 예보 <b>${WX_SPAN_HOURS}시간</b></div>
-  <div id="wx-hour-wrap">${wxHourHtml()}</div>
+    <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
+      <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
 
-  <div class="wx-btn-row">
-    <button class="wx-btn blue" onclick="window.open('https://www.weather.go.kr/w/weather/radar/radar.do','_blank')">📡 기상청 레이더</button>
-    <button class="wx-btn teal" onclick="window.open('https://m.map.kakao.com','_blank')">📹 도로 CCTV</button>
-  </div>
+    ${estLearnCard('cj')}
+    ${estLearnCard('rabbit')}
 
-  <button class="wx-btn wide" onclick="wx.showMap=!wx.showMap;render();">
-    ${wx.showMap?'🗺️ 비구름 지도 접기 ▲':'🗺️ 비구름 지도 열기 (Windy) ▼'}
-  </button>
-  ${wx.showMap?`<div class="wx-frame-wrap"><iframe src="${windySrc}" allowfullscreen loading="lazy"></iframe></div>`:''}
+    <div class="est-box">
+      <div class="est-box-title">🪄 물량표 이미지 2장을 한 번에 (오네 · 딜리 자동 구분)</div>
+      <label class="est-multi">
+        <input type="file" accept="image/*" multiple style="display:none" onchange="onEstMultiImg(event)">
+        <div style="font-size:30px">🖼🖼</div>
+        <div class="est-drop-txt">탭해서 물량표 사진 여러 장 선택</div>
+      </label>
+      ${imgList}
+      <div class="est-status" id="est-multi-status"></div>
+      <div class="est-mini">
+        <button onclick="estRunMultiOCR()" style="border-color:#4a3a75;color:var(--purple2)">🔍 전부 인식해서 채우기</button>
+        <button onclick="estClearMulti()">🗑 사진 비우기</button>
+      </div>
+      <div style="height:12px"></div>
+      ${estKeyHint()}
+    </div>
 
-  <div class="wx-note">10분마다 예보를 자동 갱신합니다 · 미세먼지는 유럽 대기질 모델 기준이라 에어코리아 수치와 약간 다를 수 있습니다</div>
-  <div style="height:20px"></div>`;
+    <div class="est-box">
+      <div class="est-box-title">🎯 담당 비율 조정 ${locked?'<span style="color:var(--amber2)">· 🔒 고정 중 (아래에서 해제)</span>':(estStore.autoLearn?'<span style="color:var(--purple2)">· 자동학습 중이라 오네 비율은 학습값이 우선됩니다</span>':'')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:11.5px;color:var(--sub);font-weight:700">🟪 일원동 담당 비율</span>
+        <span style="font-size:17px;font-weight:900;color:var(--purple2)" id="est-r1">${estStore.cjRatio}%</span>
+      </div>
+      <input type="range" style="width:100%;accent-color:var(--purple);${locked?'opacity:.4':''}" min="50" max="100" step="1" value="${estStore.cjRatio}" ${locked?'disabled':''} oninput="document.getElementById('est-r1').textContent=this.value+'%'" onchange="estSetRatio(this.value);render()">
+      <div style="height:14px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:11.5px;color:var(--sub);font-weight:700">🐰 개포2동 담당 비율</span>
+        <span style="font-size:17px;font-weight:900;color:var(--teal2)" id="est-r2">${estStore.k2Ratio}%</span>
+      </div>
+      <input type="range" style="width:100%;accent-color:var(--teal);${locked?'opacity:.4':''}" min="0" max="100" step="5" value="${estStore.k2Ratio}" ${locked?'disabled':''} oninput="document.getElementById('est-r2').textContent=this.value+'%'" onchange="estSetK2(this.value);render()">
+      ${estLockBar()}
+    </div>
+
+    <div class="est-btns">
+      <button class="est-btn kakao" onclick="estShareBoth()">💬 카톡 공유</button>
+      <button class="est-btn ghost" onclick="estCopyBoth()">📋 복사</button>
+    </div>
+    <button class="est-btn purple" style="width:100%;margin-bottom:8px" onclick="estSaveHistBoth()">📌 오네·딜리 예상값 모두 기록 저장</button>
+    <div class="est-mini" style="margin-top:0">
+      <button onclick="estSwitchSet('cj')">🟪 오네 표 편집</button>
+      <button onclick="estSwitchSet('rabbit')">🐰 딜리 표 편집</button>
+    </div>
+    <div style="height:24px"></div>`;
+}
+
+/* ── 렌더 ── */
+function renderEst(){
+  if(estStore.set==='both') return renderEstBoth();
+  const isCJ=estStore.set!=='rabbit';
+  const type=isCJ?'cj':'rabbit';
+  const cur=estCur();
+  const locked=estStore.lockRatio;
+
+  const rowsHtml=cur.rows.map((r,i)=>{
+    const tgt=isCJ?estIsIlwon(r):(estIsIlwon(r)||estIsK2(r));
+    return `<div class="est-row${tgt?' target':''}">
+      <span class="est-star" onclick="estDelRow(${i})" title="삭제">${tgt?'⭐':'·'}</span>
+      <input type="text" value="${esc(r.dong)}" placeholder="동 이름" onchange="estSet(${i},'dong',this.value)">
+      <input type="text" class="code" value="${esc(r.code)}" placeholder="코드" onchange="estSet(${i},'code',this.value)">
+      <input type="text" class="qty" value="${esc(r.qty)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="estSetQty(${i},this)">
+    </div>`;
+  }).join('');
+
+  const ratioHtml=isCJ?`
+    <div class="est-ratio-box">
+      <div class="est-ratio-top"><span class="est-ratio-lbl">🎯 일원동 담당 비율${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 고정</span>':(estStore.autoLearn?' <span class="lrn-badge">🤖 학습값 우선</span>':'')}</span><span class="est-ratio-val" id="est-ratio-val">${estStore.cjRatio}%</span></div>
+      <input type="range" min="50" max="100" step="1" value="${estStore.cjRatio}" ${locked?'disabled':''} oninput="estSetRatio(this.value)">
+      <div class="est-ratio-hint">일원동 전체 물량 중 내가 실제로 가져가는 비율<br>(보통 70~80%)</div>
+      ${estLockBar()}
+    </div>`:`
+    <div class="est-ratio-box">
+      <div class="est-ratio-top"><span class="est-ratio-lbl">🎯 개포2동 담당 비율${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 고정</span>':''}</span><span class="est-ratio-val" id="est-ratio-val">${estStore.k2Ratio}%</span></div>
+      <input type="range" min="0" max="100" step="5" value="${estStore.k2Ratio}" ${locked?'disabled':''} oninput="estSetK2(this.value)">
+      <div class="est-ratio-hint">개포2동은 절반(50%) · 일원동은 전체(100%) 기준으로 합산됩니다</div>
+      ${estLockBar()}
+    </div>`;
+
+  return `
+    ${estTabsHtml()}
+    ${estMiniTotalHtml()}
+
+    <div class="field"><label>📅 기준 날짜</label>
+      <input type="date" value="${cur.date}" onchange="estSetDate(this.value)"></div>
+
+    <div class="est-box">
+      <div class="est-box-title">🪄 이미지 · 표로 한 번에 채우기</div>
+      <label class="est-drop" id="est-drop">
+        <input type="file" accept="image/*" style="display:none" onchange="onEstImg(event)">
+        <div class="est-drop-inner" id="est-drop-inner">
+          <div style="font-size:28px">🖼</div>
+          <div class="est-drop-txt">탭해서 물량표 이미지 선택 / 촬영</div>
+        </div>
+      </label>
+      <div class="est-status" id="est-status"></div>
+      <div class="est-mini" id="est-ocr-btns" style="display:none">
+        <button onclick="estRunOCR('merge')">📥 있는 동만 채우기</button>
+        <button onclick="estRunOCR('append')">＋ 새 동도 추가</button>
+      </div>
+      <div style="height:12px"></div>
+      <textarea class="est-ta" id="est-ta" placeholder="엑셀·카톡 표 붙여넣기&#10;개포동  205&#10;일원동  312"></textarea>
+      <div class="est-mini">
+        <button onclick="estParsePaste('merge')">📋 붙여넣기 채우기</button>
+        <button onclick="estParsePaste('append')">＋ 새 동도 추가</button>
+      </div>
+      <div style="height:14px"></div>
+      ${estKeyHint()}
+    </div>
+
+    <div class="est-box">
+      <div class="est-box-title">📊 물량표 · ⭐ 표시가 내 담당 계산 대상 (⭐/· 탭하면 행 삭제)</div>
+      <div class="est-head"><span></span><span>동 이름</span><span>코드</span><span>건수</span></div>
+      ${rowsHtml}
+      <div class="est-mini">
+        <button onclick="estAddRow()">＋ 동 추가</button>
+        <button onclick="estClearQty()">🗑 건수 비우기</button>
+        <button onclick="estResetRows()">↩️ 기본목록</button>
+      </div>
+    </div>
+
+    ${ratioHtml}
+
+    <div class="est-result-box" id="est-result">${estResultHtml()}</div>
+
+    ${estLearnCard(type)}
+    ${!isCJ&&!locked?`<div class="est-learn">🔧 딜리 실측 보정 ${estStore.useAdj?'적용 중':'꺼짐'}<button class="est-learn-btn" onclick="estToggleAdj()">${estStore.useAdj?'끄기':'켜기'}</button></div>`:''}
+
+    <div class="est-btns">
+      <button class="est-btn kakao" onclick="estShare()">💬 카톡 공유</button>
+      <button class="est-btn ghost" onclick="estCopy()">📋 복사</button>
+    </div>
+    <button class="est-btn purple" style="width:100%;margin-bottom:8px" onclick="estSaveHist()">📌 오늘 예상값 기록 저장 (비율 학습)</button>
+    <button class="est-btn blue" style="width:100%" onclick="estToInput()">➡️ 이 예상값을 입력 탭에 넣기</button>
+    <div style="height:24px"></div>`;
 }
 
 /* ── 보고서 ─────────────────────────────── */
@@ -2042,11 +2973,9 @@ function switchReportMode(mode) {
   document.getElementById('mode-daily-btn').classList.toggle('active', mode === 'daily');
   document.getElementById('mode-monthly-btn').classList.toggle('active', mode === 'monthly');
   document.getElementById('mode-car-btn').classList.toggle('active', mode === 'car');
-
   document.getElementById('report-daily-section').style.display = (mode === 'daily') ? 'block' : 'none';
   document.getElementById('report-monthly-section').style.display = (mode === 'monthly') ? 'block' : 'none';
   document.getElementById('report-car-section').style.display = (mode === 'car') ? 'block' : 'none';
-
   if (mode === 'daily') updateDailyPreview();
 }
 
@@ -2122,17 +3051,7 @@ function generateDailyReportText() {
   const titleDate = `${monthStr}월${dayStr}일 ${dowStr}`;
 
   const rec = records.find(r => r.date === dateVal);
-  const qA = rec ? (Number(rec.qtyA) || 0) : 0;
-  const qB = rec ? (Number(rec.qtyB) || 0) : 0;
-  const qC = rec ? (Number(rec.qtyC) || 0) : 0;
-  const qD = rec ? (Number(rec.qtyD) || 0) : 0;
-
-  const activeItems = [
-    { name: nameA, qty: qA },
-    { name: nameB, qty: qB },
-    { name: nameC, qty: qC },
-    { name: nameD, qty: qD }
-  ].filter(it => it.qty > 0);
+  const activeItems = KEYS.map(k=>({name:NAME[k],qty:rec?(Number(rec['qty'+k])||0):0})).filter(it=>it.qty>0);
 
   let text = '';
   if (dailyStyle === 'style1') {
@@ -2193,7 +3112,7 @@ function generateReportText() {
     if(cRecs.length === 0) return `🚗 ${reportYear}년 ${reportMonth + 1}월 차량 기록이 없습니다.`;
     const cs = carStatsFor(cRecs);
     const dRecs = records.filter(r => r.date.startsWith(ym));
-    const dNet = dRecs.reduce((acc,r)=>acc+calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates).net,0);
+    const dNet = dRecs.reduce((acc,r)=>acc+calcPay(r).net,0);
     const pureIncome = dNet - cs.totalCost;
 
     let text = `🚗 ${reportYear}년 ${reportMonth + 1}월 차량 지출 보고서\n`;
@@ -2225,12 +3144,7 @@ function generateReportText() {
   if (mr.length === 0) return `📭 ${reportYear}년 ${reportMonth + 1}월 배송 기록이 없습니다.`;
 
   const s = statsFor(mr);
-  const items = [
-    { name: nameA, qty: s.A, amt: s.amtA, emoji: '🅰', key:'qtyA' },
-    { name: nameB, qty: s.B, amt: s.amtB, emoji: '🅱', key:'qtyB' },
-    { name: nameC, qty: s.C, amt: s.amtC, emoji: '🅲', key:'qtyC' },
-    { name: nameD, qty: s.D, amt: s.amtD, emoji: '🅳', key:'qtyD' },
-  ].filter(it => it.qty > 0);
+  const items = KEYS.filter(k=>s.q[k]>0).map(k=>({key:k,name:NAME[k],qty:s.q[k],amt:s.amt[k],emoji:KEMO[k]}));
 
   let text = `📦 ${reportYear}년 ${reportMonth + 1}월 배송 보고서\n`;
   text += `━━━━━━━━━━━━━━━\n`;
@@ -2238,21 +3152,15 @@ function generateReportText() {
   text += `💵 총액 ${won(s.G)}\n`;
   text += `💰 실수령 ${won(s.N)} (3.3% 공제)\n`;
   text += `━━━━━━━━━━━━━━━\n📊 물품별 정산\n`;
-  items.forEach(it => {
-    text += `${it.emoji} ${it.name}: ${it.qty.toLocaleString()}건 = ${won(it.amt)}\n`;
-  });
+  items.forEach(it => { text += `${it.emoji} ${it.name}: ${it.qty.toLocaleString()}건 = ${won(it.amt)}\n`; });
   text += `━━━━━━━━━━━━━━━\n`;
 
   if (reportFormat === 'detail') {
     text += `📋 일자별 상세\n\n`;
     mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
+      const p = calcPay(r);
       const spd = perHour(p.qty, r.startTime, r.endTime);
-      const parts = [];
-      if (p.A > 0) parts.push(`${nameA} ${p.A}`);
-      if (p.B > 0) parts.push(`${nameB} ${p.B}`);
-      if (p.C > 0) parts.push(`${nameC} ${p.C}`);
-      if (p.D > 0) parts.push(`${nameD} ${p.D}`);
+      const parts = KEYS.filter(k=>p.q[k]>0).map(k=>`${NAME[k]} ${p.q[k]}`);
       text += `📅 ${r.date.slice(5).replace('-','/')} (${DAYS[toDate(r.date).getDay()]}) · 총 ${p.qty.toLocaleString()}건\n`;
       text += `   ${parts.join(' / ')}\n`;
       text += `   ⏱ ${r.startTime}~${r.endTime} · 실수령 ${won(p.net)}${spd ? ' · ⚡' + spd + '건/h' : ''}\n`;
@@ -2262,15 +3170,15 @@ function generateReportText() {
   } else if (reportFormat === 'summary') {
     text += `📋 일자별 요약\n\n`;
     mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
+      const p = calcPay(r);
       text += `[${r.date.slice(5).replace('-','/')}] ${p.qty.toLocaleString()}건 · ${won(p.net)}\n`;
     });
   } else {
     text += `📋 일자별 표\n\n`;
     text += `날짜 | ${items.map(it=>it.name).join(' | ')} | 합계 | 실수령\n`;
     mr.forEach(r => {
-      const p = calcPay(r.qtyA, r.qtyB, r.qtyC, r.qtyD, r.rates);
-      const cells = items.map(it => Number(r[it.key]) || 0);
+      const p = calcPay(r);
+      const cells = items.map(it => p.q[it.key]);
       text += `${r.date.slice(5)} | ${cells.join(' | ')} | ${p.qty}건 | ${p.net.toLocaleString()}원\n`;
     });
   }
@@ -2299,37 +3207,71 @@ function copyReport() {
   } else fallbackCopy(text,done);
 }
 
-/* ── 단가 시트 & 다이얼로그 ──────────────────────────── */
-function openPriceSheet() {
-  document.getElementById('ps-pa').value=PA;
-  document.getElementById('ps-pb').value=PB;
-  document.getElementById('ps-pc').value=PC;
-  document.getElementById('ps-pd').value=PD;
-  document.getElementById('ps-na').value=nameA;
-  document.getElementById('ps-nb').value=nameB;
-  document.getElementById('ps-nc').value=nameC;
-  document.getElementById('ps-nd').value=nameD;
-  document.getElementById('price-sheet-sub').textContent=`현재 ${nameA} ${PA.toLocaleString()}원 · ${nameB} ${PB.toLocaleString()}원 · ${nameC} ${PC.toLocaleString()}원 · ${nameD} ${PD.toLocaleString()}원`;
+/* ── ⚙️ 설정 시트 (물품 · 단가 · API 키) ─── */
+function openPriceSheet(){
+  const html=KEYS.map(k=>`
+    <div class="pi-card ${ON[k]?'':'off'}" id="pi-card-${k}">
+      <div class="pi-top">
+        <div class="pi-tag" style="color:${KCOL[k]}">${KEMO[k]}</div>
+        <label class="pi-sw"><input type="checkbox" id="ps-on-${k}" ${ON[k]?'checked':''} onchange="togglePriceCard('${k}',this.checked)"><span class="pi-sl"></span></label>
+      </div>
+      <input class="pi-name" type="text" id="ps-n-${k}" value="${esc(NAME[k])}" maxlength="12" placeholder="${esc(DEF_NAME[k])}">
+      <div class="pi-price">
+        <input type="number" id="ps-p-${k}" inputmode="numeric" pattern="[0-9]*" value="${PRICE[k]}" placeholder="1000">
+        <span class="pi-unit">원/건</span>
+      </div>
+    </div>`).join('');
+  document.getElementById('price-item-list').innerHTML=html;
+  const on=actKeys();
+  document.getElementById('price-sheet-sub').textContent=
+    on.length?`사용 중 ${on.length}종 · `+on.map(k=>`${NAME[k]} ${PRICE[k].toLocaleString()}원`).join(' · ')
+             :'사용 중인 물품이 없습니다';
+  const keyEl=document.getElementById('ps-gemini-key');
+  if(keyEl) keyEl.value=estKey();
+  updateKeyState();
   document.getElementById('price-sheet').classList.add('show');
 }
+function updateKeyState(){
+  const el=document.getElementById('ps-gemini-key');
+  const st=document.getElementById('ps-key-state');
+  if(!el||!st) return;
+  const v=String(el.value||'').trim();
+  if(!v){ st.textContent='⚪ 미등록 — 예상 탭 이미지 인식을 쓰려면 키가 필요합니다'; st.style.color='#f0a060'; }
+  else{ st.textContent=`🟢 등록됨 (${v.slice(0,6)}…${v.slice(-4)})`; st.style.color='var(--teal2)'; }
+}
+function togglePriceCard(k,on){
+  const el=document.getElementById('pi-card-'+k);
+  if(el) el.classList.toggle('off',!on);
+}
 function savePrices(){
-  const a=Number(document.getElementById('ps-pa').value)||PA;
-  const b=Number(document.getElementById('ps-pb').value)||PB;
-  const c=Number(document.getElementById('ps-pc').value)||PC;
-  const d=Number(document.getElementById('ps-pd').value)||PD;
-  if([a,b,c,d].some(v=>v<100||v>100000)){showToast('⚠️ 단가는 100원 ~ 100,000원 사이여야 해요');return;}
-  PA=a;PB=b;PC=c;PD=d;
-  nameA=safeName(document.getElementById('ps-na').value)||'물품 A';
-  nameB=safeName(document.getElementById('ps-nb').value)||'물품 B';
-  nameC=safeName(document.getElementById('ps-nc').value)||'물품 C';
-  nameD=safeName(document.getElementById('ps-nd').value)||'물품 D';
-  lsSet('price-A',PA);lsSet('price-B',PB);lsSet('price-C',PC);lsSet('price-D',PD);
-  lsSet('name-A',nameA);lsSet('name-B',nameB);lsSet('name-C',nameC);lsSet('name-D',nameD);
+  const nn={},pp={},oo={};
+  let bad=false;
+  KEYS.forEach(k=>{
+    oo[k]=!!document.getElementById('ps-on-'+k)?.checked;
+    nn[k]=safeName(document.getElementById('ps-n-'+k)?.value)||DEF_NAME[k];
+    pp[k]=Number(document.getElementById('ps-p-'+k)?.value)||PRICE[k];
+    if(oo[k]&&(pp[k]<100||pp[k]>100000)) bad=true;
+  });
+  if(bad){ showToast('⚠️ 단가는 100원 ~ 100,000원 사이여야 해요'); return; }
+  if(!KEYS.some(k=>oo[k])){ showToast('⚠️ 최소 1개 물품은 사용으로 켜 주세요'); return; }
+  KEYS.forEach(k=>{
+    PRICE[k]=pp[k]; NAME[k]=nn[k]; ON[k]=oo[k];
+    lsSet('price-'+k,PRICE[k]); lsSet('name-'+k,NAME[k]);
+  });
+  saveOn();
+  const keyEl=document.getElementById('ps-gemini-key');
+  const hadKey=!!estKey();
+  if(keyEl) estSaveKey(keyEl.value);
+  const nowKey=!!estKey();
   document.getElementById('price-sheet').classList.remove('show');
-  updateSummary();render();
-  showToast('✅ 단가 저장 완료!');
+  updateSummary(); render();
+  let msg=`✅ 저장 완료 — 사용 물품 ${actKeys().length}종`;
+  if(!hadKey&&nowKey) msg+=' · 🔑 API 키 등록';
+  else if(hadKey&&!nowKey) msg+=' · 🔑 API 키 삭제';
+  showToast(msg);
 }
 
+/* ── 다이얼로그 ────────────────────────── */
 let dialogMode='delete';
 function openDialog(title,msg,btnText,mode,warn){
   document.getElementById('dialog-title').textContent=title;
@@ -2376,7 +3318,7 @@ function confirmDialog(){
   overlay.classList.remove('show');render();
 }
 
-/* ── 백업 & 엑셀 ───────────────────────────────── */
+/* ── 백업 & 엑셀 ───────────────────────── */
 function fallbackCopy(text,done){
   const ta=document.createElement('textarea');
   ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
@@ -2389,7 +3331,7 @@ function openBackupSheet(){
   document.getElementById('backup-sheet').classList.add('show');
 }
 function exportData(){
-  const data={version:'dlv-v7',exportDate:new Date().toISOString(),priceA:PA,priceB:PB,priceC:PC,priceD:PD,nameA,nameB,nameC,nameD,records,carRecords};
+  const data={version:'dlv-v10',exportDate:new Date().toISOString(),prices:PRICE,names:NAME,itemOn:ON,records,carRecords,estStore};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   downloadBlob(blob,`배송기록_백업_${today()}.json`);
   document.getElementById('backup-sheet').classList.remove('show');
@@ -2402,16 +3344,18 @@ function importData(e){
     try{
       const data=JSON.parse(ev.target.result);
       if(!Array.isArray(data)){
-        if(Number(data.priceA)>0) PA=Number(data.priceA);
-        if(Number(data.priceB)>0) PB=Number(data.priceB);
-        if(Number(data.priceC)>0) PC=Number(data.priceC);
-        if(Number(data.priceD)>0) PD=Number(data.priceD);
-        if(data.nameA) nameA=safeName(data.nameA)||nameA;
-        if(data.nameB) nameB=safeName(data.nameB)||nameB;
-        if(data.nameC) nameC=safeName(data.nameC)||nameC;
-        if(data.nameD) nameD=safeName(data.nameD)||nameD;
-        lsSet('price-A',PA);lsSet('price-B',PB);lsSet('price-C',PC);lsSet('price-D',PD);
-        lsSet('name-A',nameA);lsSet('name-B',nameB);lsSet('name-C',nameC);lsSet('name-D',nameD);
+        /* 신규 포맷 */
+        if(data.prices&&typeof data.prices==='object') KEYS.forEach(k=>{ if(Number(data.prices[k])>0) PRICE[k]=Number(data.prices[k]); });
+        if(data.names&&typeof data.names==='object') KEYS.forEach(k=>{ if(data.names[k]) NAME[k]=safeName(data.names[k])||NAME[k]; });
+        if(data.itemOn&&typeof data.itemOn==='object'){ KEYS.forEach(k=>ON[k]=!!data.itemOn[k]); if(!KEYS.some(k=>ON[k])) ON.A=true; }
+        /* 구버전 포맷 */
+        ['A','B','C','D'].forEach(k=>{
+          if(Number(data['price'+k])>0) PRICE[k]=Number(data['price'+k]);
+          if(data['name'+k]) NAME[k]=safeName(data['name'+k])||NAME[k];
+        });
+        KEYS.forEach(k=>{ lsSet('price-'+k,PRICE[k]); lsSet('name-'+k,NAME[k]); });
+        saveOn();
+        if(data.estStore){ estStore=estSanitize(data.estStore); saveEst(); }
       }
       const valid=r=>r&&typeof r==='object'&&/^\d{4}-\d{2}-\d{2}$/.test(r.date);
       const imported=(Array.isArray(data)?data:(data.records||[])).filter(valid);
@@ -2427,6 +3371,9 @@ function importData(e){
         newCar=nc.length;
         if(nc.length){carRecords=[...carRecords,...nc].sort((a,b)=>b.date.localeCompare(a.date));saveCarAll();}
       }
+      /* 불러온 기록에 값이 있는 물품은 자동으로 켜기 */
+      KEYS.forEach(k=>{ if(!ON[k]&&records.some(r=>(Number(r['qty'+k])||0)>0)) ON[k]=true; });
+      saveOn();
       document.getElementById('backup-sheet').classList.remove('show');
       const total=newRecs.length+newCar;
       showToast(total>0?`✅ 배송 ${newRecs.length}건 + 차량 ${newCar}건 복원${skipped>0?` (중복 ${skipped}건 제외)`:''}`:'⚠️ 새로 추가된 기록이 없습니다');
@@ -2565,19 +3512,20 @@ function exportExcel(){
   if(!records.length&&!carRecords.length){ showToast('⚠️ 내보낼 기록이 없습니다'); return; }
   const asc=(a,b)=>a.date.localeCompare(b.date);
   const dlv=[...records].sort(asc), car=[...carRecords].sort(asc);
+  const uk=usedKeys(dlv);
 
-  const dlvRows=[['날짜','요일',nameA,nameB,nameC,nameD,'총 건수','출발','마무리','근무시간(h)','시간당 건수','총액','실수령','공제액(3.3%)','메모']];
+  const dlvRows=[['날짜','요일',...uk.map(k=>NAME[k]),'총 건수','출발','마무리','근무시간(h)','시간당 건수','총액','실수령','공제액(3.3%)','메모']];
   dlv.forEach(r=>{
-    const p=calcPay(r.qtyA,r.qtyB,r.qtyC,r.qtyD,r.rates);
+    const p=calcPay(r);
     const mins=workMin(r.startTime,r.endTime);
-    dlvRows.push([r.date,DAYS[toDate(r.date).getDay()],p.A,p.B,p.C,p.D,p.qty,
+    dlvRows.push([r.date,DAYS[toDate(r.date).getDay()],...uk.map(k=>p.q[k]),p.qty,
       r.startTime||'',r.endTime||'',mins?Math.round(mins/6)/10:'',perHour(p.qty,r.startTime,r.endTime)||'',
       p.gross,p.net,p.tax,r.memo||'']);
   });
   if(dlv.length){
     const t=statsFor(dlv);
     dlvRows.push([]);
-    dlvRows.push(['합계',t.days+'일',t.A,t.B,t.C,t.D,t.Q,'','',t.totalMin?Math.round(t.totalMin/6)/10:'',t.avgSpd||'',t.G,t.N,t.G-t.N,'']);
+    dlvRows.push(['합계',t.days+'일',...uk.map(k=>t.q[k]),t.Q,'','',t.totalMin?Math.round(t.totalMin/6)/10:'',t.avgSpd||'',t.G,t.N,t.G-t.N,'']);
   }
 
   const carRows=[['날짜','요일','출발 km','도착 km','주행 km','주유량(L)','리터당 단가','주유비','통행료','총 지출','연비(km/L)','메모']];
@@ -2596,20 +3544,38 @@ function exportExcel(){
   }
 
   const months=[...new Set([...dlv,...car].map(r=>r.date.slice(0,7)))].sort();
-  const sumRows=[['월','배송일수',nameA,nameB,nameC,nameD,'총 건수','총액','실수령','공제액','주행 km','차량 지출','순수입(실수령-차량)']];
+  const sumRows=[['월','배송일수',...uk.map(k=>NAME[k]),'총 건수','총액','실수령','공제액','주행 km','차량 지출','순수입(실수령-차량)']];
   months.forEach(m=>{
     const d=dlv.filter(r=>r.date.startsWith(m));
     const c=car.filter(r=>r.date.startsWith(m));
     const s=statsFor(d), cs=carStatsFor(c);
-    sumRows.push([m,s.days,s.A,s.B,s.C,s.D,s.Q,s.G,s.N,s.G-s.N,cs.totalKm,cs.totalCost,s.N-cs.totalCost]);
+    sumRows.push([m,s.days,...uk.map(k=>s.q[k]),s.Q,s.G,s.N,s.G-s.N,cs.totalKm,cs.totalCost,s.N-cs.totalCost]);
   });
 
+  const wcol=n=>Array.from({length:n},()=>10);
+  const sheets=[
+    {name:'배송 기록',rows:dlvRows,widths:[12,6,...wcol(uk.length),10,9,9,12,12,12,12,13,30]},
+    {name:'차량 기록',rows:carRows,widths:[12,6,11,11,10,11,12,11,10,11,11,30]},
+    {name:'월별 요약',rows:sumRows,widths:[10,10,...wcol(uk.length),10,13,13,12,11,12,16]}
+  ];
+
+  if(estStore.hist&&estStore.hist.length){
+    const estRows=[['날짜','구분','기준 물량','예상 물량','실제 배송','차이','정확도(%)','실제/기준 비율']];
+    [...estStore.hist].sort((a,b)=>a.date.localeCompare(b.date)).forEach(h=>{
+      const key=estKeyOf(h.type);
+      const rec=records.find(r=>r.date===h.date);
+      const actual=rec?(Number(rec['qty'+key])||0):0;
+      const base=Number(h.base)||0, est=Number(h.est)||0;
+      const diff=(actual>0&&est>0)?actual-est:'';
+      const acc=(actual>0&&est>0)?Math.round(Math.max(0,100-Math.abs(actual-est)/actual*100)*10)/10:'';
+      estRows.push([h.date,h.type==='cj'?'CJ 오네(일원동)':'딜리래빗',base,est,actual||'',diff,acc,
+        (actual>0&&base>0)?Math.round(actual/base*1000)/1000:'']);
+    });
+    sheets.push({name:'예상 학습',rows:estRows,widths:[12,18,12,12,12,10,12,14]});
+  }
+
   try{
-    const blob=buildXlsx([
-      {name:'배송 기록',rows:dlvRows,widths:[12,6,10,10,10,10,10,9,9,12,12,12,12,13,30]},
-      {name:'차량 기록',rows:carRows,widths:[12,6,11,11,10,11,12,11,10,11,11,30]},
-      {name:'월별 요약',rows:sumRows,widths:[10,10,10,10,10,10,10,13,13,12,11,12,16]}
-    ]);
+    const blob=buildXlsx(sheets);
     downloadBlob(blob,`배송기록_전체백업_${today()}.xlsx`);
     document.getElementById('backup-sheet').classList.remove('show');
     showToast('📊 엑셀 파일 저장 완료!');
@@ -2631,7 +3597,10 @@ function refreshTodayLabel(){
 refreshTodayLabel();
 updateSummary();
 render();
-initWeather();
+
+/* 날씨 자동 갱신 */
+fetchWeather();
+setInterval(fetchWeather,10*60*1000);
 
 let lastDay=today();
 document.addEventListener('visibilitychange',()=>{
@@ -2639,11 +3608,10 @@ document.addEventListener('visibilitychange',()=>{
     if(today()!==lastDay){
       lastDay=today();
       refreshTodayLabel();
-      if(editId===null&&!form.qtyA&&!form.qtyB&&!form.qtyC&&!form.qtyD) form.date=lastDay;
+      if(editId===null&&!KEYS.some(k=>form['qty'+k])) form.date=lastDay;
       updateSummary();render();
     }
-    const stale = !wx.updated || (Date.now()-wx.updated.getTime())>5*60*1000;
-    if(stale) fetchWeather();
+    if(!wx.updated||(Date.now()-wx.updated.getTime())>10*60*1000) fetchWeather();
   }
 });
 
@@ -2666,7 +3634,7 @@ try {
 
 if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
   const swCode = `
-    const CACHE_NAME = 'dlv-offline-v2';
+    const CACHE_NAME = 'dlv-offline-v3';
     self.addEventListener('install', e => { self.skipWaiting(); });
     self.addEventListener('activate', e => {
       e.waitUntil(
@@ -2677,7 +3645,8 @@ if ('serviceWorker' in navigator && window.location.protocol.startsWith('http'))
     });
     self.addEventListener('fetch', e => {
       if (e.request.method !== 'GET') return;
-      if (e.request.url.indexOf('open-meteo.com') !== -1) return;
+      const u = e.request.url;
+      if (u.indexOf('open-meteo.com') >= 0 || u.indexOf('windy.com') >= 0 || u.indexOf('googleapis.com') >= 0) return;
       e.respondWith(
         fetch(e.request).then(res => {
           if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
