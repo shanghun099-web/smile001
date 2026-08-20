@@ -283,16 +283,31 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .est-sub-tab.active{background:var(--purple);border-color:var(--purple);color:#150f28;}
 .est-box{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;border:1.5px solid var(--border);}
 .est-box-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:10px;letter-spacing:.5px;}
-.est-head{display:grid;grid-template-columns:16px 1fr 70px 66px;gap:5px;font-size:9px;color:#666;font-weight:700;padding:0 2px 6px;}
-.est-head span:nth-child(3),.est-head span:nth-child(4){text-align:center;}
-.est-row{display:grid;grid-template-columns:16px 1fr 70px 66px;gap:5px;align-items:center;margin-bottom:6px;}
-.est-star{font-size:11px;text-align:center;}
-.est-row input{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:10px 7px;font-size:14px;color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none;}
+.est-head{display:grid;grid-template-columns:22px 1fr 58px 48px 54px;gap:4px;font-size:9px;color:#666;font-weight:700;padding:0 2px 6px;}
+.est-head span:nth-child(3),.est-head span:nth-child(4),.est-head span:nth-child(5){text-align:center;}
+.est-row{display:grid;grid-template-columns:22px 1fr 58px 48px 54px;gap:4px;align-items:center;margin-bottom:6px;}
+.est-star{font-size:15px;text-align:center;cursor:pointer;line-height:1;padding:6px 0;border-radius:8px;user-select:none;}
+.est-star.off{opacity:.35;font-size:14px;}
+.est-star.del{color:#f06060;font-size:14px;font-weight:900;background:rgba(240,96,96,.12);}
+.est-row input{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:10px 5px;font-size:13.5px;color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none;}
 .est-row input:focus{border-color:var(--purple);}
-.est-row input.code{text-align:center;font-size:11px;color:var(--sub);}
+.est-row input.code{text-align:center;font-size:10.5px;color:var(--sub);}
+.est-row input.pct{text-align:center;font-size:12.5px;font-weight:900;color:var(--purple2);padding:10px 2px;}
+.est-row input.pct:disabled{color:#4a4f5c;background:#0f1118;font-weight:700;}
 .est-row input.qty{text-align:center;font-weight:900;color:var(--teal2);}
 .est-row.target input{border-color:#4a3a75;background:#171225;}
 .est-row.target input.qty{color:var(--purple2);}
+.est-pct-row{background:rgba(0,0,0,.26);border-radius:11px;padding:10px 12px;margin-bottom:7px;}
+.est-pct-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.est-pct-name{font-size:12px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.est-pct-qty{font-size:10px;color:#6b7482;font-weight:700;margin-left:5px;}
+.est-pct-val{font-size:17px;font-weight:900;color:var(--purple2);flex-shrink:0;}
+.est-pct-row input[type=range]{width:100%;accent-color:var(--purple);display:block;}
+.est-pct-row input[type=range]:disabled{opacity:.4;}
+.est-pct-empty{font-size:11.5px;color:#7d8592;line-height:1.7;text-align:center;padding:14px 6px;border:1.5px dashed var(--border2);border-radius:11px;}
+.est-pct-quick{display:flex;gap:5px;margin-top:7px;}
+.est-pct-quick button{flex:1;padding:6px 0;border:1px solid var(--border2);border-radius:7px;background:var(--card2);color:#9aa3b2;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+.est-pct-quick button:disabled{opacity:.35;}
 .est-ratio-box{background:linear-gradient(135deg,#16141f,#12101c);border:1.5px solid #3a2f5a;border-radius:14px;padding:14px 16px;margin-bottom:12px;}
 .est-ratio-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
 .est-ratio-lbl{font-size:11px;color:var(--sub);font-weight:700;}
@@ -2203,12 +2218,34 @@ function estN(v){ const n=Number(String(v==null?'':v).replace(/[^0-9]/g,'')); re
 function estIsIlwon(r){ return /일원/.test(estNorm(r.dong)); }
 function estIsK2(r){ return /개포2/.test(estNorm(r.dong))||estNorm(r.code)==='강남가102'; }
 
+/* 행의 담당 비율 (0~100) */
+function estPct(r){
+  const p=Number(r&&r.pct);
+  if(isNaN(p)) return 100;
+  return Math.min(100,Math.max(0,Math.round(p)));
+}
+/* 기본 동 목록 — ⭐ 담당 표시와 기본 비율을 함께 부여 */
+function estDefRows(type,cjR,k2R){
+  if(type==='rabbit'){
+    return EST_RB_DEFAULT.map(a=>{
+      const o={dong:a[0],code:a[1]};
+      if(estIsK2(o)) return {dong:a[0],code:a[1],qty:'',on:true,pct:k2R};
+      if(estIsIlwon(o)) return {dong:a[0],code:a[1],qty:'',on:true,pct:100};
+      return {dong:a[0],code:a[1],qty:'',on:false,pct:100};
+    });
+  }
+  return EST_CJ_DEFAULT.map(d=>{
+    const on=estIsIlwon({dong:d,code:''});
+    return {dong:d,code:'',qty:'',on,pct:on?cjR:100};
+  });
+}
+
 function estDefault(){
   return {
     set:'cj', cjRatio:75, k2Ratio:50, useAdj:true, autoLearn:false, lockRatio:false,
     cjKey:'A', rbKey:'C',
-    cj:{date:today(),rows:EST_CJ_DEFAULT.map(d=>({dong:d,code:'',qty:''}))},
-    rabbit:{date:today(),rows:EST_RB_DEFAULT.map(a=>({dong:a[0],code:a[1],qty:''}))},
+    cj:{date:today(),rows:estDefRows('cj',75,50)},
+    rabbit:{date:today(),rows:estDefRows('rabbit',75,50)},
     hist:[]
   };
 }
@@ -2228,11 +2265,24 @@ function estSanitize(s){
     if(src&&typeof src==='object'&&Array.isArray(src.rows)&&src.rows.length){
       out[k]={
         date:/^\d{4}-\d{2}-\d{2}$/.test(src.date)?src.date:today(),
-        rows:src.rows.map(r=>({
-          dong:String((r&&r.dong)||''),
-          code:String((r&&r.code)||''),
-          qty:String((r&&r.qty)||'').replace(/[^0-9]/g,'')
-        }))
+        rows:src.rows.map(r=>{
+          const dong=String((r&&r.dong)||''), code=String((r&&r.code)||'');
+          const qty=String((r&&r.qty)||'').replace(/[^0-9]/g,'');
+          let on,pct;
+          if(r&&r.on!==undefined){            /* 새 포맷 */
+            on=!!r.on; pct=estPct(r);
+          } else {                            /* 구버전 → 자동 판정값으로 1회 이관 */
+            const o={dong,code};
+            if(k==='rabbit'){
+              if(estIsK2(o)){ on=true; pct=out.k2Ratio; }
+              else if(estIsIlwon(o)){ on=true; pct=100; }
+              else { on=false; pct=100; }
+            } else {
+              on=estIsIlwon(o); pct=on?out.cjRatio:100;
+            }
+          }
+          return {dong,code,qty,on,pct};
+        })
       };
     }
   });
@@ -2273,38 +2323,45 @@ function estHistStats(type){
 }
 function estAdj(type){ const s=estHistStats(type); return s?s.avg:null; }
 
-/* 자동학습이 켜져 있으면 실측 평균 비율을 적용 */
-function estEffCjRatio(){
-  if(estStore.autoLearn&&!estStore.lockRatio){
-    const s=estHistStats('cj');
-    if(s) return Math.min(100,Math.max(1,Math.round(s.avg*100)));
-  }
-  return estStore.cjRatio;
-}
 function estUseRbAdj(){ return (estStore.useAdj||estStore.autoLearn)&&!estStore.lockRatio; }
 
-/* ── 계산 ── */
+/* ── 계산 — ⭐ 지정한 동만, 각 동의 담당 비율로 합산 ── */
+function estRowsOf(type){ return (type==='rabbit'?estStore.rabbit:estStore.cj).rows; }
+function estStarIdx(type){
+  const out=[];
+  estRowsOf(type).forEach((r,i)=>{ if(r.on) out.push(i); });
+  return out;
+}
 function estCalcFor(type){
-  const rows=(type==='rabbit'?estStore.rabbit:estStore.cj).rows;
-  let total=0,ilwon=0,k2=0;
-  rows.forEach(r=>{
+  const rows=estRowsOf(type);
+  let total=0,base100=0,weighted=0;
+  const parts=[];
+  rows.forEach((r,i)=>{
     const q=estN(r.qty); total+=q;
-    if(estIsK2(r)) k2+=q;
-    else if(estIsIlwon(r)) ilwon+=q;
+    if(!r.on) return;
+    const pct=estPct(r), mine=Math.round(q*pct/100);
+    base100+=q; weighted+=q*pct/100;
+    parts.push({i,dong:r.dong||'(이름없음)',qty:q,pct,mine});
   });
+  weighted=Math.round(weighted);
   if(type!=='rabbit'){
-    const ratio=estEffCjRatio();
-    return{type:'cj',total,ilwon,k2:0,share:0,ratio,raw:ilwon,
-      est:Math.round(ilwon*ratio/100),
-      lo:Math.round(ilwon*0.7),hi:Math.round(ilwon*0.8),adj:null,
-      learned:estStore.autoLearn&&!estStore.lockRatio&&!!estHistStats('cj')};
+    const s=estHistStats('cj');
+    const learn=!!(estStore.autoLearn&&!estStore.lockRatio&&s);
+    const est=learn?Math.round(base100*s.avg):weighted;
+    return{type:'cj',total,parts,base100,weighted,raw:base100,est,adj:null,learned:learn,
+      ratio:base100>0?Math.round(est/base100*1000)/10:0,
+      lo:Math.round(base100*0.7),hi:Math.round(base100*0.8)};
   }
-  const share=Math.round(k2*estStore.k2Ratio/100);
-  const raw=share+ilwon;
   const adj=estAdj('rabbit');
-  return{type:'rabbit',total,ilwon,k2,share,raw,adj,
-    est:(estUseRbAdj()&&adj)?Math.round(raw*adj):raw,
-    learned:estStore.autoLearn&&!estStore.lockRatio&&!!adj};
+  const use=estUseRbAdj()&&adj;
+  return{type:'rabbit',total,parts,base100,weighted,raw:weighted,adj,
+    est:use?Math.round(weighted*adj):weighted,
+    ratio:base100>0?Math.round(weighted/base100*1000)/10:0,
+    learned:!!(estStore.autoLearn&&!estStore.lockRatio&&adj)};
+}
+function estPartsLines(c,sep){
+  if(!c.parts.length) return '⭐ 지정된 동이 없습니다';
+  return c.parts.map(p=>`${p.dong} ${p.qty.toLocaleString()}건 × ${p.pct}% = ${p.mine.toLocaleString()}건`).join(sep||'\n');
 }
 function estCalc(){ return estCalcFor(estStore.set==='rabbit'?'rabbit':'cj'); }
 function estCombined(){
@@ -2317,14 +2374,15 @@ function estToggleLock(){
   estStore.lockRatio=!estStore.lockRatio;
   saveEst(); render();
   showToast(estStore.lockRatio
-    ? `🔒 비율 고정 — 오네 ${estStore.cjRatio}% · 개포2동 ${estStore.k2Ratio}%로 계속 계산합니다`
-    : '🔓 비율 고정 해제 — 이제 슬라이더로 조정할 수 있어요');
+    ? '🔒 담당 비율 고정 — 지금 ⭐ 설정값으로 계속 계산합니다'
+    : '🔓 고정 해제 — 이제 ⭐ 지정과 비율을 바꿀 수 있어요');
 }
 function estLockBar(){
   const on=estStore.lockRatio;
+  const cjN=estStarIdx('cj').length, rbN=estStarIdx('rabbit').length;
   return `<div class="est-lockbar">
     <div class="est-lock-txt">${on
-      ? `🔒 <b>고정됨</b> · 오네 ${estStore.cjRatio}% · 개포2동 ${estStore.k2Ratio}%<br><span style="color:#6b7482">자동학습 · 실측보정도 잠시 멈춥니다</span>`
+      ? `🔒 <b>고정됨</b> · 오네 ⭐${cjN}개 동 · 딜리 ⭐${rbN}개 동<br><span style="color:#6b7482">비율 조정 · ⭐ 변경 · 자동학습이 잠시 멈춥니다</span>`
       : `🔓 고정 해제 상태 · 지금 값으로 계속 쓰려면 고정하세요`}</div>
     <button class="est-lock-btn ${on?'on':''}" onclick="estToggleLock()">${on?'🔓 해제':'🔒 고정'}</button>
   </div>`;
@@ -2384,8 +2442,8 @@ function estLearnCard(type){
     </table>
     <div style="font-size:10px;color:var(--sub);margin-top:8px;line-height:1.6">
       ${type==='cj'
-        ? `평균비율 = 실제 배송 ÷ 일원동 전체 물량 · 이 값이 곧 내 담당 비율입니다`
-        : `평균비율 = 실제 배송 ÷ (개포2동 ${estStore.k2Ratio}% + 일원동) 단순합계`}
+        ? `평균비율 = 실제 배송 ÷ ⭐ 담당 동 전체 물량 · 이 값이 곧 내 실제 담당 비율입니다`
+        : `평균비율 = 실제 배송 ÷ ⭐ 담당 동의 비율 합계(단순 예상값)`}
     </div>
     ${estAutoSwitch()}
     ${!estStore.autoLearn&&!estStore.lockRatio&&type==='cj'?`<button class="est-btn blue" style="width:100%;margin-top:8px;padding:11px;font-size:12.5px" onclick="estApplyLearned()">📌 학습된 ${(s.avg*100).toFixed(1)}% 를 지금 비율로 적용</button>`:''}
@@ -2411,25 +2469,48 @@ function estSetQty(i,el){
   el.value=el.value.replace(/[^0-9]/g,'');
   c.rows[i].qty=el.value; saveEst(); estRefresh();
 }
-function estRefresh(){ const el=document.getElementById('est-result'); if(el) el.innerHTML=estResultHtml(); }
-function estSetRatio(v){
+function estRefresh(){
+  const el=document.getElementById('est-result'); if(el) el.innerHTML=estResultHtml();
+  const mb=document.getElementById('est-minibar'); if(mb) mb.innerHTML=estMiniInner();
+}
+
+/* ⭐ 담당 지정 토글 */
+function estToggleStar(type,i){
+  if(estStore.lockRatio){ showToast('🔒 고정 중이에요 — 아래 🔓 해제 후 변경할 수 있어요'); return; }
+  const rows=estRowsOf(type); if(!rows[i]) return;
+  rows[i].on=!rows[i].on;
+  if(rows[i].on&&(rows[i].pct===undefined||rows[i].pct===null)) rows[i].pct=100;
+  saveEst(); render();
+  showToast(rows[i].on
+    ? `⭐ ${rows[i].dong||'이 동'} 담당 추가 — 비율 ${estPct(rows[i])}%`
+    : `☆ ${rows[i].dong||'이 동'} 담당 해제`);
+}
+/* 동별 담당 비율 변경 (src: 'input' 표 입력칸 · 'slider' 비율 패널) */
+function estSetPct(type,i,v,src){
   if(estStore.lockRatio) return;
-  estStore.cjRatio=Math.min(100,Math.max(1,Number(v)||75)); saveEst();
-  const l=document.getElementById('est-ratio-val'); if(l) l.textContent=estStore.cjRatio+'%';
+  const rows=estRowsOf(type); if(!rows[i]) return;
+  let n=Number(String(v==null?'':v).replace(/[^0-9]/g,''));
+  if(isNaN(n)) n=0;
+  n=Math.min(100,Math.max(0,Math.round(n)));
+  rows[i].pct=n;
+  if(!rows[i].on&&n>0) rows[i].on=true;
+  saveEst();
+  const lbl=document.getElementById(`pctv-${type}-${i}`); if(lbl) lbl.textContent=n+'%';
+  const sl=document.getElementById(`pcts-${type}-${i}`); if(sl&&src!=='slider') sl.value=n;
+  const inp=document.getElementById(`pcti-${type}-${i}`); if(inp&&src!=='input') inp.value=n;
   estRefresh();
 }
-function estSetK2(v){
-  if(estStore.lockRatio) return;
-  estStore.k2Ratio=Math.min(100,Math.max(0,Number(v)||0)); saveEst();
-  const l=document.getElementById('est-ratio-val'); if(l) l.textContent=estStore.k2Ratio+'%';
-  estRefresh();
-}
+function estQuickPct(type,i,n){ estSetPct(type,i,n); render(); }
 function estApplyLearned(){
   if(estStore.lockRatio){ showToast('🔒 비율이 고정되어 있어요 — 먼저 고정을 해제해 주세요'); return; }
   const s=estHistStats('cj'); if(!s) return;
-  estStore.cjRatio=Math.min(100,Math.max(1,Math.round(s.avg*100)));
+  const n=Math.min(100,Math.max(1,Math.round(s.avg*100)));
+  const idx=estStarIdx('cj');
+  if(!idx.length){ showToast('⚠️ 먼저 물량표에서 ⭐ 담당 동을 지정해 주세요'); return; }
+  idx.forEach(i=>estStore.cj.rows[i].pct=n);
+  estStore.cjRatio=n;
   saveEst(); render();
-  showToast(`✅ 실측 평균 ${estStore.cjRatio}% 적용`);
+  showToast(`✅ ⭐ ${idx.length}개 동에 실측 평균 ${n}% 적용`);
 }
 function estToggleAdj(){
   estStore.useAdj=!estStore.useAdj; saveEst(); render();
@@ -2441,16 +2522,26 @@ function estToggleAutoLearn(){
   showToast(estStore.autoLearn?'🤖 자동 학습 켜짐 — 실측 평균으로 예상합니다':'⏸ 자동 학습 꺼짐 — 수동 비율을 사용합니다');
 }
 function estClearQty(){ estCur().rows.forEach(r=>r.qty=''); saveEst(); render(); showToast('🗑 건수를 비웠어요'); }
-function estAddRow(){ estCur().rows.push({dong:'',code:'',qty:''}); saveEst(); render(); }
+function estAddRow(){
+  estCur().rows.push({dong:'',code:'',qty:'',on:false,pct:100});
+  saveEst(); render();
+  showToast('＋ 행 추가 — 동 이름을 적고 ☆를 눌러 담당으로 지정하세요');
+}
+let estDelMode=false;
+function estToggleDelMode(){
+  estDelMode=!estDelMode; render();
+  showToast(estDelMode?'🗑 행 삭제 모드 — ✕ 를 누르면 그 행이 지워집니다':'✅ 삭제 모드 종료');
+}
 function estDelRow(i){
   const c=estCur(); c.rows.splice(i,1);
-  if(!c.rows.length) c.rows.push({dong:'',code:'',qty:''});
+  if(!c.rows.length) c.rows.push({dong:'',code:'',qty:'',on:false,pct:100});
   saveEst(); render();
 }
 function estResetRows(){
-  if(estStore.set==='cj') estStore.cj.rows=EST_CJ_DEFAULT.map(d=>({dong:d,code:'',qty:''}));
-  else estStore.rabbit.rows=EST_RB_DEFAULT.map(a=>({dong:a[0],code:a[1],qty:''}));
-  saveEst(); render(); showToast('↩️ 기본 동 목록으로 되돌렸어요');
+  if(estStore.lockRatio){ showToast('🔒 고정 중이에요 — 먼저 고정을 해제해 주세요'); return; }
+  if(estStore.set==='cj') estStore.cj.rows=estDefRows('cj',estStore.cjRatio,estStore.k2Ratio);
+  else estStore.rabbit.rows=estDefRows('rabbit',estStore.cjRatio,estStore.k2Ratio);
+  saveEst(); render(); showToast('↩️ 기본 동 목록 · 기본 ⭐ 지정으로 되돌렸어요');
 }
 
 function estSaveHist(){
@@ -2476,10 +2567,11 @@ function estToInput(){
 function estShareText(){
   const c=estCalc(), cur=estCur(), d=toDate(cur.date);
   const dt=`${d.getMonth()+1}월 ${d.getDate()}일(${DAYS[d.getDay()]})`;
+  const lines=c.parts.length?c.parts.map(p=>`· ${p.dong} ${p.qty.toLocaleString()}건 × ${p.pct}% = ${p.mine.toLocaleString()}건`).join('\n'):'· ⭐ 지정된 동이 없습니다';
   if(estStore.set==='cj'){
-    return `📦 [CJ 오네] ${dt} 일원동 예상물량\n━━━━━━━━━━\n· 일원동 전체: ${c.ilwon.toLocaleString()}건\n· 내 담당 비율: ${c.ratio}%${c.learned?' (실측 학습)':''}${estStore.lockRatio?' 🔒':''}\n· 참고 범위(70~80%): ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건\n━━━━━━━━━━\n🔮 오늘 예상 ${c.est.toLocaleString()}건`;
+    return `📦 [CJ 오네] ${dt} 예상물량\n━━━━━━━━━━\n${lines}\n· 담당 동 전체 물량: ${c.base100.toLocaleString()}건 (평균 ${c.ratio}%)${c.learned?' · 실측 학습':''}${estStore.lockRatio?' 🔒':''}\n· 참고 범위(70~80%): ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건\n━━━━━━━━━━\n🔮 오늘 예상 ${c.est.toLocaleString()}건`;
   }
-  return `🐰 [딜리래빗] ${dt} 예상물량\n━━━━━━━━━━\n· 개포2동 ${c.k2.toLocaleString()}건 × ${estStore.k2Ratio}% = ${c.share.toLocaleString()}건\n· 일원동 전체 = ${c.ilwon.toLocaleString()}건\n━━━━━━━━━━\n🔮 예상 합계 ${c.est.toLocaleString()}건${(estUseRbAdj()&&c.adj)?`\n(실측 보정 ×${c.adj.toFixed(2)} · 단순합계 ${c.raw.toLocaleString()}건)`:''}`;
+  return `🐰 [딜리래빗] ${dt} 예상물량\n━━━━━━━━━━\n${lines}\n━━━━━━━━━━\n🔮 예상 합계 ${c.est.toLocaleString()}건${(estUseRbAdj()&&c.adj)?`\n(실측 보정 ×${c.adj.toFixed(2)} · 단순합계 ${c.weighted.toLocaleString()}건)`:''}`;
 }
 function estShare(){
   const t=estShareText();
@@ -2566,7 +2658,7 @@ function estApply(list,mode,type){
   .forEach(c=>{
     const row=cur.rows.find(r=>estNorm(r.dong)===estNorm(c.dong)||(c.code&&r.code&&estNorm(r.code)===estNorm(c.code)));
     if(row){ row.qty=c.qty; if(c.code&&!row.code) row.code=c.code; matched++; }
-    else if(mode==='append'){ cur.rows.push(c); added++; }
+    else if(mode==='append'){ cur.rows.push({dong:c.dong,code:c.code,qty:c.qty,on:false,pct:100}); added++; }
   });
   saveEst(); render();
   return{matched,added};
@@ -2602,29 +2694,32 @@ function estSaveKey(v){
 function estResultHtml(){
   const c=estCalc();
   const lockBadge=estStore.lockRatio?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 고정</span>':'';
+  const rowsHtml=c.parts.length
+    ? c.parts.map(p=>`<div class="est-res-row"><span>⭐ ${esc(p.dong)} ${p.qty.toLocaleString()}건 × <b style="color:var(--purple2);font-size:12px">${p.pct}%</b></span><b>${p.mine.toLocaleString()}건</b></div>`).join('')
+    : `<div class="est-res-row"><span style="color:#f0a060">⭐ 지정된 동이 없습니다 — 아래 물량표에서 ☆를 눌러주세요</span></div>`;
   if(c.type==='cj'){
     const s=estHistStats('cj');
     return `
-      <div class="est-res-row"><span>🏘 일원동 전체 물량</span><b>${c.ilwon.toLocaleString()}건</b></div>
-      <div class="est-res-row"><span>🎯 내 담당 비율${c.learned?' <span class="lrn-badge">🤖 학습</span>':''}${lockBadge}</span><b style="color:var(--purple2)">${c.ratio}%</b></div>
+      ${rowsHtml}
+      <div class="est-res-row"><span>🎯 담당 동 평균 비율${c.learned?' <span class="lrn-badge">🤖 학습</span>':''}${lockBadge}</span><b style="color:var(--purple2)">${c.ratio}%</b></div>
       <hr class="est-res-sep">
       <div class="est-res-row" style="align-items:flex-end">
         <span style="font-weight:800;color:var(--purple2);font-size:13px">🔮 예상 물량</span>
         <span class="est-res-total">${c.est.toLocaleString()}<span style="font-size:14px;color:var(--sub);font-weight:400"> 건</span></span>
       </div>
-      <div class="est-res-sub">70~80% 범위 → <b style="color:#9d8bd8">${c.lo.toLocaleString()} ~ ${c.hi.toLocaleString()}건</b> · 강남구 전체 ${c.total.toLocaleString()}건</div>
+      <div class="est-res-sub">담당 동 전체 ${c.base100.toLocaleString()}건 · 70~80% 범위 → <b style="color:#9d8bd8">${c.lo.toLocaleString()} ~ ${c.hi.toLocaleString()}건</b> · 표 전체 ${c.total.toLocaleString()}건</div>
       ${s?`<div class="est-res-sub" style="color:var(--blue2)">📈 실측 평균 비율 ${(s.avg*100).toFixed(1)}% · 정확도 ${s.accAvg===null?'-':s.accAvg.toFixed(0)+'%'} (최근 ${s.recent.length}일)</div>`:''}`;
   }
   const s=estHistStats('rabbit');
   return `
-    <div class="est-res-row"><span>🏘 개포2동 ${c.k2.toLocaleString()}건 × ${estStore.k2Ratio}%${lockBadge}</span><b>${c.share.toLocaleString()}건</b></div>
-    <div class="est-res-row"><span>🏘 일원동 전체 (100%)</span><b>${c.ilwon.toLocaleString()}건</b></div>
+    ${rowsHtml}
+    ${lockBadge?`<div class="est-res-row"><span>🎯 담당 비율</span><span>${lockBadge}</span></div>`:''}
     <hr class="est-res-sep">
     <div class="est-res-row" style="align-items:flex-end">
       <span style="font-weight:800;color:var(--purple2);font-size:13px">🔮 예상 물량${c.learned?' <span class="lrn-badge">🤖 학습</span>':''}</span>
       <span class="est-res-total">${c.est.toLocaleString()}<span style="font-size:14px;color:var(--sub);font-weight:400"> 건</span></span>
     </div>
-    <div class="est-res-sub">단순 합계 ${c.raw.toLocaleString()}건${(estUseRbAdj()&&c.adj)?` · 실측 보정 ×${c.adj.toFixed(2)} 적용`:''} · 표 전체 ${c.total.toLocaleString()}건</div>
+    <div class="est-res-sub">단순 합계 ${c.weighted.toLocaleString()}건${(estUseRbAdj()&&c.adj)?` · 실측 보정 ×${c.adj.toFixed(2)} 적용`:''} · 표 전체 ${c.total.toLocaleString()}건</div>
     ${s?`<div class="est-res-sub" style="color:var(--blue2)">📈 실측/예상 평균 ×${s.avg.toFixed(2)} · 정확도 ${s.accAvg===null?'-':s.accAvg.toFixed(0)+'%'} (최근 ${s.recent.length}일)</div>`:''}`;
 }
 
@@ -2634,10 +2729,11 @@ function estCombinedShareText(){
   const d=toDate(estStore.cj.date);
   const dt=`${d.getMonth()+1}월 ${d.getDate()}일(${DAYS[d.getDay()]})`;
   let t=`🔮 ${dt} 내 예상 물량\n━━━━━━━━━━\n`;
-  t+=`🟪 CJ 오네(일원동) ${c.cj.est.toLocaleString()}건\n`;
-  t+=`   └ 일원동 전체 ${c.cj.ilwon.toLocaleString()}건 × ${c.cj.ratio}%\n`;
+  const sub=p=>`   └ ${p.dong} ${p.qty.toLocaleString()}건 × ${p.pct}%\n`;
+  t+=`🟪 CJ 오네 ${c.cj.est.toLocaleString()}건\n`;
+  t+=c.cj.parts.length?c.cj.parts.map(sub).join(''):`   └ ⭐ 지정된 동 없음\n`;
   t+=`🐰 딜리래빗 ${c.rb.est.toLocaleString()}건\n`;
-  t+=`   └ 개포2동 ${c.rb.k2.toLocaleString()}건 × ${estStore.k2Ratio}% + 일원 ${c.rb.ilwon.toLocaleString()}건\n`;
+  t+=c.rb.parts.length?c.rb.parts.map(sub).join(''):`   └ ⭐ 지정된 동 없음\n`;
   t+=`━━━━━━━━━━\n📦 총 예상 ${c.total.toLocaleString()}건`;
   if(c.lo!==c.hi) t+=`\n(오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건)`;
   return t;
@@ -2763,12 +2859,41 @@ function estTabsHtml(){
     <button class="est-sub-tab ${v==='both'?'active':''}" onclick="estSwitchSet('both')">🎯 통합</button>
   </div>`;
 }
-function estMiniTotalHtml(){
+function estMiniInner(){
   const c=estCombined();
-  return `<div class="est-minibar" onclick="estSwitchSet('both')">
-    <span class="est-minibar-seg">🟪 오네 <b style="color:var(--purple2)">${c.cj.est.toLocaleString()}</b>건</span>
+  return `<span class="est-minibar-seg">🟪 오네 <b style="color:var(--purple2)">${c.cj.est.toLocaleString()}</b>건</span>
     <span class="est-minibar-seg">🐰 딜리 <b style="color:var(--teal2)">${c.rb.est.toLocaleString()}</b>건</span>
-    <span class="est-minibar-total">총 <b>${c.total.toLocaleString()}</b>건 ›</span>
+    <span class="est-minibar-total">총 <b>${c.total.toLocaleString()}</b>건 ›</span>`;
+}
+function estMiniTotalHtml(){
+  return `<div class="est-minibar" id="est-minibar" onclick="estSwitchSet('both')">${estMiniInner()}</div>`;
+}
+
+/* ── 🎯 동별 담당 비율 패널 — ⭐ 지정한 동만 나타납니다 ── */
+function estRatioPanel(type,showTitle){
+  const rows=estRowsOf(type);
+  const locked=estStore.lockRatio;
+  const idx=estStarIdx(type);
+  const learnBadge=(type==='cj'&&estStore.autoLearn&&!locked&&estHistStats('cj'))
+    ? ' <span class="lrn-badge">🤖 학습값 우선</span>' : '';
+  const body=idx.length? idx.map(i=>{
+    const r=rows[i], p=estPct(r), q=estN(r.qty);
+    return `<div class="est-pct-row">
+      <div class="est-pct-head">
+        <span class="est-pct-name">⭐ ${esc(r.dong||'(이름없음)')}<span class="est-pct-qty">${q>0?q.toLocaleString()+'건 → '+Math.round(q*p/100).toLocaleString()+'건':'건수 미입력'}</span></span>
+        <span class="est-pct-val" id="pctv-${type}-${i}">${p}%</span>
+      </div>
+      <input type="range" id="pcts-${type}-${i}" min="0" max="100" step="1" value="${p}" ${locked?'disabled':''}
+        oninput="estSetPct('${type}',${i},this.value,'slider')">
+      <div class="est-pct-quick">
+        ${[100,80,75,50,25].map(n=>`<button ${locked?'disabled':''} onclick="estQuickPct('${type}',${i},${n})">${n}%</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('')
+  : `<div class="est-pct-empty">아직 ⭐ 지정한 동이 없습니다<br><span style="color:#5f6875">아래 물량표에서 ☆ 를 누르면 담당 동으로 추가되고<br>여기에 그 동의 비율 조절바가 생깁니다</span></div>`;
+  return `<div class="est-ratio-box">
+    ${showTitle===false?'':`<div class="est-ratio-top"><span class="est-ratio-lbl">🎯 ${estLabel(type)} 동별 담당 비율${learnBadge}${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 고정</span>':''}</span><span class="est-ratio-val">⭐${idx.length}</span></div>`}
+    ${body}
   </div>`;
 }
 
@@ -2790,14 +2915,14 @@ function renderEstBoth(){
       <div class="est-total-title">🔮 오늘 내가 배달할 예상 물량${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 비율 고정</span>':(estStore.autoLearn?' <span class="lrn-badge">🤖 자동학습 ON</span>':'')}</div>
       <div class="est-split">
         <div class="est-split-item">
-          <div class="est-split-lbl">🟪 CJ 오네 (일원동)</div>
+          <div class="est-split-lbl">🟪 CJ 오네</div>
           <div class="est-split-val" style="color:var(--purple2)">${c.cj.est.toLocaleString()}<span class="est-split-unit">건</span></div>
-          <div class="est-split-sub">일원동 ${c.cj.ilwon.toLocaleString()}건 × ${c.cj.ratio}%<br>범위 ${c.cj.lo.toLocaleString()}~${c.cj.hi.toLocaleString()}건</div>
+          <div class="est-split-sub">${c.cj.parts.length?c.cj.parts.map(p=>`${esc(p.dong)} ${p.qty.toLocaleString()}×${p.pct}%`).join('<br>')+`<br>범위 ${c.cj.lo.toLocaleString()}~${c.cj.hi.toLocaleString()}건`:'⭐ 지정된 동 없음'}</div>
         </div>
         <div class="est-split-item">
           <div class="est-split-lbl">🐰 딜리래빗</div>
           <div class="est-split-val" style="color:var(--teal2)">${c.rb.est.toLocaleString()}<span class="est-split-unit">건</span></div>
-          <div class="est-split-sub">개포2동 ${c.rb.k2.toLocaleString()}×${estStore.k2Ratio}% = ${c.rb.share.toLocaleString()}건<br>+ 일원 ${c.rb.ilwon.toLocaleString()}건</div>
+          <div class="est-split-sub">${c.rb.parts.length?c.rb.parts.map(p=>`${esc(p.dong)} ${p.qty.toLocaleString()}×${p.pct}%`).join('<br>'):'⭐ 지정된 동 없음'}</div>
         </div>
       </div>
       <div class="est-grand">
@@ -2830,20 +2955,12 @@ function renderEstBoth(){
       ${estKeyHint()}
     </div>
 
-    <div class="est-box">
-      <div class="est-box-title">🎯 담당 비율 조정 ${locked?'<span style="color:var(--amber2)">· 🔒 고정 중 (아래에서 해제)</span>':(estStore.autoLearn?'<span style="color:var(--purple2)">· 자동학습 중이라 오네 비율은 학습값이 우선됩니다</span>':'')}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="font-size:11.5px;color:var(--sub);font-weight:700">🟪 일원동 담당 비율</span>
-        <span style="font-size:17px;font-weight:900;color:var(--purple2)" id="est-r1">${estStore.cjRatio}%</span>
-      </div>
-      <input type="range" style="width:100%;accent-color:var(--purple);${locked?'opacity:.4':''}" min="50" max="100" step="1" value="${estStore.cjRatio}" ${locked?'disabled':''} oninput="document.getElementById('est-r1').textContent=this.value+'%'" onchange="estSetRatio(this.value);render()">
-      <div style="height:14px"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="font-size:11.5px;color:var(--sub);font-weight:700">🐰 개포2동 담당 비율</span>
-        <span style="font-size:17px;font-weight:900;color:var(--teal2)" id="est-r2">${estStore.k2Ratio}%</span>
-      </div>
-      <input type="range" style="width:100%;accent-color:var(--teal);${locked?'opacity:.4':''}" min="0" max="100" step="5" value="${estStore.k2Ratio}" ${locked?'disabled':''} oninput="document.getElementById('est-r2').textContent=this.value+'%'" onchange="estSetK2(this.value);render()">
+    ${estRatioPanel('cj')}
+    ${estRatioPanel('rabbit')}
+    <div class="est-box" style="padding:12px 14px">
+      <div class="est-box-title" style="margin-bottom:8px">🔒 담당 비율 고정</div>
       ${estLockBar()}
+      <div style="font-size:10.5px;color:#6b7482;margin-top:8px;line-height:1.6">⭐ 담당 동 지정 · 추가는 각 서비스 표 편집 화면에서 할 수 있어요</div>
     </div>
 
     <div class="est-btns">
@@ -2867,28 +2984,20 @@ function renderEst(){
   const locked=estStore.lockRatio;
 
   const rowsHtml=cur.rows.map((r,i)=>{
-    const tgt=isCJ?estIsIlwon(r):(estIsIlwon(r)||estIsK2(r));
-    return `<div class="est-row${tgt?' target':''}">
-      <span class="est-star" onclick="estDelRow(${i})" title="삭제">${tgt?'⭐':'·'}</span>
+    const on=!!r.on, p=estPct(r);
+    const first=estDelMode
+      ? `<span class="est-star del" onclick="estDelRow(${i})" title="행 삭제">✕</span>`
+      : `<span class="est-star ${on?'':'off'}" onclick="estToggleStar('${type}',${i})" title="담당 지정">${on?'⭐':'☆'}</span>`;
+    return `<div class="est-row${on?' target':''}">
+      ${first}
       <input type="text" value="${esc(r.dong)}" placeholder="동 이름" onchange="estSet(${i},'dong',this.value)">
       <input type="text" class="code" value="${esc(r.code)}" placeholder="코드" onchange="estSet(${i},'code',this.value)">
+      <input type="text" class="pct" id="pcti-${type}-${i}" value="${on?p:''}" placeholder="-" inputmode="numeric" pattern="[0-9]*" ${(!on||locked)?'disabled':''} oninput="estSetPct('${type}',${i},this.value,'input')" title="담당 비율(%)">
       <input type="text" class="qty" value="${esc(r.qty)}" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="estSetQty(${i},this)">
     </div>`;
   }).join('');
 
-  const ratioHtml=isCJ?`
-    <div class="est-ratio-box">
-      <div class="est-ratio-top"><span class="est-ratio-lbl">🎯 일원동 담당 비율${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 고정</span>':(estStore.autoLearn?' <span class="lrn-badge">🤖 학습값 우선</span>':'')}</span><span class="est-ratio-val" id="est-ratio-val">${estStore.cjRatio}%</span></div>
-      <input type="range" min="50" max="100" step="1" value="${estStore.cjRatio}" ${locked?'disabled':''} oninput="estSetRatio(this.value)">
-      <div class="est-ratio-hint">일원동 전체 물량 중 내가 실제로 가져가는 비율<br>(보통 70~80%)</div>
-      ${estLockBar()}
-    </div>`:`
-    <div class="est-ratio-box">
-      <div class="est-ratio-top"><span class="est-ratio-lbl">🎯 개포2동 담당 비율${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 고정</span>':''}</span><span class="est-ratio-val" id="est-ratio-val">${estStore.k2Ratio}%</span></div>
-      <input type="range" min="0" max="100" step="5" value="${estStore.k2Ratio}" ${locked?'disabled':''} oninput="estSetK2(this.value)">
-      <div class="est-ratio-hint">개포2동은 절반(50%) · 일원동은 전체(100%) 기준으로 합산됩니다</div>
-      ${estLockBar()}
-    </div>`;
+  const ratioHtml=estRatioPanel(type)+`<div class="est-box" style="padding:12px 14px;margin-top:-4px">${estLockBar()}</div>`;
 
   return `
     ${estTabsHtml()}
@@ -2922,12 +3031,14 @@ function renderEst(){
     </div>
 
     <div class="est-box">
-      <div class="est-box-title">📊 물량표 · ⭐ 표시가 내 담당 계산 대상 (⭐/· 탭하면 행 삭제)</div>
-      <div class="est-head"><span></span><span>동 이름</span><span>코드</span><span>건수</span></div>
+      <div class="est-box-title">📊 물량표 · <span style="color:var(--purple2)">☆ 를 누르면 담당(⭐) 지정 · 비율 칸에 %를 직접 입력</span></div>
+      <div class="est-head"><span>담당</span><span>동 이름</span><span>코드</span><span>비율%</span><span>건수</span></div>
       ${rowsHtml}
+      ${locked?`<div style="font-size:10.5px;color:var(--amber2);margin-top:8px;text-align:center">🔒 고정 중 — ⭐ 지정과 비율 수정은 아래에서 해제 후 가능합니다</div>`:''}
       <div class="est-mini">
         <button onclick="estAddRow()">＋ 동 추가</button>
         <button onclick="estClearQty()">🗑 건수 비우기</button>
+        <button onclick="estToggleDelMode()" style="${estDelMode?'border-color:#5a2020;color:#f06060':''}">${estDelMode?'✅ 삭제 끝':'🗑 행 삭제'}</button>
         <button onclick="estResetRows()">↩️ 기본목록</button>
       </div>
     </div>
