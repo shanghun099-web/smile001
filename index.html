@@ -2907,22 +2907,20 @@ function renderEstBoth(){
       <span class="est-multi-name">${esc(im.name)}</span>
       <span class="est-multi-tag ${im.type==='cj'?'cj':(im.type==='rabbit'?'rb':'wait')}">${im.type==='cj'?'🟪 오네':(im.type==='rabbit'?'🐰 딜리':'대기중')}</span>
     </div>`).join('')}</div>`:'';
-
   return `
     ${estTabsHtml()}
-
     <div class="est-total-card">
       <div class="est-total-title">🔮 오늘 내가 배달할 예상 물량${locked?' <span class="lrn-badge" style="background:rgba(251,191,36,.18);color:var(--amber2)">🔒 비율 고정</span>':(estStore.autoLearn?' <span class="lrn-badge">🤖 자동학습 ON</span>':'')}</div>
       <div class="est-split">
         <div class="est-split-item">
-          <div class="est-split-lbl">🟪 CJ 오네</div>
+          <div class="est-split-lbl">🟪 CJ 오네 (일원동)</div>
           <div class="est-split-val" style="color:var(--purple2)">${c.cj.est.toLocaleString()}<span class="est-split-unit">건</span></div>
-          <div class="est-split-sub">${c.cj.parts.length?c.cj.parts.map(p=>`${esc(p.dong)} ${p.qty.toLocaleString()}×${p.pct}%`).join('<br>')+`<br>범위 ${c.cj.lo.toLocaleString()}~${c.cj.hi.toLocaleString()}건`:'⭐ 지정된 동 없음'}</div>
+          <div class="est-split-sub">일원동 ${c.cj.ilwon.toLocaleString()}건 × ${c.cj.ratio}%<br>범위 ${c.cj.lo.toLocaleString()}~${c.cj.hi.toLocaleString()}건</div>
         </div>
         <div class="est-split-item">
           <div class="est-split-lbl">🐰 딜리래빗</div>
           <div class="est-split-val" style="color:var(--teal2)">${c.rb.est.toLocaleString()}<span class="est-split-unit">건</span></div>
-          <div class="est-split-sub">${c.rb.parts.length?c.rb.parts.map(p=>`${esc(p.dong)} ${p.qty.toLocaleString()}×${p.pct}%`).join('<br>'):'⭐ 지정된 동 없음'}</div>
+          <div class="est-split-sub">개포2동 ${c.rb.k2.toLocaleString()}×${estStore.k2Ratio}% = ${c.rb.share.toLocaleString()}건<br>+ 일원 ${c.rb.ilwon.toLocaleString()}건</div>
         </div>
       </div>
       <div class="est-grand">
@@ -2931,13 +2929,8 @@ function renderEstBoth(){
         <div class="est-grand-sub">오네 ${c.cj.est.toLocaleString()} + 딜리 ${c.rb.est.toLocaleString()}${c.lo!==c.hi?` · 오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건`:''}</div>
       </div>
     </div>
-
     <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
       <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
-
-    ${estLearnCard('cj')}
-    ${estLearnCard('rabbit')}
-
     <div class="est-box">
       <div class="est-box-title">🪄 물량표 이미지 2장을 한 번에 (오네 · 딜리 자동 구분)</div>
       <label class="est-multi">
@@ -2954,15 +2947,23 @@ function renderEstBoth(){
       <div style="height:12px"></div>
       ${estKeyHint()}
     </div>
-
-    ${estRatioPanel('cj')}
-    ${estRatioPanel('rabbit')}
-    <div class="est-box" style="padding:12px 14px">
-      <div class="est-box-title" style="margin-bottom:8px">🔒 담당 비율 고정</div>
+    ${estLearnCard('cj')}
+    ${estLearnCard('rabbit')}
+    <div class="est-box">
+      <div class="est-box-title">🎯 담당 비율 조정 ${locked?'<span style="color:var(--amber2)">· 🔒 고정 중 (아래에서 해제)</span>':(estStore.autoLearn?'<span style="color:var(--purple2)">· 자동학습 중이라 오네 비율은 학습값이 우선됩니다</span>':'')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:11.5px;color:var(--sub);font-weight:700">🟪 일원동 담당 비율</span>
+        <span style="font-size:17px;font-weight:900;color:var(--purple2)" id="est-r1">${estStore.cjRatio}%</span>
+      </div>
+      <input type="range" style="width:100%;accent-color:var(--purple);${locked?'opacity:.4':''}" min="50" max="100" step="1" value="${estStore.cjRatio}" ${locked?'disabled':''} oninput="document.getElementById('est-r1').textContent=this.value+'%'" onchange="estSetRatio(this.value);render()">
+      <div style="height:14px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:11.5px;color:var(--sub);font-weight:700">🐰 개포2동 담당 비율</span>
+        <span style="font-size:17px;font-weight:900;color:var(--teal2)" id="est-r2">${estStore.k2Ratio}%</span>
+      </div>
+      <input type="range" style="width:100%;accent-color:var(--teal);${locked?'opacity:.4':''}" min="0" max="100" step="5" value="${estStore.k2Ratio}" ${locked?'disabled':''} oninput="document.getElementById('est-r2').textContent=this.value+'%'" onchange="estSetK2(this.value);render()">
       ${estLockBar()}
-      <div style="font-size:10.5px;color:#6b7482;margin-top:8px;line-height:1.6">⭐ 담당 동 지정 · 추가는 각 서비스 표 편집 화면에서 할 수 있어요</div>
     </div>
-
     <div class="est-btns">
       <button class="est-btn kakao" onclick="estShareBoth()">💬 카톡 공유</button>
       <button class="est-btn ghost" onclick="estCopyBoth()">📋 복사</button>
@@ -2974,7 +2975,6 @@ function renderEstBoth(){
     </div>
     <div style="height:24px"></div>`;
 }
-
 /* ── 렌더 ── */
 function renderEst(){
   if(estStore.set==='both') return renderEstBoth();
