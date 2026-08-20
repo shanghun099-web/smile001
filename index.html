@@ -2264,7 +2264,7 @@ function estSanitize(s){
     const src=s[k];
     if(src&&typeof src==='object'&&Array.isArray(src.rows)&&src.rows.length){
       out[k]={
-        date:/^\d{4}-\d{2}-\d{2}$/.test(src.date)?src.date:today(),
+        date:today(), // 👈 로컬스토리지에 남아있던 지난 날짜 대신 항상 오늘 날짜(today()) 지정
         rows:src.rows.map(r=>{
           const dong=String((r&&r.dong)||''), code=String((r&&r.code)||'');
           const qty=String((r&&r.qty)||'').replace(/[^0-9]/g,'');
