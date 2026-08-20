@@ -186,7 +186,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .cal-sum-item.c-fuel{border-top-color:var(--amber);}
 .cal-sum-item.c-liter{border-top-color:var(--teal);}
 .cal-sum-val{font-size:18px;font-weight:900;line-height:1.05;}
-.cal-sum-unit{font-size:10px;font-weight:800;opacity:0.8;margin-left:1px;}
+.cal-sum-unit{font-size:10px;font-weight:800;opacity:0.8;margin-left:1.5px;letter-spacing:-0.3px;white-space:nowrap;}
 .cal-sum-lbl{font-size:9.5px;color:var(--lbl);margin-top:5px;font-weight:700;}
 .cal-grid-wrap{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;}
 .cal-grid-title{font-size:10.5px;color:var(--lbl);margin-bottom:12px;letter-spacing:0.3px;font-weight:700;}
@@ -1308,9 +1308,9 @@ function renderStatBlock(s,title){
 }
 
 function shortWon(n){
-  if(!n) return '0';
-  if(n>=10000) return (Math.round(n/1000)/10).toLocaleString()+'만';
-  return n.toLocaleString();
+  const v=Number(n)||0;
+  if(v>=10000) return {num:(Math.round(v/1000)/10).toLocaleString(),unit:'만원'};
+  return {num:v.toLocaleString(),unit:'원'};
 }
 
 function renderStats(){
@@ -1351,10 +1351,11 @@ function renderStats(){
 
     const mCarS=carStatsFor(carRecords.filter(r=>r.date.startsWith(ym)));
     const mn=filtered.reduce((s,r)=>s+calcPay(r).net,0);
+    const netS=shortWon(mn), fuelS=shortWon(mCarS.totalFc);
     sumHtml=`<div class="cal-summary">
       <div class="cal-sum-item c-dlv"><div class="cal-sum-val" style="color:var(--orange2)">${filtered.length}<span class="cal-sum-unit">일</span></div><div class="cal-sum-lbl">배송일</div></div>
-      <div class="cal-sum-item c-net"><div class="cal-sum-val" style="color:var(--green2)">${shortWon(mn)}<span class="cal-sum-unit">원</span></div><div class="cal-sum-lbl">실수령</div></div>
-      <div class="cal-sum-item c-fuel"><div class="cal-sum-val" style="color:var(--amber2)">${shortWon(mCarS.totalFc)}<span class="cal-sum-unit">원</span></div><div class="cal-sum-lbl">주유금액</div></div>
+      <div class="cal-sum-item c-net"><div class="cal-sum-val" style="color:var(--green2)">${netS.num}<span class="cal-sum-unit">${netS.unit}</span></div><div class="cal-sum-lbl">실수령</div></div>
+      <div class="cal-sum-item c-fuel"><div class="cal-sum-val" style="color:var(--amber2)">${fuelS.num}<span class="cal-sum-unit">${fuelS.unit}</span></div><div class="cal-sum-lbl">주유금액</div></div>
       <div class="cal-sum-item c-liter"><div class="cal-sum-val" style="color:var(--teal2)">${mCarS.totalFl>0?Math.round(mCarS.totalFl):'0'}<span class="cal-sum-unit">L</span></div><div class="cal-sum-lbl">주유량</div></div>
     </div>`;
     calHtml=renderCalBlock(statYear,statMonth);
