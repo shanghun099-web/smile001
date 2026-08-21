@@ -351,7 +351,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .est-ta{width:100%;height:100px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;color:var(--text);outline:none;font-family:inherit;resize:vertical;-webkit-appearance:none;}
 .est-ta:focus{border-color:var(--purple);}
 .est-mini{display:flex;gap:8px;margin-top:9px;}
-.est-mini button{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--card2);color:var(--sub);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.est-mini button{flex:1;min-width:0;padding:10px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--card2);color:var(--sub);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;white-space:nowrap;line-height:1.2;}
+.est-mini.grid4{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .est-mini button:active{background:var(--border);}
 .est-total-card{background:linear-gradient(135deg,#241a3d,#160f26);border:1.5px solid #4a3a75;border-radius:16px;padding:16px;margin-bottom:12px;}
 .est-total-title{font-size:11px;color:var(--purple2);font-weight:800;margin-bottom:12px;letter-spacing:.5px;}
@@ -2932,7 +2933,7 @@ function renderEstBoth(){
       </div>
     </div>
 
-    <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
+       <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
       <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
 
     ${estLearnCard('cj')}
@@ -2962,7 +2963,6 @@ function renderEstBoth(){
       ${estLockBar()}
       <div style="font-size:10.5px;color:#6b7482;margin-top:8px;line-height:1.6">⭐ 담당 동 지정 · 추가는 각 서비스 표 편집 화면에서 할 수 있어요</div>
     </div>
-
     <div class="est-btns">
       <button class="est-btn kakao" onclick="estShareBoth()">💬 카톡 공유</button>
       <button class="est-btn ghost" onclick="estCopyBoth()">📋 복사</button>
@@ -3035,7 +3035,7 @@ function renderEst(){
       <div class="est-head"><span>담당</span><span>동 이름</span><span>코드</span><span>비율%</span><span>건수</span></div>
       ${rowsHtml}
       ${locked?`<div style="font-size:10.5px;color:var(--amber2);margin-top:8px;text-align:center">🔒 고정 중 — ⭐ 지정과 비율 수정은 아래에서 해제 후 가능합니다</div>`:''}
-      <div class="est-mini">
+     <div class="est-mini grid4">
         <button onclick="estAddRow()">＋ 동 추가</button>
         <button onclick="estClearQty()">🗑 건수 비우기</button>
         <button onclick="estToggleDelMode()" style="${estDelMode?'border-color:#5a2020;color:#f06060':''}">${estDelMode?'✅ 삭제 끝':'🗑 행 삭제'}</button>
