@@ -2211,6 +2211,15 @@ function wxCopy(){
 /* ═══════════════════════════════════════════
    🔮 예상 물량 (CJ 오네 일원동 · 딜리래빗)
    ═══════════════════════════════════════════ */
+const EST_HIST_MAX=900;   /* 보관 개수 상한 (오네+딜리 합산) */
+const EST_HIST_DAYS=400;  /* 보관 기간 — 1년 + 여유 */
+const EST_LEARN_DAYS=30;  /* 학습에 쓰는 최근 기록 수 */
+
+function estTrimList(list){
+  const c=new Date(); c.setDate(c.getDate()-EST_HIST_DAYS);
+  const cut=`${c.getFullYear()}-${String(c.getMonth()+1).padStart(2,'0')}-${String(c.getDate()).padStart(2,'0')}`;
+  return (list||[]).filter(h=>h&&h.date>=cut).slice(-EST_HIST_MAX);
+}
 const EST_CJ_DEFAULT=['개포동','논현동','대치동','도곡동','삼성동','세곡동','수서동','신사동','압구정동','역삼동','율현동','일원동','자곡동','청담동'];
 const EST_RB_DEFAULT=[['개포1동','강남가101'],['개포2동','강남가102'],['개포3동','강남가103'],['개포4동','강남가104'],['세곡동','강남가114'],['수서동','강남가115'],['일원1동','강남가120'],['일원본동','강남가121']];
 
@@ -2287,7 +2296,7 @@ function estSanitize(s){
       };
     }
   });
-  out.hist=Array.isArray(s.hist)?s.hist.filter(h=>h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)).slice(-200):[];
+out.hist=estTrimList(Array.isArray(s.hist)?s.hist.filter(h=>h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)):[]);
   return out;
 }
 let estStore=(function(){ try{ return estSanitize(JSON.parse(lsGet('est-v1','null'))); }catch(e){ return estDefault(); } })();
@@ -2312,8 +2321,8 @@ function estHistStats(type){
     rows.push({date:h.date,actual,base,est,diff,acc,val:actual/base});
   });
   if(!rows.length) return null;
-  rows.sort((a,b)=>a.date.localeCompare(b.date));
-  const use=rows.slice(-10);
+   rows.sort((a,b)=>a.date.localeCompare(b.date));
+  const use=rows.slice(-EST_LEARN_DAYS);
   const avg=use.reduce((s,x)=>s+x.val,0)/use.length;
   const avgAll=rows.reduce((s,x)=>s+x.val,0)/rows.length;
   const accs=use.filter(x=>x.acc!==null).map(x=>x.acc);
@@ -2550,7 +2559,7 @@ function estSaveHist(){
   if(c.raw<=0){ showToast('⚠️ 먼저 물량을 입력해 주세요'); return; }
   estStore.hist=estStore.hist.filter(h=>!(h.date===cur.date&&h.type===estStore.set));
   estStore.hist.push({date:cur.date,type:estStore.set,base:c.raw,est:c.est});
-  estStore.hist=estStore.hist.slice(-200);
+  estStore.hist=estTrimList(estStore.hist);
   saveEst(); render();
   showToast('📌 예상 저장 — 실제 배송을 입력하면 비율이 학습됩니다');
 }
@@ -2760,7 +2769,7 @@ function estSaveHistBoth(){
     estStore.hist=estStore.hist.filter(h=>!(h.date===date&&h.type===type));
     estStore.hist.push({date,type,base:v.raw,est:v.est});
   });
-  estStore.hist=estStore.hist.slice(-200);
+    estStore.hist=estTrimList(estStore.hist);
   saveEst(); render();
   showToast('📌 오네·딜리 예상값을 모두 저장했어요');
 }
