@@ -2213,7 +2213,7 @@ function wxCopy(){
    ═══════════════════════════════════════════ */
 const EST_HIST_MAX=900;   /* 보관 개수 상한 (오네+딜리 합산) */
 const EST_HIST_DAYS=400;  /* 보관 기간 — 1년 + 여유 */
-const EST_LEARN_DAYS=30;  /* 학습에 쓰는 최근 기록 수 */
+const EST_LEARN_DAYS=90;  /* 학습에 쓰는 최근 기록 수 */
 
 function estTrimList(list){
   const c=new Date(); c.setDate(c.getDate()-EST_HIST_DAYS);
