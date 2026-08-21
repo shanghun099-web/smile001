@@ -2933,11 +2933,8 @@ function renderEstBoth(){
       </div>
     </div>
 
-       <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
+          <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
       <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
-
-    ${estLearnCard('cj')}
-    ${estLearnCard('rabbit')}
 
     <div class="est-box">
       <div class="est-box-title">🪄 물량표 이미지 2장을 한 번에 (오네 · 딜리 자동 구분)</div>
@@ -2963,6 +2960,9 @@ function renderEstBoth(){
       ${estLockBar()}
       <div style="font-size:10.5px;color:#6b7482;margin-top:8px;line-height:1.6">⭐ 담당 동 지정 · 추가는 각 서비스 표 편집 화면에서 할 수 있어요</div>
     </div>
+
+    ${estLearnCard('cj')}
+    ${estLearnCard('rabbit')}
     <div class="est-btns">
       <button class="est-btn kakao" onclick="estShareBoth()">💬 카톡 공유</button>
       <button class="est-btn ghost" onclick="estCopyBoth()">📋 복사</button>
