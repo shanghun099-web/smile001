@@ -2301,7 +2301,15 @@ function estSanitize(s){
 out.hist=estTrimList(Array.isArray(s.hist)?s.hist.filter(h=>h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)):[]);
   return out;
 }
-let estStore=(function(){ try{ return estSanitize(JSON.parse(lsGet('est-v1','null'))); }catch(e){ return estDefault(); } })();
+let estStore=(function(){
+  try{
+    const s = estSanitize(JSON.parse(lsGet('est-v1','null')));
+    // 👇 앱을 처음 켤 때 오네와 딜리의 날짜를 무조건 오늘로 맞춥니다.
+    s.cj.date = today();
+    s.rabbit.date = today();
+    return s;
+  }catch(e){ return estDefault(); }
+})();
 function saveEst(){ lsSet('est-v1',JSON.stringify(estStore)); }
 function estCur(){ return estStore.set==='rabbit'?estStore.rabbit:estStore.cj; }
 function estKeyOf(type){ return type==='rabbit'?estStore.rbKey:estStore.cjKey; }
@@ -2434,6 +2442,7 @@ function estLearnCard(type){
       <td style="color:var(--teal2);font-weight:800">${r.actual.toLocaleString()}</td>
       <td style="color:${r.diff>=0?'var(--green2)':'#f06060'}">${r.diff>=0?'+':''}${r.diff}</td>
       <td style="color:${accCol};font-weight:800">${r.acc===null?'-':r.acc.toFixed(0)+'%'}</td>
+      <td style="padding:0;"><button onclick="estDeleteHist('${type}', '${r.date}')" style="background:transparent;border:none;color:#f06060;cursor:pointer;font-size:12px;padding:4px;">✕</button></td>
     </tr>`;
   }).join('');
   const ratioTxt=(type==='cj')?`${(s.avg*100).toFixed(1)}%`:`×${s.avg.toFixed(2)}`;
@@ -2448,8 +2457,9 @@ function estLearnCard(type){
       <div class="lrn-kpi-item"><div class="lrn-kpi-val" style="color:${accCol}">${s.accAvg===null?'-':s.accAvg.toFixed(0)+'%'}</div><div class="lrn-kpi-lbl">예상 정확도</div></div>
       <div class="lrn-kpi-item"><div class="lrn-kpi-val" style="color:${s.bias===null?'var(--sub)':(s.bias>=0?'var(--green2)':'#f06060')}">${s.bias===null?'-':(s.bias>=0?'+':'')+s.bias}</div><div class="lrn-kpi-lbl">평균 오차(건)</div></div>
     </div>
-    <table class="lrn-tbl">
-      <thead><tr><th>날짜</th><th>예상</th><th>실제</th><th>차이</th><th>정확도</th></tr></thead>
+   <table class="lrn-tbl">
+      <!-- <th></th> 를 맨 끝에 하나 추가했습니다 -->
+      <thead><tr><th>날짜</th><th>예상</th><th>실제</th><th>차이</th><th>정확도</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
     <div style="font-size:10px;color:var(--sub);margin-top:8px;line-height:1.6">
@@ -2772,8 +2782,13 @@ function estSaveHistBoth(){
     estStore.hist.push({date,type,base:v.raw,est:v.est});
   });
     estStore.hist=estTrimList(estStore.hist);
-  saveEst(); render();
-  showToast('📌 오네·딜리 예상값을 모두 저장했어요');
+  function estDeleteHist(type, date){
+  if(!confirm(date + ' 학습 기록을 삭제할까요?\n(통계에서 제외되며, 실제 배송 기록은 지워지지 않습니다)')) return;
+  // 선택한 날짜와 타입(오네/딜리)이 일치하는 데이터를 걸러냅니다
+  estStore.hist = estStore.hist.filter(h => !(h.date === date && h.type === type));
+  saveEst();
+  render();
+  showToast('🗑 학습 기록이 삭제되었습니다');
 }
 
 /* ── 이미지 자동 구분 ── */
@@ -3732,6 +3747,12 @@ document.addEventListener('visibilitychange',()=>{
       lastDay=today();
       refreshTodayLabel();
       if(editId===null&&!KEYS.some(k=>form['qty'+k])) form.date=lastDay;
+      
+      // 👇 자정이 지나 새 날짜가 되면 예상 탭 날짜도 오늘로 변경합니다.
+      estStore.cj.date = lastDay;
+      estStore.rabbit.date = lastDay;
+      saveEst(); // 변경된 날짜 저장
+      
       updateSummary();render();
     }
     if(!wx.updated||(Date.now()-wx.updated.getTime())>10*60*1000) fetchWeather();
