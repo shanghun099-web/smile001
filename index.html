@@ -2779,8 +2779,11 @@ function estSaveHistBoth(){
   [['cj',c.cj,estStore.cj.date],['rabbit',c.rb,estStore.rabbit.date]].forEach(([type,v,date])=>{
     if(v.raw<=0) return;
     estStore.hist=estStore.hist.filter(h=>!(h.date===date&&h.type===type));
-        estStore.hist=estTrimList(estStore.hist);
-  saveEst(); render();
+    estStore.hist.push({date,type,base:v.raw,est:v.est});
+  });
+  estStore.hist=estTrimList(estStore.hist);
+  saveEst();
+  render();
   showToast('📌 오네·딜리 예상값 모두 기록 저장');
 }
 function estDeleteHist(type, date){
@@ -3803,8 +3806,9 @@ if ('serviceWorker' in navigator && window.location.protocol.startsWith('http'))
     });
   `;
   try {
-    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+    // 서비스워커는 blob: URL로 등록할 수 없으므로, 페이지 자체 실행을 방해하지 않도록
+    // 등록은 생략합니다. 앱의 핵심 기능은 일반 HTML로 정상 동작합니다.
+    // 별도 sw.js 파일을 호스팅할 때만 navigator.serviceWorker.register('sw.js')를 사용하세요.
   } catch(e){}
 }
 </script>
