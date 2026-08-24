@@ -2779,10 +2779,11 @@ function estSaveHistBoth(){
   [['cj',c.cj,estStore.cj.date],['rabbit',c.rb,estStore.rabbit.date]].forEach(([type,v,date])=>{
     if(v.raw<=0) return;
     estStore.hist=estStore.hist.filter(h=>!(h.date===date&&h.type===type));
-    estStore.hist.push({date,type,base:v.raw,est:v.est});
-  });
-    estStore.hist=estTrimList(estStore.hist);
-  function estDeleteHist(type, date){
+        estStore.hist=estTrimList(estStore.hist);
+  saveEst(); render();
+  showToast('📌 오네·딜리 예상값 모두 기록 저장');
+}
+function estDeleteHist(type, date){
   if(!confirm(date + ' 학습 기록을 삭제할까요?\n(통계에서 제외되며, 실제 배송 기록은 지워지지 않습니다)')) return;
   // 선택한 날짜와 타입(오네/딜리)이 일치하는 데이터를 걸러냅니다
   estStore.hist = estStore.hist.filter(h => !(h.date === date && h.type === type));
@@ -2790,7 +2791,6 @@ function estSaveHistBoth(){
   render();
   showToast('🗑 학습 기록이 삭제되었습니다');
 }
-
 /* ── 이미지 자동 구분 ── */
 function estDetectType(list){
   let rb=0,cj=0;
