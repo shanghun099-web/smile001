@@ -917,9 +917,10 @@ function renderInput(){
       <div class="ab-row">${itemsHtml}</div>
     </div>
     <div id="calc-area">${renderCalcArea()}</div>
-    <div class="row2">
+   <div class="row2">
       <div class="field"><label>🚀 출발 시간</label><input type="time" id="f-st" value="${form.startTime}"></div>
-      <div class="field"><label>🏁 마무리 시간</label><input type="time" id="f-et" value="${form.endTime}"></div>
+      <!-- 마무리 시간 라벨 옆에 (선택) 이라는 글자를 추가합니다 -->
+      <div class="field"><label>🏁 마무리 시간 (선택)</label><input type="time" id="f-et" value="${form.endTime}"></div>
     </div>
     <div id="dur-area">${renderDurArea()}</div>
     <div class="field"><label>📝 메모 (선택)</label><textarea id="f-memo" placeholder="특이사항, 날씨, 구역 등..." maxlength="300">${esc(form.memo)}</textarea></div>
@@ -999,10 +1000,10 @@ function updateSaveBtn(){
   const btn=document.getElementById('btn-save-main');
   if(!btn) return;
   const anyQty=KEYS.some(k=>String(form['qty'+k]||'').trim()!==''&&Number(form['qty'+k])>0);
-  const ok=form.date&&anyQty&&form.startTime&&form.endTime;
+  // 아래 줄 맨 끝에 있던 &&form.endTime 부분을 지웁니다.
+  const ok=form.date&&anyQty&&form.startTime; 
   btn.classList.toggle('disabled',!ok);
 }
-
 function bindInputEvents(){
   document.getElementById('f-date')?.addEventListener('change',e=>{ form.date=e.target.value; updateSaveBtn(); });
   KEYS.forEach(k=>document.getElementById('f-q'+k)?.addEventListener('input',onQtyChange));
@@ -1029,7 +1030,8 @@ function handleSave(){
   if(!form.date) miss.push('날짜');
   if(!KEYS.some(k=>Number(form['qty'+k])>0)) miss.push('수량');
   if(!form.startTime) miss.push('출발 시간');
-  if(!form.endTime) miss.push('마무리 시간');
+  // 아래에 있던 마무리 시간 체크 코드를 지우거나 // 로 주석 처리합니다.
+  // if(!form.endTime) miss.push('마무리 시간');
   if(miss.length){ showToast('⚠️ '+miss.join(' · ')+' 입력이 필요해요'); return; }
   const dup=records.find(r=>r.date===form.date&&r.id!==editId);
   if(dup){ pendingDupId=dup.id; askOverwrite(form.date); return; }
