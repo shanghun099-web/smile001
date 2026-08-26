@@ -3736,9 +3736,9 @@ refreshTodayLabel();
 updateSummary();
 render();
 
-/* 날씨 자동 갱신 */
+/* 날씨 자동 갱신 — 화면이 보일 때만 */
 fetchWeather();
-setInterval(fetchWeather,10*60*1000);
+setInterval(()=>{ if(document.visibilityState==='visible') fetchWeather(); },10*60*1000);
 
 let lastDay=today();
 document.addEventListener('visibilitychange',()=>{
