@@ -3775,39 +3775,6 @@ try {
   manifestLink.href = URL.createObjectURL(manifestBlob);
   document.head.appendChild(manifestLink);
 } catch(e){}
-
-if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-  const swCode = `
-    const CACHE_NAME = 'dlv-offline-v3';
-    self.addEventListener('install', e => { self.skipWaiting(); });
-    self.addEventListener('activate', e => {
-      e.waitUntil(
-        caches.keys().then(keys => Promise.all(
-          keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null)
-        )).then(() => self.clients.claim())
-      );
-    });
-    self.addEventListener('fetch', e => {
-      if (e.request.method !== 'GET') return;
-      const u = e.request.url;
-      if (u.indexOf('open-meteo.com') >= 0 || u.indexOf('windy.com') >= 0 || u.indexOf('googleapis.com') >= 0) return;
-      e.respondWith(
-        fetch(e.request).then(res => {
-          if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
-            const resClone = res.clone();
-            caches.open(CACHE_NAME).then(c => c.put(e.request, resClone));
-          }
-          return res;
-        }).catch(() => caches.match(e.request))
-      );
-    });
-  `;
-  try {
-    // 서비스워커는 blob: URL로 등록할 수 없으므로, 페이지 자체 실행을 방해하지 않도록
-    // 등록은 생략합니다. 앱의 핵심 기능은 일반 HTML로 정상 동작합니다.
-    // 별도 sw.js 파일을 호스팅할 때만 navigator.serviceWorker.register('sw.js')를 사용하세요.
-  } catch(e){}
-}
 </script>
 </body>
 </html>
