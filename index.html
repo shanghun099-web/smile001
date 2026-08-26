@@ -2590,15 +2590,6 @@ function estSaveHist(){
   saveEst(); render();
   showToast('📌 예상 저장 — 실제 배송을 입력하면 비율이 학습됩니다');
 }
-function estToInput(){
-  const c=estCalc();
-  if(c.est<=0){ showToast('⚠️ 예상 물량이 0건입니다'); return; }
-  const k=estKeyOf(estStore.set==='rabbit'?'rabbit':'cj');
-  form.date=estCur().date;
-  form['qty'+k]=String(c.est);
-  switchTab('input');
-  showToast(`✅ ${NAME[k]} ${c.est}건 반영`);
-}
 
 /* ── 공유 ── */
 function estShareText(){
@@ -3090,8 +3081,7 @@ function renderEst(){
       <button class="est-btn kakao" onclick="estShare()">💬 카톡 공유</button>
       <button class="est-btn ghost" onclick="estCopy()">📋 복사</button>
     </div>
-    <button class="est-btn purple" style="width:100%;margin-bottom:8px" onclick="estSaveHist()">📌 오늘 예상값 기록 저장 (비율 학습)</button>
-    <button class="est-btn blue" style="width:100%" onclick="estToInput()">➡️ 이 예상값을 입력 탭에 넣기</button>
+    <button class="est-btn purple" style="width:100%" onclick="estSaveHist()">📌 오늘 예상값 기록 저장 (비율 학습)</button>
     <div style="height:24px"></div>`;
 }
 
