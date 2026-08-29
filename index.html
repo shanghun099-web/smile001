@@ -2220,7 +2220,11 @@ function updateWeatherDom(){
   const bub=document.getElementById('wx-bubble');
   if(bub&&wxCustomText===null){ bub.value=wxShareText(); wxAutosize(); }
 }
-
+/* 🟢 네이버 날씨 바로가기 */
+function openNaverWeather(){
+  const q=encodeURIComponent((wx.name||'강남구')+' 날씨');
+  window.open('https://m.search.naver.com/search.naver?query='+q,'_blank','noopener');
+}
 function renderWeather(){
   const windySrc=`https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&zoom=9&overlay=radar&product=radar&level=surface&lat=${wx.lat.toFixed(4)}&lon=${wx.lon.toFixed(4)}`;
   const shareTxt=wxCustomText!==null?wxCustomText:wxShareText();
