@@ -2243,7 +2243,7 @@ function renderWeather(){
     <div class="wx-sec-title">⏱ 시간별 예보 <b>${WX_SPAN_HOURS}시간</b></div>
     <div id="wx-hour-wrap">${wxHourHtml()}</div>
     <div class="row2" style="margin-bottom:12px">
-      <button class="wx-linkbtn" style="border-color:#03c75a;color:#06d16a" onclick="openNaverWeather()">🟢 네이버 날씨</button>
+     <button class="wx-linkbtn" style="border-color:#03c75a;color:#06d16a" onclick="window.open('https://m.search.naver.com/search.naver?query=%EA%B0%95%EB%82%A8%EA%B5%AC+%EB%82%A0%EC%94%A8','_blank')">🟢 네이버 날씨</button>
       <button class="wx-linkbtn" style="border-color:#155244;color:var(--teal2)" onclick="window.open('https://m.map.kakao.com','_blank')">📹 도로 CCTV</button>
     </div>
     <button class="wx-linkbtn" style="margin-bottom:6px" onclick="wx.showMap=!wx.showMap;render()">${wx.showMap?'🗺️ 비구름 지도 접기 ▲':'🗺️ 비구름 지도 열기 (Windy) ▼'}</button>
