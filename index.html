@@ -1402,7 +1402,7 @@ let carDeleteId=null;
 let carForm=defCarForm();
 
 function defCarForm(){
-  const last=carRecords.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const last=carRecords.slice().sort((a,b)=>b.date.localeCompare(a.date)).find(r=>parseNum(r.kmEnd)>0);
   return{date:today(),kmStart:last?String(parseNum(last.kmEnd)||''):'',kmEnd:'',fuelLiters:'',fuelPrice:'',fuelCost:'',tollCost:'',memo:''};
 }
 function saveCarAll(){ lsSet('car-v1',JSON.stringify(carRecords)); }
@@ -1451,7 +1451,7 @@ function updateCarCalcDOM(){
     }else{costBox.style.display='none';}
   }
   const btn=document.getElementById('car-save-btn');
-  if(btn) btn.classList.toggle('disabled',!(carForm.date&&d.kmS>0&&d.kmE>0&&d.driven!==null&&d.driven>0));
+ if(btn) btn.classList.toggle('disabled',!(carForm.date&&(((d.driven||0)>0)||d.totalCost>0||d.totalFl>0)));
 }
 
 function renderCarTab(){
@@ -1467,7 +1467,8 @@ function renderCarTab(){
 
 function renderCarInput(){
   const d=carCalc();
-  const ok=carForm.date&&d.kmS>0&&d.kmE>0&&(d.driven||0)>0;
+    /* 🔧 주행거리 없이 주유 · 통행료만 있어도 저장 가능 */
+  const ok=!!carForm.date&&(((d.driven||0)>0)||d.totalCost>0||d.totalFl>0);
   return `
     ${carEditId!==null?'<div class="edit-banner">✏️ 차량 수정 모드</div>':''}
     <div class="field"><label>📅 날짜</label><input type="date" id="cf-date" value="${carForm.date}"></div>
@@ -1560,7 +1561,7 @@ function renderCarHistory(){
 }
 
 function carStatsFor(list){
-  let totalKm=0,totalFl=0,totalFc=0,totalToll=0;
+  let totalKm=0,totalFl=0,totalFc=0,totalToll=0,driveDays=0;
   const days=list.length;
   const dayEffList=[];
   list.forEach(r=>{
@@ -1569,15 +1570,16 @@ function carStatsFor(list){
     const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
     const autoFc=(fp>0&&fl>0&&fc===0)?Math.round(fp*fl):0;
     const tFl=fl>0?fl:autoFl,tFc=fc>0?fc:autoFc;
-    totalKm+=driven>0?driven:0;totalFl+=tFl;totalFc+=tFc;totalToll+=toll;
+    if(driven>0){ totalKm+=driven; driveDays++; }   /* 🔧 주행한 날만 평균에 반영 */
+    totalFl+=tFl;totalFc+=tFc;totalToll+=toll;
     if(driven>0&&tFl>0) dayEffList.push(Math.round(driven/tFl*10)/10);
   });
   totalFl=Math.round(totalFl*100)/100;
   const totalCost=totalFc+totalToll;
   const avgEff=(totalKm>0&&totalFl>0)?Math.round(totalKm/totalFl*10)/10:null;
-  const avgKm=days?Math.round(totalKm/days):0;
+  const avgKm=driveDays?Math.round(totalKm/driveDays):0;
   const avgFc=totalFl>0?Math.round(totalFc/totalFl):null;
-  return{totalKm,totalFl,totalFc,totalToll,totalCost,avgEff,avgKm,avgFc,days,effCount:dayEffList.length};
+  return{totalKm,totalFl,totalFc,totalToll,totalCost,avgEff,avgKm,avgFc,days,driveDays,effCount:dayEffList.length};
 }
 
 function renderCarStats(){
@@ -1716,8 +1718,12 @@ function handleCarSave(){
   if(g('cf-fl')) carForm.fuelLiters=g('cf-fl').value;
   if(g('cf-memo')) carForm.memo=g('cf-memo').value;
   if(!carForm.date){showToast('⚠️ 날짜를 선택해 주세요');return;}
-  if(!parseNum(carForm.kmStart)||!parseNum(carForm.kmEnd)){showToast('⚠️ 출발 · 도착 km를 입력해 주세요');return;}
-  if(parseNum(carForm.kmEnd)<=parseNum(carForm.kmStart)){showToast('⚠️ 도착 km가 출발 km보다 커야 해요');return;}
+  const cd=carCalc();
+  const hasKm=cd.kmS>0&&cd.kmE>0;
+  const hasCost=cd.totalCost>0||cd.totalFl>0;
+  if(!hasKm&&!hasCost){showToast('⚠️ 주행거리 또는 주유 · 통행료 중 하나는 입력해 주세요');return;}
+  if(hasKm&&cd.kmE<=cd.kmS){showToast('⚠️ 도착 km가 출발 km보다 커야 해요');return;}
+  if(!hasKm){ carForm.kmStart=''; carForm.kmEnd=''; }  /* 주유만 기록한 날 — km 칸 비움 */
   if(carEditId!==null){carRecords=carRecords.map(r=>r.id===carEditId?{...carForm,id:carEditId}:r);carEditId=null;}
   else carRecords.unshift({...carForm,id:Date.now()});
   carRecords.sort((a,b)=>b.date.localeCompare(a.date));
