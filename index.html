@@ -2389,13 +2389,23 @@ function estKeyOf(type){ return type==='rabbit'?estStore.rbKey:estStore.cjKey; }
 function estLabel(type){ return type==='rabbit'?'🐰 딜리래빗':'🟪 CJ 오네'; }
 
 /* ── 실측 학습 ── */
+/* 🔧 딜리 = 평일 '딜리' + 주말 '주말딜리' 를 한 묶음으로 계산
+   물품 이름에 '딜리'가 들어가면 자동으로 포함됩니다 */
+function estKeysOf(type){
+  const s=new Set([estKeyOf(type)]);
+  if(type==='rabbit') KEYS.forEach(k=>{ if(/딜리/.test(NAME[k]||'')) s.add(k); });
+  return KEYS.filter(k=>s.has(k));
+}
+function estActual(type,rec){
+  if(!rec) return 0;
+  return estKeysOf(type).reduce((s,k)=>s+(Number(rec['qty'+k])||0),0);
+}
 function estHistStats(type){
-  const key=estKeyOf(type);
   const rows=[];
   estStore.hist.forEach(h=>{
     if(h.type!==type) return;
     const rec=records.find(r=>r.date===h.date); if(!rec) return;
-    const actual=Number(rec['qty'+key])||0;
+    const actual=estActual(type,rec);
     const base=Number(h.base)||0;
     const est=Number(h.est)||0;
     if(actual<=0||base<=0) return;
@@ -2494,7 +2504,7 @@ function estKeyHint(){
 function estLearnCard(type){
   const s=estHistStats(type);
   const label=estLabel(type);
-  const keyName=NAME[estKeyOf(type)];
+  const keyName=estKeysOf(type).map(k=>NAME[k]).join(' + ');
   if(!s){
     return `<div class="lrn-box">
       <div class="lrn-title"><span>🤖 ${label} 예상 ↔ 실제 학습</span></div>
@@ -3758,9 +3768,8 @@ function exportExcel(){
   if(estStore.hist&&estStore.hist.length){
     const estRows=[['날짜','구분','기준 물량','예상 물량','실제 배송','차이','정확도(%)','실제/기준 비율']];
     [...estStore.hist].sort((a,b)=>a.date.localeCompare(b.date)).forEach(h=>{
-      const key=estKeyOf(h.type);
       const rec=records.find(r=>r.date===h.date);
-      const actual=rec?(Number(rec['qty'+key])||0):0;
+      const actual=estActual(h.type,rec);
       const base=Number(h.base)||0, est=Number(h.est)||0;
       const diff=(actual>0&&est>0)?actual-est:'';
       const acc=(actual>0&&est>0)?Math.round(Math.max(0,100-Math.abs(actual-est)/actual*100)*10)/10:'';
