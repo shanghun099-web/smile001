@@ -1737,6 +1737,10 @@ function cancelCarEdit(){carEditId=null;carForm=defCarForm();render();}
 const WX_LOC={name:'강남구',lat:37.4882,lon:127.0518};
 const WX_SPAN_HOURS=12;
 const WX_M15_COUNT=16;
+/* 🔧 화면 전체가 공유하는 단일 판정 기준 */
+const WX_RAIN_MIN=0.2;   /* mm/h — 이 값 이상이어야 '비'로 표시 */
+const WX_SNOW_MIN=0.2;   /* cm/h */
+const WX_PROB_MIN=60;    /* % — 강수량 0인데 확률만 높을 때 따로 안내 */
 let wx={name:WX_LOC.name,lat:WX_LOC.lat,lon:WX_LOC.lon,now:null,timeline:null,minutely:null,air:null,sun:null,updated:null,err:null,alerted:0,loading:false,queue:false,showMap:false};
 let wxCustomText=null;
 
@@ -1815,9 +1819,10 @@ async function fetchWeather(){
   if(wx.queue){ wx.queue=false; fetchWeather(); }
 }
 
+/* ── 강수 강도 — 아이콘 · 요약 · 그래프 · 카드가 모두 이 함수 하나만 씁니다 ── */
 const WX_RAIN_STEPS=[
   {min:0,lv:0,name:'-',head:'비 없음',color:'dim'},
-  {min:0.2,lv:1,name:'약한 비',head:'약한 비',color:'blue'},
+  {min:WX_RAIN_MIN,lv:1,name:'약한 비',head:'약한 비',color:'blue'},
   {min:1,lv:1,name:'보통 비',head:'보통 비',color:'blue'},
   {min:4,lv:2,name:'강한 비',head:'강한 비',color:'amber'},
   {min:10,lv:2,name:'매우 강한 비',head:'매우 강한 비',color:'red'},
@@ -1825,16 +1830,16 @@ const WX_RAIN_STEPS=[
 ];
 const WX_SNOW_STEPS=[
   {min:0,lv:0,name:'-',head:'눈 없음',color:'dim'},
-  {min:0.1,lv:1,name:'약한 눈',head:'약한 눈',color:'blue'},
+  {min:WX_SNOW_MIN,lv:1,name:'약한 눈',head:'약한 눈',color:'blue'},
   {min:1,lv:2,name:'보통 눈',head:'보통 눈',color:'amber'},
   {min:3,lv:3,name:'강한 눈',head:'강한 눈',color:'red'},
   {min:5,lv:3,name:'대설',head:'대설',color:'red'}
 ];
 function wxLevel(e){
-  const step=e.step||60;
-  const snowH=(e.snow||0)*(60/step);
-  const rainH=(e.mm||0)*(60/step);
-  if(snowH>=0.1){
+  const step=(e&&e.step)||60;
+  const snowH=((e&&e.snow)||0)*(60/step);
+  const rainH=((e&&e.mm)||0)*(60/step);
+  if(snowH>=WX_SNOW_MIN){
     let s=WX_SNOW_STEPS[0];
     for(const x of WX_SNOW_STEPS){ if(snowH>=x.min) s=x; }
     return{kind:'snow',lv:s.lv,label:s.name,head:s.head,color:s.color,perH:snowH,unit:'cm'};
@@ -1850,56 +1855,93 @@ function wxDur(m){
 }
 function wxAmt(v){ return v<10?v.toFixed(1):String(Math.round(v)); }
 
+/* 🔧 15분 예보 + 시간별 예보를 한 줄기 시계열로 병합
+   → 4시간에서 잘리던 '지속시간'이 예보 끝까지 이어집니다 */
+function wxFine(){
+  const m=(wx.minutely||[]).slice();
+  const tl=(wx.timeline||[]).slice();
+  if(!m.length) return tl;
+  const mEnd=m[m.length-1].time+m[m.length-1].step*60000;
+  const rest=tl.filter(h=>h.time+h.step*60000>mEnd).map(h=>{
+    if(h.time>=mEnd) return h;
+    const left=Math.round((h.time+h.step*60000-mEnd)/60000); /* 겹치는 앞부분 잘라내기 */
+    if(left<=0) return null;
+    return Object.assign({},h,{time:mEnd,step:left,
+      mm:(h.mm||0)*left/h.step, snow:(h.snow||0)*left/h.step});
+  }).filter(Boolean);
+  return m.concat(rest);
+}
+
+/* 🔧 시간별 카드 — 15분 예보가 덮는 시간대는 그 합계로 대체해서
+   초단기 그래프와 시간별 카드가 절대 어긋나지 않게 합니다 */
+function wxHours(){
+  const tl=wx.timeline||[];
+  const m=wx.minutely||[];
+  if(!m.length) return tl;
+  return tl.map((h,i)=>{
+    const s=h.time,e=h.time+h.step*60000;
+    const ins=m.filter(x=>x.time>=s&&x.time<e);
+    if(!ins.length) return h;
+    const need=Math.round(h.step/15);
+    if(ins.length<need&&i>0) return h;  /* 일부만 덮으면 시간별 원본 유지 */
+    return Object.assign({},h,{
+      mm:ins.reduce((a,b)=>a+(b.mm||0),0),
+      snow:ins.reduce((a,b)=>a+(b.snow||0),0),
+      step:ins.length*15
+    });
+  });
+}
+function wxProbAt(t){
+  const tl=wx.timeline||[];
+  const h=tl.find(e=>t>=e.time&&t<e.time+e.step*60000)||tl[0];
+  return (h&&h.prob!=null)?Math.round(h.prob):null;
+}
+
 function wxAnalyze(){
   if(!wx.timeline||!wx.timeline.length) return null;
   const tl=wx.timeline, now=Date.now();
   const spanH=Math.round(tl.reduce((s,e)=>s+e.step,0)/60);
-  const fine=(wx.minutely&&wx.minutely.length)?wx.minutely:tl;
+  const fine=wxFine();
+  const nowLv=wx.now?wxLevel({mm:wx.now.mm,snow:wx.now.snow,step:60}):null;
 
   const startIdx=fine.findIndex(e=>wxLevel(e).lv>=1);
   if(startIdx<0){
-    const later=tl.findIndex(e=>wxLevel(e).lv>=1);
-    if(later<0) return {rain:false,spanH,timeline:tl};
-    const L=wxLevel(tl[later]);
-    let dur=0,end=later;
-    for(let i=later;i<tl.length;i++){ if(wxLevel(tl[i]).lv>=1){ dur+=tl[i].step; end=i; } else break; }
-    return{
-      rain:true,ongoing:false,spanH,timeline:tl,startIdx:later,endIdx:end,
-      startTime:tl[later].time,endTime:tl[end].time+tl[end].step*60000,
-      minsToStart:Math.max(0,Math.round((tl[later].time-now)/60000)),
-      minsToEnd:0,durMin:dur,level:L,amtPerH:L.perH,
-      prob:(tl[later].prob!=null)?Math.round(tl[later].prob):null,
-      totalSnow:tl.slice(later,end+1).reduce((s,e)=>s+(e.snow||0),0)
-    };
+    /* 강수량은 0 — 확률만 높은 시간대가 있으면 따로 알려줍니다 */
+    let watch=null;
+    tl.forEach(e=>{ if(e.prob!=null&&(!watch||e.prob>watch.prob)) watch={prob:Math.round(e.prob),time:e.time}; });
+    if(watch&&watch.prob<WX_PROB_MIN) watch=null;
+    return {rain:false,spanH,timeline:tl,fine,watch,nowLv};
   }
-   let durMin=0,endIdx=startIdx;
+
+  let durMin=0,endIdx=startIdx;
   for(let i=startIdx;i<fine.length;i++){
     if(wxLevel(fine[i]).lv>=1){ durMin+=fine[i].step; endIdx=i; } else break;
   }
   const first=fine[startIdx];
   const minsToStart=Math.max(0,Math.round((first.time-now)/60000));
   const ongoing=startIdx===0||minsToStart<=3;
-  /* 🔧 대표값 = "지금 내리는 중"이면 현재(fine[0]) 값, 아니면 "시작 시점" 값
-        → 시간별 예보와 같은 시점 기준이라 숫자가 서로 어긋나지 않음 */
-  const rep=ongoing?fine[0]:first;
+  const rep=ongoing?fine[0]:first;         /* 대표값 = 지금 값 또는 시작 시점 값 */
   const level=wxLevel(rep);
   const endTime=fine[endIdx].time+fine[endIdx].step*60000;
-   /* 🔧 앞으로 3시간 안의 최대 강수 시점 찾기 */
-  let peak3h=null;
-  const limit=now+3*60*60000;
+  const openEnd=(endIdx===fine.length-1);  /* 예보 끝까지 계속 → '그침' 단정 금지 */
+
+  let peak=null;
+  const limit=(ongoing?now:first.time)+3*60*60000;
   fine.forEach(e=>{
     if(e.time>limit) return;
     const L=wxLevel(e);
     if(L.lv<1) return;
-    if(!peak3h||L.perH>peak3h.perH) peak3h={perH:L.perH,unit:L.unit,head:L.head,lv:L.lv,time:e.time};
+    if(!peak||L.perH>peak.perH) peak={perH:L.perH,unit:L.unit,head:L.head,lv:L.lv,time:e.time};
   });
-  return{
-    rain:true,ongoing,spanH,timeline:tl,startIdx,endIdx,startTime:first.time,endTime,
+
+  const seg=fine.slice(startIdx,endIdx+1);
+  return{rain:true,ongoing,spanH,timeline:tl,fine,startIdx,endIdx,
+    startTime:first.time,endTime,openEnd,
     minsToStart,minsToEnd:Math.max(0,Math.round((endTime-now)/60000)),durMin,
-     level,amtPerH:level.perH,peak3h,
-    prob:(tl[0]&&tl[0].prob!=null)?Math.round(tl[0].prob):null,
-    totalSnow:tl.slice(0,Math.min(6,tl.length)).reduce((s,e)=>s+(e.snow||0),0)
-  };
+    level,amtPerH:level.perH,peak,nowLv,
+    prob:wxProbAt(ongoing?now:first.time),
+    totalRain:seg.reduce((s,e)=>s+(e.mm||0),0),
+    totalSnow:seg.reduce((s,e)=>s+(e.snow||0),0)};
 }
 
 function aqGrade(v,type){
@@ -1922,34 +1964,31 @@ function aqWorst(){
   if(!a) return b; if(!b) return a;
   return (b.idx>=a.idx)?b:a;
 }
+
+/* 🔧 아이콘 — 비/눈 표시는 오직 강수량 기준.
+   날씨코드가 '비'라도 예상 강수량이 0이면 구름으로 표시합니다 */
 function wxIcon(code,isDay,e){
-  if(e&&(e.snow||0)>0.05) return '🌨️';
-  if(e&&(e.mm||0)>0.05&&(!code||code<95)) return '☔';
+  const L=e?wxLevel(e):null;
+  if(L&&L.lv>=1){
+    if(L.kind==='snow') return '🌨️';
+    return (code!=null&&code>=95)?'⛈️':'☔';
+  }
   if(code==null) return '☁️';
+  if(code>=95) return '⛈️';
   if(code===0) return isDay?'☀️':'🌙';
   if(code<=2) return isDay?'🌤️':'☁️';
   if(code===3) return '☁️';
   if(code===45||code===48) return '🌫️';
-  if(code>=51&&code<=57) return '🌦️';
-  if(code>=61&&code<=67) return '🌧️';
-  if(code>=71&&code<=77) return '🌨️';
-  if(code>=80&&code<=82) return '🌧️';
-  if(code>=85&&code<=86) return '🌨️';
-  if(code>=95) return '⛈️';
-  return '☁️';
+  return isDay?'🌥️':'☁️';
 }
-function wxCodeText(code,isDay){
+function wxCodeText(code,isDay,e){
+  const L=e?wxLevel(e):null;
+  if(L&&L.lv>=1) return L.head;
   if(code==null) return '-';
+  if(code>=95) return '천둥번개';
   if(code===0) return isDay?'맑음':'맑은 밤';
   if(code<=2) return '구름 조금';
-  if(code===3) return '흐림';
   if(code===45||code===48) return '안개';
-  if(code>=51&&code<=57) return '이슬비';
-  if(code>=61&&code<=67) return '비';
-  if(code>=71&&code<=77) return '눈';
-  if(code>=80&&code<=82) return '소나기';
-  if(code>=85&&code<=86) return '소낙눈';
-  if(code>=95) return '천둥번개';
   return '흐림';
 }
 
@@ -1959,27 +1998,35 @@ function wxHeadlineHtml(){
   }
   const a=wxAnalyze();
   if(!a) return `<div class="wx-head wx-head-none"><div class="wx-head-big"><span class="wx-spinner"></span>예보 확인 중…</div></div>`;
+
   if(!a.rain){
+    const chips=[];
+    if(a.watch) chips.push(`${fmtHM(new Date(a.watch.time))}경 강수확률 ${a.watch.prob}%`);
+    if(a.nowLv&&a.nowLv.lv>=1) chips.push(`현재 실황 ${a.nowLv.head}`);
     return `<div class="wx-head wx-head-clear">
       <div class="wx-head-lbl">📍 ${esc(wx.name)} · 앞으로 ${a.spanH}시간</div>
       <div class="wx-head-big">비·눈 소식 없음</div>
-      <div class="wx-head-sub">배송 구역에 강수 예보가 없습니다</div>
+      <div class="wx-head-sub">${a.watch?'강수확률은 높지만 예상 강수량은 0에 가깝습니다':'배송 구역에 강수 예보가 없습니다'}</div>
+      ${chips.length?`<div class="wx-head-chips">${chips.map(c=>`<span class="wx-chip">${esc(c)}</span>`).join('')}</div>`:''}
     </div>`;
   }
+
   const cls=a.level.lv>=2?'wx-head-heavy':'wx-head-rain';
   const lbl=a.ongoing?`📍 ${esc(wx.name)} · 지금`:`📍 ${esc(wx.name)} · 약 ${wxDur(a.minsToStart)} 뒤`;
   const big=a.ongoing?`${a.level.head} 내리는 중`:a.level.head;
+  const tail=a.openEnd
+    ?`${fmtHM(new Date(a.endTime))} 이후는 예보 범위 밖`
+    :(a.ongoing?`약 ${wxDur(a.minsToEnd)} 더 지속`:`약 ${wxDur(a.durMin)} 지속`);
   const sub=a.ongoing
-    ?`시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.minsToEnd)} 더 지속`
-    :`${fmtHM(new Date(a.startTime))} 시작 · 시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · 약 ${wxDur(a.durMin)} 지속`;
-    const chips=[];
+    ?`시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · ${tail}`
+    :`${fmtHM(new Date(a.startTime))} 시작 · 시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit} · ${tail}`;
+  const chips=[];
   if(a.prob!=null) chips.push(`강수확률 ${a.prob}%`);
-    /* 🔧 3시간 내 최대 강수량 — 지금보다 뚜렷하게 셀 때만 표시 */
-  if(a.peak3h&&a.peak3h.perH>a.amtPerH*1.3&&a.peak3h.perH>=1){
-    chips.push(`3시간 내 최대 ${wxAmt(a.peak3h.perH)}${a.peak3h.unit}/h (${fmtHM(new Date(a.peak3h.time))}경)`);
-  }
-  chips.push(`${fmtHM(new Date(a.endTime))}경 그침`);
+  if(a.peak&&a.peak.perH>a.amtPerH*1.3&&a.peak.perH>=1)
+    chips.push(`3시간 내 최대 ${wxAmt(a.peak.perH)}${a.peak.unit}/h (${fmtHM(new Date(a.peak.time))}경)`);
+  chips.push(a.openEnd?`${fmtHM(new Date(a.endTime))}까지 이어짐`:`${fmtHM(new Date(a.endTime))}경 그침`);
   if(a.level.kind==='snow'&&a.totalSnow>=0.5) chips.push(`예상 적설 ${wxAmt(a.totalSnow)}cm`);
+  else if(a.totalRain>=1) chips.push(`예상 누적 ${wxAmt(a.totalRain)}mm`);
   return `<div class="wx-head ${cls}">
     <div class="wx-head-lbl">${lbl}</div>
     <div class="wx-head-big">${esc(big)}</div>
@@ -1991,6 +2038,7 @@ function wxHeadlineHtml(){
 function wxNowHtml(){
   const n=wx.now;
   if(!n) return '';
+  const cur={mm:n.mm,snow:n.snow,step:60};
   const air=wx.air||{};
   const p10=aqGrade(air.pm10,'pm10'), p25=aqGrade(air.pm25,'pm25');
   const gustKm=n.gust!=null?Math.round(n.gust):null;
@@ -1999,10 +2047,10 @@ function wxNowHtml(){
   const gustMs=n.gust!=null?(n.gust/3.6).toFixed(1):'-';
   return `<div class="wx-now">
     <div class="wx-now-top">
-      <div class="wx-now-ico">${wxIcon(n.code,n.isDay,n)}</div>
+      <div class="wx-now-ico">${wxIcon(n.code,n.isDay,cur)}</div>
       <div class="wx-now-temp">${n.temp!=null?Math.round(n.temp):'-'}<small>°</small></div>
       <div class="wx-now-side">
-        <div class="wx-now-desc">${esc(wxCodeText(n.code,n.isDay))}</div>
+        <div class="wx-now-desc">${esc(wxCodeText(n.code,n.isDay,cur))}</div>
         <div class="wx-now-feel">체감 ${n.feels!=null?Math.round(n.feels):'-'}° · 습도 ${n.hum!=null?Math.round(n.hum):'-'}%</div>
       </div>
     </div>
@@ -2042,10 +2090,13 @@ function wxM15Html(){
   const vals=list.map(e=>{ const L=wxLevel(e); return {L,amt:L.perH}; });
   const maxV=Math.max(1,...vals.map(v=>v.amt));
   const any=vals.some(v=>v.L.lv>=1);
+  const spanTxt=Math.round(list.reduce((s,e)=>s+e.step,0)/60)+'시간';
   if(!any){
+    const a=wxAnalyze();
+    const later=(a&&a.rain&&!a.ongoing)?` · 이후 ${fmtHM(new Date(a.startTime))}경 ${a.level.head} 예상`:'';
     return `<div class="wx-m15">
-      <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수</span></div>
-      <div class="wx-m15-empty">☀️ 앞으로 4시간 동안 비·눈 없음</div>
+      <div class="wx-m15-cap"><span>⏱ 초단기 <b>${spanTxt}</b> 강수</span></div>
+      <div class="wx-m15-empty">☀️ 앞으로 ${spanTxt} 동안 비·눈 없음${esc(later)}</div>
     </div>`;
   }
   const cmap={dim:'var(--card3)',blue:'var(--blue)',amber:'var(--amber2)',red:'var(--red2)'};
@@ -2056,26 +2107,29 @@ function wxM15Html(){
   const labels=list.map((e,i)=>`<div class="wx-m15-lb">${(i%4===0)?fmtHM(new Date(e.time)):''}</div>`).join('');
   const peak=vals.reduce((a,b)=>b.amt>a.amt?b:a,vals[0]);
   return `<div class="wx-m15">
-    <div class="wx-m15-cap"><span>⏱ 초단기 <b>4시간</b> 강수 (15분 단위)</span><span style="color:var(--sub)">최대 ${wxAmt(peak.amt)}${peak.L.unit}/h</span></div>
+    <div class="wx-m15-cap"><span>⏱ 초단기 <b>${spanTxt}</b> 강수 (15분 단위)</span><span style="color:var(--sub)">최대 ${wxAmt(peak.amt)}${peak.L.unit}/h</span></div>
     <div class="wx-m15-bars">${bars}</div>
     <div class="wx-m15-labels">${labels}</div>
   </div>`;
 }
 
 function wxHourHtml(){
-  if(!wx.timeline) return '';
-  return `<div class="wx-hstrip">`+wx.timeline.map((e,i)=>{
+  const hs=wxHours();
+  if(!hs.length) return '';
+  return `<div class="wx-hstrip">`+hs.map((e,i)=>{
     const L=wxLevel(e);
     const cls=['wx-hcard'];
     if(i===0) cls.push('now');
     if(L.lv>=2) cls.push('danger');
     else if(!e.isDay) cls.push('night');
     const amt=L.lv>=1?`${wxAmt(L.perH)}${L.unit}`:'';
-    const prob=(e.prob!=null&&e.prob>=10)?`${Math.round(e.prob)}%`:'';
+    /* 🔧 강수량이 없으면 확률은 흐리게 — 100%인데 비 아이콘이 뜨는 혼선 방지 */
+    const p=(e.prob!=null&&e.prob>=10)?Math.round(e.prob)+'%':'';
+    const pStyle=L.lv>=1?'':'color:var(--dim);font-weight:600';
     return `<div class="${cls.join(' ')}">
       <div class="wx-h-t">${i===0?'지금':fmtHM(new Date(e.time))}</div>
       <div class="wx-h-i">${wxIcon(e.code,e.isDay,e)}</div>
-      <div class="wx-h-p">${prob}</div>
+      <div class="wx-h-p" style="${pStyle}">${p}</div>
       <div class="wx-h-mm">${amt}</div>
       <div class="wx-h-tp">${e.temp!=null?Math.round(e.temp):'-'}°</div>
     </div>`;
@@ -2185,7 +2239,7 @@ function renderWeather(){
     <div class="wx-sec-title">⏱ 시간별 예보 <b>${WX_SPAN_HOURS}시간</b></div>
     <div id="wx-hour-wrap">${wxHourHtml()}</div>
     <div class="row2" style="margin-bottom:12px">
-      <button class="wx-linkbtn" style="border-color:#2a5a9a;color:var(--blue2)" onclick="window.open('https://www.weather.go.kr/w/weather/radar/radar.do','_blank')">📡 기상청 레이더</button>
+      <button class="wx-linkbtn" style="border-color:#03c75a;color:#06d16a" onclick="openNaverWeather()">🟢 네이버 날씨</button>
       <button class="wx-linkbtn" style="border-color:#155244;color:var(--teal2)" onclick="window.open('https://m.map.kakao.com','_blank')">📹 도로 CCTV</button>
     </div>
     <button class="wx-linkbtn" style="margin-bottom:6px" onclick="wx.showMap=!wx.showMap;render()">${wx.showMap?'🗺️ 비구름 지도 접기 ▲':'🗺️ 비구름 지도 열기 (Windy) ▼'}</button>
