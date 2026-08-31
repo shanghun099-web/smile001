@@ -2248,10 +2248,10 @@ function wxShareText(){
     ? `❄️ 적설: 시간당 약 ${wxAmt(a.amtPerH)}cm${a.totalSnow>=0.5?` · 예상 누적 ${wxAmt(a.totalSnow)}cm`:''}`
     : '';
   const prob=a.prob!=null?` · 강수확률 ${a.prob}%`:'';
-  const durLine=a.openEnd
+    const durLine=a.openEnd
     ? `· 예상 지속: 최소 ${fmtHM(new Date(a.endTime))}까지 (이후는 예보 범위 밖)`
-    : `${durLine}
-  return wxTidy(`${head}\n⏱️ ${t} 기준 · ${wx.name} 실시간 예보\n━━━━━━━━━\n${statusMsg}\n· 강도: ${a.level.head} (시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit}${prob})\n· 예상 지속: 약 ${wxDur(a.durMin)} (${fmtHM(new Date(a.endTime))}경 그침)\n${snowLine}\n${dust}\n━━━━━━━━━\n${wxRainTip(a.amtPerH,a.level.kind)}\n오늘도 안전운행 하세요! 👍`);
+    : `· 예상 지속: 약 ${wxDur(a.durMin)} (${fmtHM(new Date(a.endTime))}경 그침)`;
+  return wxTidy(`${head}\n⏱️ ${t} 기준 · ${wx.name} 실시간 예보\n━━━━━━━━━\n${statusMsg}\n· 강도: ${a.level.head} (시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit}${prob})\n${durLine}\n${snowLine}\n${dust}\n━━━━━━━━━\n${wxRainTip(a.amtPerH,a.level.kind)}\n오늘도 안전운행 하세요! 👍`);
 }
 
 function checkWxAlert(){
