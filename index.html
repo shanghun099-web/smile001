@@ -1851,8 +1851,27 @@ async function fetchWeather(){
         gust:g(f.hourly,'wind_gusts_10m',i,null),prob:g(f.hourly,'precipitation_probability',i,null)
       }));
     }
-    tl=tl.filter(e=>e.time+e.step*60000>now).slice(0,WX_SPAN_HOURS);
+        tl=tl.filter(e=>e.time+e.step*60000>now).slice(0,WX_SPAN_HOURS);
     if(!tl.length) throw new Error('empty');
+
+    /* 🔧 15분 강수량 단위 자동 보정
+       15분 칸에 '그 시간의 시간당 값'이 그대로 들어오는 경우가 있어
+       그대로 쓰면 강도·시간별 합계·누적이 모두 4배로 부풀려집니다.
+       시간별 값과 대조해서 4배면 4로 나눕니다. */
+    (function(){
+      if(!m15.length) return;
+      let sum15=0,sumH=0;
+      tl.forEach(h=>{
+        const s=h.time,e=s+h.step*60000;
+        const ins=m15.filter(x=>x.time>=s&&x.time<e);
+        if(ins.length<4) return;              /* 15분 칸 4개가 다 있는 시간만 비교 */
+        sum15+=ins.reduce((a,b)=>a+(b.mm||0)+(b.snow||0),0);
+        sumH+=(h.mm||0)+(h.snow||0);
+      });
+      if(sumH>0.5&&sum15>sumH*2.5){
+        m15.forEach(e=>{ e.mm=(e.mm||0)/4; e.snow=(e.snow||0)/4; });
+      }
+    })();
 
     wx.timeline=tl; wx.minutely=m15;
     const suns=(f.daily&&f.daily.sunset)?f.daily.sunset.map(t=>t*1000):[];
@@ -1902,6 +1921,7 @@ function wxDur(m){
   return `${r}분`;
 }
 function wxAmt(v){ return v<10?v.toFixed(1):String(Math.round(v)); }
+function wxProb10(v){ return (v==null||isNaN(v))?null:Math.round(v/10)*10; }
 
 /* 🔧 15분 예보 + 시간별 예보를 한 줄기 시계열로 병합
    → 4시간에서 잘리던 '지속시간'이 예보 끝까지 이어집니다 */
@@ -1942,7 +1962,7 @@ function wxHours(){
 function wxProbAt(t){
   const tl=wx.timeline||[];
   const h=tl.find(e=>t>=e.time&&t<e.time+e.step*60000)||tl[0];
-  return (h&&h.prob!=null)?Math.round(h.prob):null;
+  return (h&&h.prob!=null)?wxProb10(h.prob):null;
 }
 
 function wxAnalyze(){
@@ -2172,7 +2192,7 @@ function wxHourHtml(){
     else if(!e.isDay) cls.push('night');
     const amt=L.lv>=1?`${wxAmt(L.perH)}${L.unit}`:'';
     /* 🔧 강수량이 없으면 확률은 흐리게 — 100%인데 비 아이콘이 뜨는 혼선 방지 */
-    const p=(e.prob!=null&&e.prob>=10)?Math.round(e.prob)+'%':'';
+    const p=(e.prob!=null&&e.prob>=10)?wxProb10(e.prob)+'%':'';
     const pStyle=L.lv>=1?'':'color:var(--dim);font-weight:600';
     return `<div class="${cls.join(' ')}">
       <div class="wx-h-t">${i===0?'지금':fmtHM(new Date(e.time))}</div>
@@ -2228,6 +2248,9 @@ function wxShareText(){
     ? `❄️ 적설: 시간당 약 ${wxAmt(a.amtPerH)}cm${a.totalSnow>=0.5?` · 예상 누적 ${wxAmt(a.totalSnow)}cm`:''}`
     : '';
   const prob=a.prob!=null?` · 강수확률 ${a.prob}%`:'';
+  const durLine=a.openEnd
+    ? `· 예상 지속: 최소 ${fmtHM(new Date(a.endTime))}까지 (이후는 예보 범위 밖)`
+    : `${durLine}
   return wxTidy(`${head}\n⏱️ ${t} 기준 · ${wx.name} 실시간 예보\n━━━━━━━━━\n${statusMsg}\n· 강도: ${a.level.head} (시간당 약 ${wxAmt(a.amtPerH)}${a.level.unit}${prob})\n· 예상 지속: 약 ${wxDur(a.durMin)} (${fmtHM(new Date(a.endTime))}경 그침)\n${snowLine}\n${dust}\n━━━━━━━━━\n${wxRainTip(a.amtPerH,a.level.kind)}\n오늘도 안전운행 하세요! 👍`);
 }
 
