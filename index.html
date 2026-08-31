@@ -923,7 +923,6 @@ function renderInput(){
         <div class="ab-item">
           <div class="ab-item-label ${KCLS[k]}">${KEMO[k]} ${esc(NAME[k])}</div>
           <input type="number" id="f-q${k}" value="${esc(form['qty'+k])}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
-          <div class="ab-item-price">${PRICE[k].toLocaleString()}원</div>
           <div class="ab-item-sub ${KCLS[k]}" id="sub-${k}">${form['qty'+k]?won((Number(form['qty'+k])||0)*PRICE[k]):''}</div>
         </div>`).join('');
   return `
