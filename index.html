@@ -820,10 +820,11 @@ let statYear=new Date().getFullYear(), statMonth=new Date().getMonth();
 let carSubTab='input', carStatPeriod='month', carWeekYear=new Date().getFullYear(), carWeekMonth=new Date().getMonth(), carWeekIndex=0;
 let carStatYear=new Date().getFullYear(), carStatMonth=new Date().getMonth();
 let calSelectedDate=null;
+let showSeg2=false;
 let form=defForm();
 
 function defForm(){
-  const f={date:today(),startTime:'',endTime:'',memo:''};
+  const f={date:today(),startTime:'',endTime:'',startTime2:'',endTime2:'',memo:''};
   KEYS.forEach(k=>f['qty'+k]='');
   return f;
 }
@@ -852,6 +853,29 @@ function perHour(qty,s,e){
   return Math.round((Number(qty)/m)*60*10)/10;
 }
 
+/* ── 🔁 2차(재출발) 구간 계산 ── */
+function minStr(t){
+  if(!t||t<=0) return '-';
+  const h=Math.floor(t/60),m=t%60;
+  return h>0?`${h}시간 ${m}분`:`${m}분`;
+}
+function segsOf(r){
+  const out=[];
+  if(r&&r.startTime&&r.endTime) out.push([r.startTime,r.endTime]);
+  if(r&&r.startTime2&&r.endTime2) out.push([r.startTime2,r.endTime2]);
+  return out;
+}
+function hasSeg2(r){ return !!(r&&r.startTime2&&r.endTime2); }
+function workMinRec(r){ return segsOf(r).reduce((s,x)=>s+workMin(x[0],x[1]),0); }
+function waitMinRec(r){
+  if(!r||!r.endTime||!r.startTime2) return 0;
+  return workMin(r.endTime,r.startTime2);
+}
+function durStrRec(r){ return minStr(workMinRec(r)); }
+function perHourRec(qty,r){
+  const m=workMinRec(r); if(!m||!qty) return null;
+  return Math.round((Number(qty)/m)*60*10)/10;
+}
 /* r : {qtyA..qtyF, rates?} */
 function calcPay(r,ratesOverride){
   const rates=ratesOverride||(r&&r.rates)||null;
@@ -875,11 +899,11 @@ function updateSummary(){
   const mq=mr.reduce((s,r)=>s+qtyOf(r),0);
   const mg=mr.reduce((s,r)=>s+calcPay(r).gross,0);
   const mn=mr.reduce((s,r)=>s+calcPay(r).net,0);
-  const vr=mr.filter(r=>workMin(r.startTime,r.endTime)>0);
+    const vr=mr.filter(r=>workMinRec(r)>0);
   let avgSpd=null;
   if(vr.length){
     const tq=vr.reduce((s,r)=>s+qtyOf(r),0);
-    const tm=vr.reduce((s,r)=>s+workMin(r.startTime,r.endTime),0);
+    const tm=vr.reduce((s,r)=>s+workMinRec(r),0);
     avgSpd=Math.round((tq/tm)*60*10)/10;
   }
   document.getElementById('s-mQty').textContent=mq.toLocaleString()+'건';
@@ -932,19 +956,35 @@ function renderInput(){
       <div class="ab-title">📦 배송 물품 수량 입력 <span style="color:#555">· ⚙️에서 사용 물품을 켜고 끌 수 있어요</span></div>
       <div class="ab-row">${itemsHtml}</div>
     </div>
-    <div id="calc-area">${renderCalcArea()}</div>
+   <div id="calc-area">${renderCalcArea()}</div>
    <div class="row2">
       <div class="field"><label>🚀 출발 시간</label><input type="time" id="f-st" value="${form.startTime}"></div>
-      <!-- 마무리 시간 라벨 옆에 (선택) 이라는 글자를 추가합니다 -->
       <div class="field"><label>🏁 마무리 시간 (선택)</label><input type="time" id="f-et" value="${form.endTime}"></div>
     </div>
+    ${seg2Html()}
     <div id="dur-area">${renderDurArea()}</div>
     <div class="field"><label>📝 메모 (선택)</label><textarea id="f-memo" placeholder="특이사항, 날씨, 구역 등..." maxlength="300">${esc(form.memo)}</textarea></div>
     <button class="btn-save" id="btn-save-main" onclick="handleSave()">${editId!==null?'✏️ 수정 완료':'💾 저장하기'}</button>
     ${editId!==null?`<button class="btn-cancel" onclick="cancelEdit()">취소</button>`:''}
     <div style="height:20px"></div>`;
 }
-
+function seg2Html(){
+  if(!showSeg2&&!form.startTime2&&!form.endTime2){
+    return `<button class="btn-cancel" style="margin-bottom:13px" onclick="addSeg2()">＋ 2차 출발 추가 (중간에 쉬었다 다시 나간 날)</button>`;
+  }
+  return `<div class="ab-box" style="padding:13px 14px;margin-bottom:13px">
+    <div class="ab-title" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+      <span>🔁 2차 (재출발)</span>
+      <span onclick="removeSeg2()" style="color:#f06060;cursor:pointer;font-size:11px;font-weight:700">✕ 2차 삭제</span>
+    </div>
+    <div class="row2">
+      <div class="field" style="margin-bottom:0"><label>🚀 2차 출발</label><input type="time" id="f-st2" value="${form.startTime2}"></div>
+      <div class="field" style="margin-bottom:0"><label>🏁 2차 마무리</label><input type="time" id="f-et2" value="${form.endTime2}"></div>
+    </div>
+  </div>`;
+}
+function addSeg2(){ readInputForm(); showSeg2=true; render(); }
+function removeSeg2(){ readInputForm(); form.startTime2=''; form.endTime2=''; showSeg2=false; render(); }
 function renderCalcArea(){
   const p=calcPay(form,{A:PRICE.A,B:PRICE.B,C:PRICE.C,D:PRICE.D,E:PRICE.E,F:PRICE.F});
   if(p.qty===0) return '';
@@ -961,15 +1001,28 @@ function renderCalcArea(){
 }
 
 function renderDurArea(){
-  const st=document.getElementById('f-st')?.value||form.startTime||'';
-  const et=document.getElementById('f-et')?.value||form.endTime||'';
-  const tmp={};
-  KEYS.forEach(k=>tmp['qty'+k]=document.getElementById('f-q'+k)?.value??form['qty'+k]);
+  const g=id=>document.getElementById(id);
+  const st=g('f-st')?.value||form.startTime||'';
+  const et=g('f-et')?.value||form.endTime||'';
+  const st2=g('f-st2')?.value||form.startTime2||'';
+  const et2=g('f-et2')?.value||form.endTime2||'';
+  const tmp={startTime:st,endTime:et,startTime2:st2,endTime2:et2};
+  KEYS.forEach(k=>tmp['qty'+k]=g('f-q'+k)?.value??form['qty'+k]);
   const p=calcPay(tmp);
-  const mins=workMin(st,et);
-  const spd=perHour(p.qty,st,et);
+  const mins=workMinRec(tmp);
+  const wait=waitMinRec(tmp);
+  const m2=workMin(st2,et2);
+  const spd=perHourRec(p.qty,tmp);
   let html='';
-  if(mins>0) html+=`<div class="duration-box">⏱ 총 근무시간: <strong>${durStr(st,et)}</strong>${isOvernight(st,et)?'<span class="overnight">· 익일 마감으로 계산</span>':''}</div>`;
+  if(mins>0){
+    html+=`<div class="duration-box">⏱ 실 근무시간: <strong>${minStr(mins)}</strong>`
+      +(m2>0?`<span style="color:var(--sub);font-size:11px"> · 1차 ${durStr(st,et)} + 2차 ${durStr(st2,et2)}</span>`:'')
+      +((isOvernight(st,et)||isOvernight(st2,et2))?'<span class="overnight">· 익일 마감 포함</span>':'')
+      +`</div>`;
+    if(wait>0){
+      html+=`<div class="duration-box" style="background:#2a1f00;border-color:#5a4620;color:var(--orange2)">☕ 대기시간: <strong>${minStr(wait)}</strong><span style="font-size:11px;color:#a08050"> · 총 구속 ${minStr(mins+wait)}</span></div>`;
+    }
+  }
   if(spd!==null){
     const h=Math.floor(mins/60),m=mins%60;
     html+=`<div class="speed-box"><div class="speed-icon">⚡</div><div class="speed-main">
@@ -980,7 +1033,6 @@ function renderDurArea(){
   }
   return html;
 }
-
 function clampQty(el){
   if(!el||el.value==='') return;
   let n=Math.floor(Number(el.value));
@@ -1005,9 +1057,11 @@ function onQtyChange(e){
 }
 
 function onTimeChange(){
-  const st=document.getElementById('f-st'), et=document.getElementById('f-et');
-  if(st) form.startTime=st.value||'';
-  if(et) form.endTime=et.value||'';
+  const g=id=>document.getElementById(id);
+  if(g('f-st')) form.startTime=g('f-st').value||'';
+  if(g('f-et')) form.endTime=g('f-et').value||'';
+  if(g('f-st2')) form.startTime2=g('f-st2').value||'';
+  if(g('f-et2')) form.endTime2=g('f-et2').value||'';
   const da=document.getElementById('dur-area'); if(da) da.innerHTML=renderDurArea();
   updateSaveBtn();
 }
@@ -1023,7 +1077,7 @@ function updateSaveBtn(){
 function bindInputEvents(){
   document.getElementById('f-date')?.addEventListener('change',e=>{ form.date=e.target.value; updateSaveBtn(); });
   KEYS.forEach(k=>document.getElementById('f-q'+k)?.addEventListener('input',onQtyChange));
-  ['f-st','f-et'].forEach(id=>{
+   ['f-st','f-et','f-st2','f-et2'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     ['input','change','blur'].forEach(ev=>el.addEventListener(ev,onTimeChange));
   });
@@ -1036,9 +1090,11 @@ function readInputForm(){
   if(g('f-date')) form.date=g('f-date').value;
   KEYS.forEach(k=>{ if(g('f-q'+k)) form['qty'+k]=g('f-q'+k).value; });
   if(g('f-st')) form.startTime=g('f-st').value;
-  if(g('f-et')) form.endTime=g('f-et').value;
+   if(g('f-et')) form.endTime=g('f-et').value;
+  if(g('f-st2')) form.startTime2=g('f-st2').value;
+  if(g('f-et2')) form.endTime2=g('f-et2').value;
   if(g('f-memo')) form.memo=g('f-memo').value;
-}
+} 
 
 function handleSave(){
   readInputForm();
@@ -1048,7 +1104,10 @@ function handleSave(){
   if(!form.startTime) miss.push('출발 시간');
   // 아래에 있던 마무리 시간 체크 코드를 지우거나 // 로 주석 처리합니다.
   // if(!form.endTime) miss.push('마무리 시간');
-  if(miss.length){ showToast('⚠️ '+miss.join(' · ')+' 입력이 필요해요'); return; }
+    if(miss.length){ showToast('⚠️ '+miss.join(' · ')+' 입력이 필요해요'); return; }
+  if((form.startTime2&&!form.endTime2)||(!form.startTime2&&form.endTime2)){
+    showToast('⚠️ 2차는 출발·마무리를 모두 넣어야 근무시간에 들어가요'); return;
+  }
   const dup=records.find(r=>r.date===form.date&&r.id!==editId);
   if(dup){ pendingDupId=dup.id; askOverwrite(form.date); return; }
   commitSave();
@@ -1066,25 +1125,27 @@ function commitSave(){
   records.sort((a,b)=>b.date.localeCompare(a.date));
   saveAll();
   form=defForm();
+  showSeg2=false;
   showToast('✅ 저장 완료!');
   switchTab('history');
 }
 
 function startEdit(id){
   const r=records.find(x=>x.id===id); if(!r) return;
-  form={date:r.date,startTime:r.startTime||'',endTime:r.endTime||'',memo:r.memo||''};
+   form={date:r.date,startTime:r.startTime||'',endTime:r.endTime||'',
+        startTime2:r.startTime2||'',endTime2:r.endTime2||'',memo:r.memo||''};
   KEYS.forEach(k=>form['qty'+k]=r['qty'+k]||'');
-  editId=id; switchTab('input');
+  showSeg2=!!(r.startTime2||r.endTime2);
+  editId=id; switchTab('input'); 
 }
-function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); render(); }
-
+function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); showSeg2=false; render(); }
 /* ── 기록 ───────────────────────────────── */
 function renderHistory(){
   if(!records.length) return `<div class="empty">📭 아직 기록이 없어요<br><span style="font-size:12px">첫 배송을 기록해보세요!</span></div>`;
   return records.map(r=>{
     const p=calcPay(r);
-    const mins=workMin(r.startTime,r.endTime);
-    const spd=perHour(p.qty,r.startTime,r.endTime);
+    const mins=workMinRec(r);
+    const spd=perHourRec(p.qty,r);
     const h=Math.floor(mins/60),m=mins%60;
     const hStr=h>0?`${h}시간 ${m}분`:`${m}분`;
     const shown=KEYS.filter(k=>p.q[k]>0);
@@ -1094,8 +1155,12 @@ function renderHistory(){
     return `<div class="rec-card">
       <div class="rec-head">
         <div><div class="rec-date">${fmtDate(r.date)}<span class="rec-day">${fmtDay(r.date)}</span></div></div>
-        <div><div class="rec-time">🚀 ${esc(r.startTime||'-')} ~ 🏁 ${esc(r.endTime||'-')}</div><div class="rec-dur">⏱ ${durStr(r.startTime,r.endTime)}${isOvernight(r.startTime,r.endTime)?' (익일)':''}</div></div>
-      </div>
+               <div>
+          <div class="rec-time">🚀 ${esc(r.startTime||'-')} ~ 🏁 ${esc(r.endTime||'-')}</div>
+          ${hasSeg2(r)?`<div class="rec-time" style="color:var(--orange2)">🔁 ${esc(r.startTime2)} ~ 🏁 ${esc(r.endTime2)}</div>`:''}
+          <div class="rec-dur">⏱ ${durStrRec(r)}${(isOvernight(r.startTime,r.endTime)||isOvernight(r.startTime2,r.endTime2))?' (익일)':''}</div>
+          ${waitMinRec(r)>0?`<div class="rec-dur" style="color:var(--orange2)">☕ 대기 ${minStr(waitMinRec(r))}</div>`:''}
+        </div> 
       ${spd!==null?`<div class="speed-badge">
         <div class="speed-badge-left"><div class="speed-badge-icon">⚡</div>
           <div><div class="speed-badge-label">시간당 배달</div><div class="speed-badge-val">${spd}<span style="font-size:11px;color:var(--sub);font-weight:400"> 건</span></div></div>
@@ -1196,8 +1261,8 @@ function renderCalBlock(year,month){
     const dayLabel=`${fd.getMonth()+1}월 ${fd.getDate()}일 (${DAYS[fd.getDay()]}요일)`;
     const p=dr?calcPay(dr):null;
     const itemLine=p?KEYS.filter(k=>p.q[k]>0).map(k=>`${KEMO[k]}${p.q[k]}`).join(' · '):'';
-    const dMin=dr?workMin(dr.startTime,dr.endTime):0;
-    const dSpd=dr?perHour(p.qty,dr.startTime,dr.endTime):null;
+    const dMin=dr?workMinRec(dr):0;
+    const dSpd=dr?perHourRec(p.qty,dr):null;
     detailHtml=`<div class="cal-day-detail">
       <div class="cal-day-detail-title">📌 ${dayLabel}</div>
       ${dr?`
@@ -1217,10 +1282,12 @@ function renderCalBlock(year,month){
           </div>
           <div class="cal-time-tot">
             <div class="cal-time-k">⏱ 총 근무</div>
-            <div class="cal-time-v">${dMin>0?durStr(dr.startTime,dr.endTime):'-'}</div>
+           <div class="cal-time-v">${dMin>0?durStrRec(dr):'-'}</div>
           </div>
         </div>
-        ${(dSpd!==null||isOvernight(dr.startTime,dr.endTime))?`<div class="cal-time-extra">
+        ${(dSpd!==null||hasSeg2(dr)||isOvernight(dr.startTime,dr.endTime))?`<div class="cal-time-extra">
+          ${hasSeg2(dr)?`<span class="ovn">🔁 2차 ${esc(dr.startTime2)}~${esc(dr.endTime2)}</span>`:''}
+          ${waitMinRec(dr)>0?`<span class="ovn">☕ 대기 ${minStr(waitMinRec(dr))}</span>`:''}
           ${dSpd!==null?`<span class="spd">⚡ 시간당 ${dSpd}건</span>`:''}
           ${isOvernight(dr.startTime,dr.endTime)?`<span class="ovn">🌙 익일 마감</span>`:''}
         </div>`:''}
@@ -1281,7 +1348,7 @@ function renderCalBlock(year,month){
           else if(hasCar) cls+=' car-only';
           if(isSelected) cls+=' selected';
           const dq=hasDlv?qtyOf(dr):0;
-          const dMinCell=hasDlv?workMin(dr.startTime,dr.endTime):0;
+          const dMinCell=hasDlv?workMinRec(dr):0;
           const hourTagHtml=dMinCell>0?`<div class="cal-day-hour-tag">${hourShort(dMinCell)}</div>`:'';
           let fuelTagHtml='';
           if(dayFc>0) fuelTagHtml=`<div class="cal-day-fuel-tag">${dayFc.toLocaleString()}</div>`;
@@ -1318,15 +1385,16 @@ function statsFor(list){
   });
   const G=list.reduce((s,r)=>s+calcPay(r).gross,0);
   const N=list.reduce((s,r)=>s+calcPay(r).net,0);
-  const Q=KEYS.reduce((s,k)=>s+q[k],0);
+  const Q=KEYS.reduce((s,k)=>s
+    +q[k],0);
   const avg=list.length?Math.round(Q/list.length):0;
-  const vr=list.filter(r=>workMin(r.startTime,r.endTime)>0);
+   const vr=list.filter(r=>workMinRec(r)>0);
   let avgSpd=null,maxSpd=null,minSpd=null,totalMin=0;
   if(vr.length){
     const tq=vr.reduce((s,r)=>s+qtyOf(r),0);
-    totalMin=vr.reduce((s,r)=>s+workMin(r.startTime,r.endTime),0);
+    totalMin=vr.reduce((s,r)=>s+workMinRec(r),0);
     avgSpd=Math.round((tq/totalMin)*60*10)/10;
-    const spds=vr.map(r=>perHour(qtyOf(r),r.startTime,r.endTime)).filter(v=>v!==null);
+    const spds=vr.map(r=>perHourRec(qtyOf(r),r)).filter(v=>v!==null); 
     if(spds.length){maxSpd=Math.max(...spds);minSpd=Math.min(...spds);}
   }
   return {q,amt,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length};
@@ -3435,11 +3503,11 @@ function generateReportText() {
     text += `📋 일자별 상세\n\n`;
     mr.forEach(r => {
       const p = calcPay(r);
-      const spd = perHour(p.qty, r.startTime, r.endTime);
+     const spd = perHourRec(p.qty, r);
       const parts = KEYS.filter(k=>p.q[k]>0).map(k=>`${NAME[k]} ${p.q[k]}`);
       text += `📅 ${r.date.slice(5).replace('-','/')} (${DAYS[toDate(r.date).getDay()]}) · 총 ${p.qty.toLocaleString()}건\n`;
       text += `   ${parts.join(' / ')}\n`;
-      text += `   ⏱ ${r.startTime}~${r.endTime} · 실수령 ${won(p.net)}${spd ? ' · ⚡' + spd + '건/h' : ''}\n`;
+      text += `   ⏱ ${r.startTime}~${r.endTime}${hasSeg2(r)?` + ${r.startTime2}~${r.endTime2}`:''} · 실수령 ${won(p.net)}${spd ? ' · ⚡' + spd + '건/h' : ''}\n`;
       if (r.memo) text += `   📝 ${r.memo}\n`;
       text += '\n';
     });
@@ -3789,20 +3857,23 @@ function exportExcel(){
   const asc=(a,b)=>a.date.localeCompare(b.date);
   const dlv=[...records].sort(asc), car=[...carRecords].sort(asc);
   const uk=usedKeys(dlv);
-
-  const dlvRows=[['날짜','요일',...uk.map(k=>NAME[k]),'총 건수','출발','마무리','근무시간(h)','시간당 건수','총액','실수령','공제액(3.3%)','메모']];
+  const dlvRows=[['날짜','요일',...uk.map(k=>NAME[k]),'총 건수','출발','마무리','2차 출발','2차 마무리','실근무(h)','대기(h)','시간당 건수','총액','실수령','공제액(3.3%)','메모']];
   dlv.forEach(r=>{
     const p=calcPay(r);
-    const mins=workMin(r.startTime,r.endTime);
+    const mins=workMinRec(r);
+    const wait=waitMinRec(r);
     dlvRows.push([r.date,DAYS[toDate(r.date).getDay()],...uk.map(k=>p.q[k]),p.qty,
-      r.startTime||'',r.endTime||'',mins?Math.round(mins/6)/10:'',perHour(p.qty,r.startTime,r.endTime)||'',
+      r.startTime||'',r.endTime||'',r.startTime2||'',r.endTime2||'',
+      mins?Math.round(mins/6)/10:'',wait?Math.round(wait/6)/10:'',perHourRec(p.qty,r)||'',
       p.gross,p.net,p.tax,r.memo||'']);
   });
   if(dlv.length){
     const t=statsFor(dlv);
+    const tw=dlv.reduce((s,r)=>s+waitMinRec(r),0);
     dlvRows.push([]);
-    dlvRows.push(['합계',t.days+'일',...uk.map(k=>t.q[k]),t.Q,'','',t.totalMin?Math.round(t.totalMin/6)/10:'',t.avgSpd||'',t.G,t.N,t.G-t.N,'']);
+    dlvRows.push(['합계',t.days+'일',...uk.map(k=>t.q[k]),t.Q,'','','','',t.totalMin?Math.round(t.totalMin/6)/10:'',tw?Math.round(tw/6)/10:'',t.avgSpd||'',t.G,t.N,t.G-t.N,'']);
   }
+  
 
   const carRows=[['날짜','요일','출발 km','도착 km','주행 km','주유량(L)','리터당 단가','주유비','통행료','총 지출','연비(km/L)','메모']];
   car.forEach(r=>{
@@ -3830,7 +3901,7 @@ function exportExcel(){
 
   const wcol=n=>Array.from({length:n},()=>10);
   const sheets=[
-    {name:'배송 기록',rows:dlvRows,widths:[12,6,...wcol(uk.length),10,9,9,12,12,12,12,13,30]},
+    {name:'배송 기록',rows:dlvRows,widths:[12,6,...wcol(uk.length),10,9,9,9,9,11,9,12,12,12,13,30]},
     {name:'차량 기록',rows:carRows,widths:[12,6,11,11,10,11,12,11,10,11,11,30]},
     {name:'월별 요약',rows:sumRows,widths:[10,10,...wcol(uk.length),10,13,13,12,11,12,16]}
   ];
