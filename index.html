@@ -1153,15 +1153,16 @@ function renderHistory(){
       `<div class="rec-item ${KCLS[k]}"><div class="rec-item-lbl ${KCLS[k]}">${KEMO[k]} ${esc(NAME[k])}</div><div class="rec-item-qty ${KCLS[k]}">${p.q[k].toLocaleString()}<span style="font-size:10px;color:var(--sub);font-weight:400"> 건</span></div><div class="rec-item-amt">${won(p.amt[k])}</div></div>`
     ).join('');
     return `<div class="rec-card">
-      <div class="rec-head">
+           <div class="rec-head">
         <div><div class="rec-date">${fmtDate(r.date)}<span class="rec-day">${fmtDay(r.date)}</span></div></div>
-               <div>
+        <div>
           <div class="rec-time">🚀 ${esc(r.startTime||'-')} ~ 🏁 ${esc(r.endTime||'-')}</div>
           ${hasSeg2(r)?`<div class="rec-time" style="color:var(--orange2)">🔁 ${esc(r.startTime2)} ~ 🏁 ${esc(r.endTime2)}</div>`:''}
           <div class="rec-dur">⏱ ${durStrRec(r)}${(isOvernight(r.startTime,r.endTime)||isOvernight(r.startTime2,r.endTime2))?' (익일)':''}</div>
           ${waitMinRec(r)>0?`<div class="rec-dur" style="color:var(--orange2)">☕ 대기 ${minStr(waitMinRec(r))}</div>`:''}
-        </div> 
-      ${spd!==null?`<div class="speed-badge">
+        </div>
+      </div>
+      ${spd!==null?`<div class="speed-badge"> 
         <div class="speed-badge-left"><div class="speed-badge-icon">⚡</div>
           <div><div class="speed-badge-label">시간당 배달</div><div class="speed-badge-val">${spd}<span style="font-size:11px;color:var(--sub);font-weight:400"> 건</span></div></div>
         </div>
