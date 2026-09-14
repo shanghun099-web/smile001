@@ -3077,14 +3077,12 @@ function onEstMultiImg(e){
 function estClearMulti(){ estMultiImgs=[]; render(); }
 /* 🔄 통합 새로고침 — 새 물량표를 받았을 때 한 번에 비운다.
    비우는 것: 올린 사진 전부 · 오네/딜리 표의 건수 · 기준 날짜(오늘로)
-   남기는 것: 동 이름·코드 · ⭐ 담당 지정 · 비율 · 학습 기록 (매일 다시 정할 필요가 없도록) */
+   남기는 것: 동 이름·코드 · ⭐ 담당 지정 · 비율 · 학습 기록 (매일 다시 정할 필요가 없도록)
+   확인창 없이 바로 비운다 — 매일 아침 누르는 버튼이라 한 번 더 묻는 게 번거로움 */
 function estRefreshBoth(){
   const imgs=estMultiImgs.length;
   const qty=[...estStore.cj.rows,...estStore.rabbit.rows].filter(r=>estN(r.qty)>0).length;
   if(!imgs&&!qty){ showToast('비울 사진·건수가 없어요'); return; }
-  openDialog('🔄 통합 새로고침',`사진 ${imgs}장 · 건수 입력 ${qty}줄을 비웁니다.\n동 이름 · ⭐ 담당 지정 · 비율 · 학습 기록은 그대로 남아요.`,'새로고침','estRefresh',true);
-}
-function estDoRefreshBoth(){
   estMultiImgs=[];
   estStore.cj.rows.forEach(r=>r.qty='');
   estStore.rabbit.rows.forEach(r=>r.qty='');
@@ -3702,10 +3700,6 @@ function confirmDialog(){
   if(dialogMode==='dup'){
     overlay.classList.remove('show');
     commitSave();return;
-  }
-  if(dialogMode==='estRefresh'){
-    overlay.classList.remove('show');dialogMode='delete';
-    estDoRefreshBoth();return;
   }
   if(deleteId!==null){records=records.filter(r=>r.id!==deleteId);saveAll();showToast('🗑 삭제되었습니다');deleteId=null;}
   else if(carDeleteId!==null){carRecords=carRecords.filter(r=>r.id!==carDeleteId);saveCarAll();showToast('🗑 삭제되었습니다');carDeleteId=null;}
