@@ -2553,10 +2553,12 @@ function estLabel(type){ return type==='rabbit'?'🐰 딜리래빗':'🟪 CJ 오
 
 /* ── 실측 학습 ── */
 /* 🔧 딜리 = 평일 '딜리' + 주말 '주말딜리' 를 한 묶음으로 계산
-   물품 이름에 '딜리'가 들어가면 자동으로 포함됩니다 */
+   오네 = '오네' + '오네 책' 을 한 묶음으로 계산 (물량표엔 책이 따로 없어 합쳐야 실측이 맞음)
+   물품 이름에 '딜리' / '오네' 가 들어가면 자동으로 포함됩니다 */
 function estKeysOf(type){
   const s=new Set([estKeyOf(type)]);
-  if(type==='rabbit') KEYS.forEach(k=>{ if(/딜리/.test(NAME[k]||'')) s.add(k); });
+  const pat=type==='rabbit'?/딜리/:/오네/;
+  KEYS.forEach(k=>{ if(pat.test(NAME[k]||'')) s.add(k); });
   return KEYS.filter(k=>s.has(k));
 }
 function estActual(type,rec){
