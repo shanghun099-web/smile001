@@ -3073,6 +3073,23 @@ function onEstMultiImg(e){
   });
 }
 function estClearMulti(){ estMultiImgs=[]; render(); }
+/* 🔄 통합 새로고침 — 새 물량표를 받았을 때 한 번에 비운다.
+   비우는 것: 올린 사진 전부 · 오네/딜리 표의 건수 · 기준 날짜(오늘로)
+   남기는 것: 동 이름·코드 · ⭐ 담당 지정 · 비율 · 학습 기록 (매일 다시 정할 필요가 없도록) */
+function estRefreshBoth(){
+  const imgs=estMultiImgs.length;
+  const qty=[...estStore.cj.rows,...estStore.rabbit.rows].filter(r=>estN(r.qty)>0).length;
+  if(!imgs&&!qty){ showToast('비울 사진·건수가 없어요'); return; }
+  openDialog('🔄 통합 새로고침',`사진 ${imgs}장 · 건수 입력 ${qty}줄을 비웁니다.\n동 이름 · ⭐ 담당 지정 · 비율 · 학습 기록은 그대로 남아요.`,'새로고침','estRefresh',true);
+}
+function estDoRefreshBoth(){
+  estMultiImgs=[];
+  estStore.cj.rows.forEach(r=>r.qty='');
+  estStore.rabbit.rows.forEach(r=>r.qty='');
+  estStore.cj.date=today(); estStore.rabbit.date=today();
+  saveEst(); render();
+  showToast('🔄 사진 · 건수를 비웠어요 — 새 물량표를 올려주세요');
+}
 function estMultiStatus(msg,type){
   const el=document.getElementById('est-multi-status'); if(!el) return;
   el.className='est-status'+(type?' '+type:''); el.textContent=msg;
@@ -3198,6 +3215,8 @@ function renderEstBoth(){
         <div class="est-grand-sub">오네 ${c.cj.est.toLocaleString()} + 딜리 ${c.rb.est.toLocaleString()}${c.lo!==c.hi?` · 오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건`:''}</div>
       </div>
     </div>
+
+    <button class="est-btn ghost" style="width:100%;margin-bottom:12px;border-color:#5a2020;color:#f08a8a" onclick="estRefreshBoth()">🔄 새로고침 — 사진 · 건수 모두 비우기</button>
 
           <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
       <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
@@ -3681,6 +3700,10 @@ function confirmDialog(){
   if(dialogMode==='dup'){
     overlay.classList.remove('show');
     commitSave();return;
+  }
+  if(dialogMode==='estRefresh'){
+    overlay.classList.remove('show');dialogMode='delete';
+    estDoRefreshBoth();return;
   }
   if(deleteId!==null){records=records.filter(r=>r.id!==deleteId);saveAll();showToast('🗑 삭제되었습니다');deleteId=null;}
   else if(carDeleteId!==null){carRecords=carRecords.filter(r=>r.id!==carDeleteId);saveCarAll();showToast('🗑 삭제되었습니다');carDeleteId=null;}
