@@ -1246,7 +1246,10 @@ function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); showSeg2=
 /* ── 기록 ───────────────────────────────── */
 function renderHistory(){
   if(!records.length) return `<div class="empty">📭 아직 기록이 없어요<br><span style="font-size:12px">첫 배송을 기록해보세요!</span></div>`;
-  return records.map(r=>{
+  return records.map(recCardHtml).join('')+'<div style="height:20px"></div>';
+}
+/* 배송 기록 카드 한 장. 기록 탭 목록과 통계 탭 달력의 날짜 상세가 같은 양식을 쓰도록 여기서만 만든다 */
+function recCardHtml(r){
     const p=calcPay(r);
     const mins=workMinRec(r);
     const spd=perHourRec(p.qty,r);
@@ -1286,7 +1289,6 @@ function renderHistory(){
         <button class="rec-btn btn-del" onclick="askDelete(${r.id})">🗑 삭제</button>
       </div>
     </div>`;
-  }).join('')+'<div style="height:20px"></div>';
 }
 
 /* ── 주차 계산 ──────────────────────────── */
@@ -1365,50 +1367,7 @@ function renderCalBlock(year,month){
     const cr2=carMap[calSelectedDate]||[];
     const fd=toDate(calSelectedDate);
     const dayLabel=`${fd.getMonth()+1}월 ${fd.getDate()}일 (${DAYS[fd.getDay()]}요일)`;
-    const p=dr?calcPay(dr):null;
-    const itemLine=p?KEYS.filter(k=>p.q[k]>0).map(k=>`${KEMO[k]}${p.q[k]}`).join(' · '):'';
-    const dMin=dr?workMinRec(dr):0;
-    const dSpd=dr?perHourRec(p.qty,dr):null;
-    detailHtml=`<div class="cal-day-detail">
-      <div class="cal-day-detail-title">📌 ${dayLabel}</div>
-      ${dr?`
-                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:10px">
-          <span style="color:#9aa3b2">${itemLine}</span>
-          <span style="color:var(--orange2);font-weight:800">총 ${p.qty}건</span>
-        </div>
-        <div class="cal-time-bar">
-          <div class="cal-time-col">
-            <div class="cal-time-k">🚀 출발</div>
-            <div class="cal-time-v">${esc(dr.startTime||'-')}</div>
-          </div>
-          <div class="cal-time-arrow">→</div>
-          <div class="cal-time-col">
-            <div class="cal-time-k">🏁 마감</div>
-            <div class="cal-time-v">${esc(dr.endTime||'-')}</div>
-          </div>
-          <div class="cal-time-tot">
-            <div class="cal-time-k">⏱ 총 근무</div>
-           <div class="cal-time-v">${dMin>0?durStrRec(dr):'-'}</div>
-          </div>
-        </div>
-        ${(dSpd!==null||hasSeg2(dr)||isOvernight(dr.startTime,dr.endTime))?`<div class="cal-time-extra">
-          ${hasSeg2(dr)?`<span class="ovn">🔁 2차 ${esc(dr.startTime2)}~${esc(dr.endTime2)}</span>`:''}
-          ${hasSeg3(dr)?`<span class="ovn">🔁 3차 ${esc(dr.startTime3)}~${esc(dr.endTime3)}</span>`:''}
-          ${waitMinRec(dr)>0?`<span class="ovn">☕ 대기 ${minStr(waitMinRec(dr))}</span>`:''}
-          ${dSpd!==null?`<span class="spd">⚡ 시간당 ${dSpd}건</span>`:''}
-          ${isOvernight(dr.startTime,dr.endTime)?`<span class="ovn">🌙 익일 마감</span>`:''}
-        </div>`:''}
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:#9aa3b2">💵 총액</span><span style="font-weight:800;color:var(--green2)">${won(p.gross)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-          <span style="color:#9aa3b2">💰 실수령</span><span style="font-weight:800;color:var(--green)">${won(p.net)}</span>
-        </div>
-      
-        ${dr.memo?`<div style="font-size:11px;color:var(--sub);margin-top:4px;white-space:pre-wrap">📝 ${esc(dr.memo)}</div>`:''}
-        <button class="rec-btn btn-edit" style="width:100%;margin-top:10px" onclick="startEdit(${dr.id})">✏️ 이 날 기록 수정</button>
-      `:'<div class="cal-day-detail-empty">배송 기록 없음</div>'}
-      ${cr2.length?cr2.map(c=>{
+    const carHtml=cr2.length?cr2.map(c=>{
         const km=Math.max(0,parseNum(c.kmEnd)-parseNum(c.kmStart));
         const fl=Number(c.fuelLiters)||0,fp=parseNum(c.fuelPrice),fc=parseNum(c.fuelCost);
         const autoFl=(fp>0&&fc>0&&fl===0)?Math.round(fc/fp*100)/100:0;
@@ -1419,8 +1378,14 @@ function renderCalBlock(year,month){
             ${tFl>0?`<span style="color:#ffd977;font-size:11px;font-weight:700">⛽ ${tFl}L ${tFc>0?'· '+won(tFc):''}</span>`:''}
           </div>
         </div>`;
-      }).join(''):''}
-    </div>`;
+      }).join(''):'';
+    detailHtml=(dr?recCardHtml(dr):`<div class="cal-day-detail">
+        <div class="cal-day-detail-title">📌 ${dayLabel}</div>
+        <div class="cal-day-detail-empty">배송 기록 없음</div>
+      </div>`)
+      +(carHtml?`<div class="cal-day-detail" style="border-left-color:var(--teal2)">
+        <div class="cal-day-detail-title" style="color:var(--teal2)">🚗 ${dayLabel} 운행</div>${carHtml}
+      </div>`:'');
   }
 
   const dowLabels=['일','월','화','수','목','금','토'];
