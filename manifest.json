@@ -1,0 +1,13 @@
+{
+  "name": "배송 기록 관리",
+  "short_name": "배송기록",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1117",
+  "theme_color": "#FF6B00",
+  "icons": [
+    { "src": "icon-194.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
+  ]
+}

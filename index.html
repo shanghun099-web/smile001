@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="배송기록">
 <link rel="apple-touch-icon" id="touch-icon" href="icon-194.png">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" id="fav-icon" type="image/png" href="icon-194.png">
 <title>📦 배송 & 차량 기록 관리</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -4015,22 +4016,6 @@ document.addEventListener('visibilitychange',()=>{
   }
 });
 
-try {
-  const manifestData = {
-    name: "배송 기록 관리",
-    short_name: "배송기록",
-    start_url: "./",
-    display: "standalone",
-    background_color: "#0f1117",
-    theme_color: "#FF6B00",
-    icons: [{ src: "icon-194.png", sizes: "194x194", type: "image/png" }]
-  };
-  const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
-  const manifestLink = document.createElement('link');
-  manifestLink.rel = 'manifest';
-  manifestLink.href = URL.createObjectURL(manifestBlob);
-  document.head.appendChild(manifestLink);
-} catch(e){}
 </script>
 </body>
 </html>
