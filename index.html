@@ -1518,7 +1518,7 @@ function renderStats(){
     <button class="period-tab ${statPeriod==='month'?'active':''}" onclick="statPeriod='month';render()">🗓 월별</button>
   </div>`;
 
-  let filtered=[],navHtml='',blockTitle='',calHtml='',sumHtml='';
+  let filtered=[],navHtml='',blockTitle='',calHtml='';
 
   if(statPeriod==='week'){
     const weeks=getCalWeeks(weekYear,weekMonth);
@@ -1548,15 +1548,7 @@ function renderStats(){
       <button class="week-nav-btn" onclick="moveStatMonth(1)">▶</button>
     </div>`;
 
-    const mCarS=carStatsFor(carRecords.filter(r=>r.date.startsWith(ym)));
-    const mn=filtered.reduce((s,r)=>s+calcPay(r).net,0);
-    const netS=shortWon(mn), fuelS=shortWon(mCarS.totalFc);
-    sumHtml=`<div class="cal-summary">
-      <div class="cal-sum-item c-dlv"><div class="cal-sum-val" style="color:var(--orange2)">${filtered.length}<span class="cal-sum-unit">일</span></div><div class="cal-sum-lbl">배송일</div></div>
-      <div class="cal-sum-item c-net"><div class="cal-sum-val" style="color:var(--green2)">${netS.num}<span class="cal-sum-unit">${netS.unit}</span></div><div class="cal-sum-lbl">실수령</div></div>
-      <div class="cal-sum-item c-fuel"><div class="cal-sum-val" style="color:var(--amber2)">${fuelS.num}<span class="cal-sum-unit">${fuelS.unit}</span></div><div class="cal-sum-lbl">주유금액</div></div>
-      <div class="cal-sum-item c-liter"><div class="cal-sum-val" style="color:var(--teal2)">${mCarS.totalFl>0?Math.round(mCarS.totalFl):'0'}<span class="cal-sum-unit">L</span></div><div class="cal-sum-lbl">주유량</div></div>
-    </div>`;
+    /* 월 요약(배송일·실수령·주유) 줄은 뺐다 — 달력과 날짜 상세가 바로 보이게 */
     calHtml=renderCalBlock(statYear,statMonth);
   }
 
@@ -1566,7 +1558,7 @@ function renderStats(){
     ? renderStatBlock(statsFor(filtered),blockTitle)
     : `<div class="empty" style="padding:40px 0">📭 해당 기간에 기록이 없어요</div>`;
 
-  return periodBar+navHtml+sumHtml+calHtml+body+`<div style="height:20px"></div>`;
+  return periodBar+navHtml+calHtml+body+`<div style="height:20px"></div>`;
 }
 function moveStatMonth(dir){
   statMonth+=dir;
