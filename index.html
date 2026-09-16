@@ -1444,8 +1444,13 @@ function renderCalBlock(year,month){
     </div>`;
 }
 function selectCalDay(dateStr){
-  calSelectedDate=(calSelectedDate===dateStr)?null:dateStr;
+  const off=(calSelectedDate===dateStr);
+  calSelectedDate=off?null:dateStr;
   render();
+  if(off){ scrollTop(); return; }          // 다시 눌러 끄면 월별 통계 맨 위로
+  // 켜면 날짜 상세 카드가 보이도록 그 위치로
+  const card=document.querySelector('#content .rec-card, #content .cal-day-detail');
+  if(card) card.scrollIntoView({block:'start',behavior:'smooth'});
 }
 
 /* ── 통계 ───────────────────────────────── */
