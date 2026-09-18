@@ -3140,6 +3140,28 @@ async function estRunMultiOCR(){
   estMultiStatus('✅ '+done.join(' · '),'ok');
 }
 
+/* ── 🐰 딜리래빗 입고 조회 (LK2 입고 탭에서 가져옴) ── */
+const RB_INBOUND_URL='https://redash.delivus.co.kr/public/dashboards/nEnlpAHhLMe6r28kykOwZvznXK7CmDAPTg8y0A31';
+const RB_INBOUND_PHONE='1036535848';
+function rbLookupDate(){ return localStorage.getItem('rb-lookup-date')||today(); }
+function rbSetLookupDate(v){ localStorage.setItem('rb-lookup-date', v||today()); }
+function openRbInbound(){
+  const p=new URLSearchParams();
+  p.set('org_slug','default');
+  p.set('p_Date', rbLookupDate());
+  p.set('p_휴대폰번호', RB_INBOUND_PHONE);
+  window.open(RB_INBOUND_URL+'?'+p.toString(),'_blank');
+  showToast('🔗 딜리래빗 조회 페이지를 새 창으로 열었어요');
+}
+function rbLookupHtml(){
+  return `<div class="est-box">
+    <div class="est-box-title">🐰 딜리래빗 입고 <span style="color:var(--teal2)">조회 페이지 바로 열기</span> · 조회번호 <b style="color:var(--teal2)">${RB_INBOUND_PHONE}</b> (고정)</div>
+    <div class="field" style="margin-bottom:10px"><label>📅 조회 날짜</label>
+      <input type="date" value="${rbLookupDate()}" onchange="rbSetLookupDate(this.value)"></div>
+    <button class="est-btn blue" style="width:100%" onclick="openRbInbound()">📅 선택 날짜로 조회</button>
+  </div>`;
+}
+
 function estTabsHtml(){
   const v=estStore.set;
   return `<div class="est-sub-tabs">
@@ -3226,6 +3248,8 @@ function renderEstBoth(){
           <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
       <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
 
+    ${rbLookupHtml()}
+
     <div class="est-box">
       <div class="est-box-title">🪄 물량표 이미지 2장을 한 번에 (오네 · 딜리 자동 구분)</div>
       <label class="est-multi">
@@ -3287,6 +3311,8 @@ function renderEst(){
 
     <div class="field"><label>📅 기준 날짜</label>
       <input type="date" value="${cur.date}" onchange="estSetDate(this.value)"></div>
+
+    ${isCJ?'':rbLookupHtml()}
 
     <div class="est-box">
       <div class="est-box-title">🪄 이미지 · 표로 한 번에 채우기</div>
