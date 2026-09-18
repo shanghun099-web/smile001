@@ -3155,7 +3155,7 @@ function openRbInbound(){
 }
 function rbLookupHtml(){
   return `<div class="est-box">
-    <div class="est-box-title">🐰 딜리래빗 입고 <span style="color:var(--teal2)">조회 페이지 바로 열기</span> · 조회번호 <b style="color:var(--teal2)">${RB_INBOUND_PHONE}</b> (고정)</div>
+    <div class="est-box-title" style="font-size:14px;color:var(--text);text-align:center;margin-bottom:12px">🐰 딜리래빗 입고 <span style="color:var(--teal2)">조회 페이지 바로 열기</span></div>
     <div class="field" style="margin-bottom:10px"><label>📅 조회 날짜</label>
       <input type="date" value="${rbLookupDate()}" onchange="rbSetLookupDate(this.value)"></div>
     <button class="est-btn blue" style="width:100%" onclick="openRbInbound()">📅 선택 날짜로 조회</button>
