@@ -719,6 +719,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
       <div class="k-hint">이 기기에만 저장되며 외부로 전송되지 않습니다 · 비워두고 저장하면 삭제됩니다<br>발급: Google AI Studio → API key</div>
     </div>
 
+    <div class="pi-keybox">
+      <label>🌦 기상청 API 키 — 날씨 탭 예보·특보용 (공공데이터포털 일반 인증키 Decoding)</label>
+      <input type="password" id="ps-kma-key" placeholder="공공데이터포털 인증키 (Decoding)" autocomplete="off" spellcheck="false">
+      <div class="k-hint">이 기기에만 저장됩니다 · 비어 있으면 Open-Meteo 예보로 표시됩니다<br>발급: data.go.kr → 기상청_단기예보 조회서비스 · 기상청_기상특보 조회서비스 활용신청 → 마이페이지 인증키</div>
+    </div>
+
     <button class="btn-price-save" onclick="savePrices()">💾 저장 · 적용</button>
     <button class="btn-sheet-close" onclick="document.getElementById('price-sheet').classList.remove('show')">닫기</button>
   </div>
@@ -1982,6 +1988,151 @@ function wxTipFor(L){
   return L.head==='약한 비'?wxTip('light'):wxTip('normal');
 }
 
+
+/* ══ 기상청 (공공데이터포털 단기예보·기상특보) ══
+   실황(1h 관측) + 초단기예보(6h) + 단기예보(3일) 를 1시간 슬롯으로 합쳐 주 데이터로 쓰고,
+   Open-Meteo 는 체감온도·돌풍·일몰·미세먼지 보조와 기상청 실패 시 폴백으로만 씁니다. */
+/* 키는 코드에 넣지 않습니다 (공개 저장소) — 설정 화면에서 입력하면 이 기기의 localStorage 에만 저장됩니다 */
+const KMA_DEFAULT_KEY='';
+const KMA_FCST='https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/';
+const KMA_WRN='https://apis.data.go.kr/1360000/WthrWrnInfoService/';
+const KMA_WRN_STN='108';      /* 특보 통보문 지점: 전국(108) — 발효 현황(t6)에 전국이 다 실려서 여기서 우리 지역 줄만 고릅니다 */
+const KMA_WRN_AREA='서울';    /* 특보 현황문에서 이 글자가 든 줄만 우리 지역으로 봅니다 */
+function kmaKey(){ try{ return (localStorage.getItem('kma-key')||'').trim()||KMA_DEFAULT_KEY; }catch(e){ return KMA_DEFAULT_KEY; } }
+function kmaSaveKey(v){ v=String(v||'').trim(); try{ if(v&&v!==KMA_DEFAULT_KEY) localStorage.setItem('kma-key',v); else localStorage.removeItem('kma-key'); }catch(e){} }
+
+/* 위경도 → 기상청 5km 격자 (LCC) */
+function kmaGrid(lat,lon){
+  const RE=6371.00877,GRID=5.0,SLAT1=30.0,SLAT2=60.0,OLON=126.0,OLAT=38.0,XO=43,YO=136,D=Math.PI/180;
+  const re=RE/GRID,slat1=SLAT1*D,slat2=SLAT2*D,olon=OLON*D,olat=OLAT*D;
+  let sn=Math.tan(Math.PI*0.25+slat2*0.5)/Math.tan(Math.PI*0.25+slat1*0.5);
+  sn=Math.log(Math.cos(slat1)/Math.cos(slat2))/Math.log(sn);
+  let sf=Math.tan(Math.PI*0.25+slat1*0.5); sf=Math.pow(sf,sn)*Math.cos(slat1)/sn;
+  let ro=Math.tan(Math.PI*0.25+olat*0.5); ro=re*sf/Math.pow(ro,sn);
+  let ra=Math.tan(Math.PI*0.25+lat*D*0.5); ra=re*sf/Math.pow(ra,sn);
+  let th=lon*D-olon; if(th>Math.PI) th-=2*Math.PI; if(th<-Math.PI) th+=2*Math.PI; th*=sn;
+  return {nx:Math.floor(ra*Math.sin(th)+XO+0.5), ny:Math.floor(ro-ra*Math.cos(th)+YO+0.5)};
+}
+function kmaYmd(d){ return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
+function kmaHm(d){ return `${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`; }
+/* 발표 기준시각 — 실황: 매시 정시(+10분 제공), 초단기: 매시 30분(+15분 제공), 단기: 02·05·…·23시(+10분 제공) */
+function kmaBaseNcst(now){ const d=new Date(now-10*60000); d.setMinutes(0,0,0); return d; }
+function kmaBaseUltra(now){ const d=new Date(now-45*60000); d.setMinutes(30,0,0); return d; }
+function kmaBaseVilage(now){
+  const d=new Date(now-10*60000); const hs=[2,5,8,11,14,17,20,23];
+  let bh=hs.filter(x=>x<=d.getHours()).pop();
+  if(bh==null){ d.setDate(d.getDate()-1); bh=23; }
+  d.setHours(bh,0,0,0); return d;
+}
+/* "강수없음"→0 · "1mm 미만"→0.5 · "1.0mm"→1 · "30.0~50.0mm"→30 · "50.0mm 이상"→50 (적설 cm 도 동일) */
+function kmaNum(v){
+  const t=String(v==null?'':v).trim();
+  if(!t||/없음/.test(t)) return 0;
+  if(/미만/.test(t)) return 0.5;
+  const m=t.match(/[\d.]+/); return m?parseFloat(m[0]):0;
+}
+async function kmaFetch(url,emptyOk){
+  const ctrl=('AbortController' in window)?new AbortController():null;
+  const tm=ctrl?setTimeout(()=>ctrl.abort(),12000):null;
+  try{
+    const res=await fetch(url,ctrl?{signal:ctrl.signal}:undefined);
+    if(tm) clearTimeout(tm);
+    const j=await res.json().catch(()=>null);
+    const h=j&&j.response&&j.response.header;
+    if(res.ok&&h&&String(h.resultCode)==='03'&&emptyOk) return [];   /* NO_DATA — 자료가 없는 것도 정상 응답 */
+    if(!res.ok||!h||String(h.resultCode)!=='00') return null;
+    const it=j.response.body&&j.response.body.items&&j.response.body.items.item;
+    return Array.isArray(it)?it:(it?[it]:null);
+  }catch(e){ if(tm) clearTimeout(tm); return null; }
+}
+async function fetchKma(lat,lon){
+  const key=kmaKey(); if(!key) return null;
+  const {nx,ny}=kmaGrid(lat,lon); const now=Date.now(); const ek=encodeURIComponent(key);
+  const q=(op,b,rows)=>`${KMA_FCST}${op}?serviceKey=${ek}&pageNo=1&numOfRows=${rows}&dataType=JSON&base_date=${kmaYmd(b)}&base_time=${kmaHm(b)}&nx=${nx}&ny=${ny}`;
+  /* 발표 직후엔 아직 안 올라온 경우가 있어 한 단계 전 발표로 한 번 더 시도 */
+  const get=async(op,baseFn,rows,backMin)=>{
+    let b=baseFn(now); let r=await kmaFetch(q(op,b,rows));
+    if(!r){ b=new Date(b.getTime()-backMin*60000); r=await kmaFetch(q(op,b,rows)); }
+    return r;
+  };
+  const [ncst,ultra,vil,wrn]=await Promise.all([
+    get('getUltraSrtNcst',kmaBaseNcst,20,60),
+    get('getUltraSrtFcst',kmaBaseUltra,80,60),
+    get('getVilageFcst',kmaBaseVilage,600,180),
+    fetchKmaWarn(ek)
+  ]);
+  if(!ultra&&!vil) return null;
+  return {ncst,ultra,vil,wrn,nx,ny};
+}
+/* 기상특보 — 최근 통보문의 "특보발효현황내용"(t6)에서 우리 지역 줄만 뽑습니다 */
+async function fetchKmaWarn(ek){
+  const now=new Date(), from=new Date(now.getTime()-5*86400000);   /* 조회 기간 최대 6일 */
+  const url=`${KMA_WRN}getWthrWrnMsg?serviceKey=${ek}&pageNo=1&numOfRows=10&dataType=JSON&stnId=${KMA_WRN_STN}&fromTmFc=${kmaYmd(from)}&toTmFc=${kmaYmd(now)}`;
+  const items=await kmaFetch(url,true);
+  if(!items) return null;
+  if(!items.length) return {list:[],tmFc:null};
+  items.sort((a,b)=>String(b.tmFc||'').localeCompare(String(a.tmFc||'')));
+  return parseKmaWarn(items[0]);
+}
+function parseKmaWarn(it){
+  if(!it) return {list:[],tmFc:null};
+  const txt=String(it.t6||'');
+  const list=[];
+  txt.split(/\r?\n/).forEach(line=>{
+    const m=line.match(/([가-힣]+(?:주의보|경보))\s*[:：]\s*(.+)/);
+    if(!m) return;
+    if(new RegExp(KMA_WRN_AREA).test(m[2])) list.push({name:m[1],area:m[2].trim()});
+  });
+  return {list,tmFc:it.tmFc||null,t5:it.t5||null};
+}
+/* PTY(강수형태)·SKY(하늘) → 아이콘용 WMO 코드 */
+function kmaCode(pty,sky,lgt){
+  if(Number(lgt)>0) return 95;
+  const P={1:61,2:66,3:71,4:80,5:51,6:56,7:77}[Number(pty)];
+  if(P) return P;
+  const S={1:0,3:2,4:3}[Number(sky)];
+  return S!=null?S:3;
+}
+/* 기상청 응답 → 1시간 슬롯 목록 (현재 시각부터 WX_SPAN_HOURS 시간) */
+function kmaHourly(k,f,now){
+  const at=(d,t)=>new Date(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8),+t.slice(0,2)).getTime();
+  const U={},V={};
+  (k.ultra||[]).forEach(it=>{ const key=it.fcstDate+it.fcstTime; (U[key]=U[key]||{time:at(it.fcstDate,it.fcstTime)})[it.category]=it.fcstValue; });
+  (k.vil||[]).forEach(it=>{ const key=it.fcstDate+it.fcstTime; (V[key]=V[key]||{time:at(it.fcstDate,it.fcstTime)})[it.category]=it.fcstValue; });
+  const N={}; (k.ncst||[]).forEach(it=>{ N[it.category]=it.obsrValue; });
+  /* Open-Meteo 시간별에서 체감·돌풍·낮/밤만 빌려옵니다 */
+  const om={};
+  if(f&&f.hourly&&f.hourly.time) f.hourly.time.forEach((t,i)=>{ om[t*1000]={feels:f.hourly.apparent_temperature?f.hourly.apparent_temperature[i]:null,gust:f.hourly.wind_gusts_10m?f.hourly.wind_gusts_10m[i]:null,isDay:f.hourly.is_day?f.hourly.is_day[i]:null}; });
+  const h0=new Date(now); h0.setMinutes(0,0,0);
+  const out=[];
+  for(let i=0;i<WX_SPAN_HOURS+1;i++){
+    const t=h0.getTime()+i*3600000;
+    const d=new Date(t); const key=kmaYmd(d)+kmaHm(d);
+    const u=U[key], v=V[key];
+    let src=null, pty=0, sky=3, lgt=0, amt=0, sno=null, temp=null, hum=null, prob=null;
+    if(i===0&&k.ncst&&N.T1H!=null){          /* 현재 시각 = 실황(지난 1시간 관측) */
+      src='ncst'; pty=+N.PTY||0; amt=Number(N.RN1)||0; temp=Number(N.T1H); hum=Number(N.REH);
+      const uu=u||v; if(uu){ sky=+uu.SKY||3; lgt=+uu.LGT||0; }
+      prob=v&&v.POP!=null?Number(v.POP):null;
+    } else if(u){                              /* 초단기예보 (6시간) */
+      src='ultra'; pty=+u.PTY||0; sky=+u.SKY||3; lgt=+u.LGT||0; amt=kmaNum(u.RN1); temp=u.T1H!=null?Number(u.T1H):null; hum=u.REH!=null?Number(u.REH):null;
+      prob=v&&v.POP!=null?Number(v.POP):null;
+    } else if(v){                              /* 단기예보 */
+      src='vil'; pty=+v.PTY||0; sky=+v.SKY||3; amt=kmaNum(v.PCP); sno=v.SNO!=null?kmaNum(v.SNO):null; temp=v.TMP!=null?Number(v.TMP):null; hum=v.REH!=null?Number(v.REH):null;
+      prob=v.POP!=null?Number(v.POP):null;
+    } else continue;
+    let mm=0, snow=0;
+    if(pty===3||pty===7){ snow=(sno!=null?sno:amt); }
+    else { mm=amt; if(sno!=null&&sno>0) snow=sno; }
+    const o=om[t]||{};
+    const hr=d.getHours();
+    out.push({time:t,step:60,mm,snow,temp,feels:(o.feels!=null?o.feels:null),code:kmaCode(pty,sky,lgt),
+      isDay:(o.isDay!=null?o.isDay:((hr>=6&&hr<19)?1:0)),gust:(o.gust!=null?o.gust:null),prob,hum,lgt,pty,src,
+      fine:(src==='ncst'||src==='ultra')});
+  }
+  return out;
+}
+
 /* ── 데이터 수신 ── */
 async function fetchWeather(){
   if(wx.loading){ wx.queue=true; return; }
@@ -2006,14 +2157,18 @@ async function fetchWeather(){
     }catch(e){ if(tm) clearTimeout(tm); return null; }
   };
 
-  const [f,a]=await Promise.all([grab(fUrl),grab(aUrl)]);
-  if(!f){
+  const [f,a,k]=await Promise.all([grab(fUrl),grab(aUrl),fetchKma(wx.lat,wx.lon).catch(()=>null)]);
+  if(!f&&!k){
     wx.err='예보를 불러오지 못했습니다';
   } else {
     try{
-      wx.model=buildWxModel(f,a);
+      wx.model=buildWxModel(f,a,k);
       wx.updated=new Date(); wx.err=null;
-    }catch(e){ wx.err='예보 해석에 실패했습니다'; }
+    }catch(e){
+      /* 기상청 해석 실패 시 Open-Meteo 로 한 번 더 */
+      try{ if(k&&f){ wx.model=buildWxModel(f,a,null); wx.updated=new Date(); wx.err=null; } else throw e; }
+      catch(e2){ wx.err='예보 해석에 실패했습니다'; }
+    }
   }
   wx.loading=false;
   updateWeatherDom();
@@ -2021,13 +2176,15 @@ async function fetchWeather(){
 }
 
 /* ── 모델 생성 — 여기서만 계산합니다 ── */
-function buildWxModel(f,a){
+function buildWxModel(f,a,k){
   const now=Date.now();
-  const g=(o,k,i,d)=>(o&&o[k]&&o[k][i]!=null)?o[k][i]:d;
+  const g=(o,kk,i,d)=>(o&&o[kk]&&o[kk][i]!=null)?o[kk][i]:d;
+  const useKma=!!k;
 
-  /* 1) 시간별 원본 (앞으로 WX_SPAN_HOURS 시간) */
+  /* 1) 시간별 원본 (앞으로 WX_SPAN_HOURS 시간) — 기상청이 있으면 기상청, 없으면 Open-Meteo */
   let hourly=[];
-  if(f.hourly&&f.hourly.time) f.hourly.time.forEach((t,i)=>hourly.push({
+  if(useKma) hourly=kmaHourly(k,f,now);
+  else if(f&&f.hourly&&f.hourly.time) f.hourly.time.forEach((t,i)=>hourly.push({
     time:t*1000,step:60,
     mm:Number(g(f.hourly,'precipitation',i,0))||0, snow:Number(g(f.hourly,'snowfall',i,0))||0,
     temp:g(f.hourly,'temperature_2m',i,null), feels:g(f.hourly,'apparent_temperature',i,null),
@@ -2039,9 +2196,9 @@ function buildWxModel(f,a){
   const spanEnd=hourly[hourly.length-1].time+60*60000;
   const hourAt=t=>hourly.find(h=>t>=h.time&&t<h.time+h.step*60000)||hourly[0];
 
-  /* 2) 15분 원본 — Open-Meteo minutely_15 는 15분 누적값입니다 (÷4 보정 없음) */
+  /* 2) 15분 원본 — Open-Meteo minutely_15 는 15분 누적값입니다 (÷4 보정 없음). 기상청 모드에선 안 씀 */
   let m15=[];
-  if(f.minutely_15&&f.minutely_15.time) f.minutely_15.time.forEach((t,i)=>m15.push({
+  if(!useKma&&f&&f.minutely_15&&f.minutely_15.time) f.minutely_15.time.forEach((t,i)=>m15.push({
     time:t*1000,step:15,
     mm:Number(g(f.minutely_15,'precipitation',i,0))||0, snow:Number(g(f.minutely_15,'snowfall',i,0))||0,
     code:g(f.minutely_15,'weather_code',i,null)
@@ -2076,16 +2233,23 @@ function buildWxModel(f,a){
     return o;
   });
 
-  /* 5) 지금 — 강수 상태는 slots[0], 기온·바람 등은 current */
-  const c=f.current||{};
+  /* 5) 지금 — 강수 상태는 slots[0]. 기온·습도·바람은 기상청 실황이 있으면 실황, 없으면 Open-Meteo current */
+  const c=(f&&f.current)||{};
   const s0=slots[0];
+  const N={}; if(useKma&&k.ncst) k.ncst.forEach(it=>{ N[it.category]=it.obsrValue; });
   const nowO={
-    temp:c.temperature_2m, feels:c.apparent_temperature, hum:c.relative_humidity_2m,
-    wind:c.wind_speed_10m, gust:c.wind_gusts_10m,
+    temp:(N.T1H!=null?Number(N.T1H):c.temperature_2m), feels:c.apparent_temperature,
+    hum:(N.REH!=null?Number(N.REH):c.relative_humidity_2m),
+    wind:(N.WSD!=null?Number(N.WSD)*3.6:c.wind_speed_10m), gust:c.wind_gusts_10m,
     isDay:(c.is_day!=null)?c.is_day:s0.isDay,
-    code:(c.weather_code!=null)?c.weather_code:s0.code,
+    code:useKma?s0.code:((c.weather_code!=null)?c.weather_code:s0.code),
     L:s0.L
   };
+  /* 낙뢰 (초단기예보 LGT) — 앞으로 6시간 안에 있으면 시각 기록 */
+  let lightning=null;
+  slots.forEach(s=>{ if(!lightning&&s.lgt>0&&s.time-now<6*3600000) lightning={time:s.time}; });
+  /* 기상특보 — 우리 지역에 발효 중인 것만 */
+  const alerts=(useKma&&k.wrn&&k.wrn.list)?k.wrn.list:[];
 
   /* 6) 강수 구간(episodes) — 연속된 lv≥1 슬롯 묶음 */
   const episodes=[];
@@ -2116,9 +2280,10 @@ function buildWxModel(f,a){
     if(watch&&watch.prob<WX_PROB_MIN) watch=null;
   }
 
-  const suns=(f.daily&&f.daily.sunset)?f.daily.sunset.map(t=>t*1000):[];
+  const suns=(f&&f.daily&&f.daily.sunset)?f.daily.sunset.map(t=>t*1000):[];
   return{
-    now:nowO, slots, hours, episodes, ep:episodes[0]||null, watch,
+    now:nowO, slots, hours, episodes, ep:episodes[0]||null, watch, lightning, alerts,
+    source:useKma?'kma':'om', kmaWarnKnown:!!(useKma&&k.wrn),
     sun:suns.find(t=>t>now)||null,
     air:(a&&a.current)?{pm10:a.current.pm10,pm25:a.current.pm2_5}:null,
     spanH:hours.length, built:now
@@ -2259,6 +2424,8 @@ function wxNowHtml(){
 function wxWarnHtml(){
   const m=wx.model; if(!m) return '';
   const w=[], n=m.now, ep=m.ep;
+  (m.alerts||[]).forEach(al=>w.push({c:'red',t:`🚨 기상청 ${al.name} 발효 중 · ${al.area}`}));
+  if(m.lightning) w.push({c:'amber',t:`⚡ ${fmtHM(new Date(m.lightning.time))}경 낙뢰 예보 · 야외 작업 주의`});
   if(n.feels!=null&&n.feels>=33) w.push({c:'red',t:`🥵 체감 ${Math.round(n.feels)}° · 온열질환 주의, 수분 자주 드세요`});
   else if(n.feels!=null&&n.feels<=0) w.push({c:'blue',t:`🥶 체감 ${Math.round(n.feels)}° · 노면 결빙 주의`});
   if(n.gust!=null&&n.gust>=50) w.push({c:'red',t:`💨 돌풍 ${(n.gust/3.6).toFixed(1)}m/s · 강풍, 적재문 개방 주의`});
@@ -2281,6 +2448,7 @@ function wxM15Html(){
   const maxV=Math.max(1,...list.map(s=>s.L.perH));
   const any=list.some(s=>s.L.lv>=1);
   const spanTxt=Math.round(list.reduce((s,e)=>s+e.step,0)/60)+'시간';
+  const hourly=list[0].step>=60, unitTxt=hourly?'기상청 · 1시간 단위':'15분 단위', every=hourly?1:4;
   if(!any){
     const ep=m.ep;
     const later=(ep&&!ep.ongoing)?` · 이후 ${fmtHM(new Date(ep.start))}경 ${ep.level.head} 예상`:'';
@@ -2294,10 +2462,10 @@ function wxM15Html(){
     const h=s.L.lv>=1?Math.max(8,Math.round((s.L.perH/maxV)*100)):4;
     return `<div class="wx-m15-col"><div class="wx-m15-fill" style="height:${h}%;background:${cmap[s.L.color]}"></div></div>`;
   }).join('');
-  const labels=list.map((s,i)=>`<div class="wx-m15-lb">${(i%4===0)?fmtHM(new Date(s.time)):''}</div>`).join('');
+  const labels=list.map((s,i)=>`<div class="wx-m15-lb">${(i%every===0)?fmtHM(new Date(s.time)):''}</div>`).join('');
   const peak=list.reduce((a,b)=>b.L.perH>a.L.perH?b:a,list[0]);
   return `<div class="wx-m15">
-    <div class="wx-m15-cap"><span>⏱ 초단기 <b>${spanTxt}</b> 강수 (15분 단위)</span><span style="color:var(--sub)">최대 ${wxAmt(peak.L.perH)}${peak.L.unit}/h</span></div>
+    <div class="wx-m15-cap"><span>⏱ 초단기 <b>${spanTxt}</b> 강수 (${unitTxt})</span><span style="color:var(--sub)">최대 ${wxAmt(peak.L.perH)}${peak.L.unit}/h</span></div>
     <div class="wx-m15-bars">${bars}</div>
     <div class="wx-m15-labels">${labels}</div>
   </div>`;
@@ -2325,14 +2493,20 @@ function wxHourHtml(){
 }
 
 /* ── 카톡 문구 — 헤드라인과 같은 ep 를 읽습니다 ── */
+function wxAlertVar(m){
+  const al=(m&&m.alerts)||[]; if(!al.length) return '';
+  return `🚨 기상특보: ${al.map(x=>x.name).join(', ')} 발효 중 (${KMA_WRN_AREA})`;
+}
 function wxTidy(s){ return s.split(/\r?\n/).filter(l=>l.trim()!=='').join('\n'); }
 function wxShareText(){
   const m=wx.model; if(!m) return '';
   const t=fmtHM(new Date());
   const dust=wxDustVar(m.air);
+  const alerts=wxAlertVar(m);
+  const src=m.source==='kma'?'기상청':'실시간';
   const ep=m.ep;
   if(!ep){
-    return wxTidy(`☀️ [기상 안내]\n⏱️ ${t} 기준 · ${wx.name} 실시간 예보\n━━━━━━━━━\n앞으로 약 ${m.spanH}시간 동안 배송 구역에 비 소식은 없습니다.\n${dust}\n━━━━━━━━━\n${wxTip('clear')}`);
+    return wxTidy(`${alerts?'🚨':'☀️'} [기상 안내]\n⏱️ ${t} 기준 · ${wx.name} ${src} 예보\n━━━━━━━━━\n${alerts}\n앞으로 약 ${m.spanH}시간 동안 배송 구역에 비 소식은 없습니다.\n${dust}\n━━━━━━━━━\n${wxTip('clear')}`);
   }
   const L=ep.level;
   const head=L.lv>=2?'🚨 [기상 상황 전파]':'🌦️ [기상 안내]';
@@ -2349,7 +2523,7 @@ function wxShareText(){
   const peakLine=(ep.peak&&ep.peak.perH>L.perH*1.3&&ep.peak.perH>=1)
     ? `· 최대 강도: ${fmtHM(new Date(ep.peak.time))}경 시간당 ${wxAmt(ep.peak.perH)}${ep.peak.unit} (${ep.peak.head})`
     : '';
-  return wxTidy(`${head}\n⏱️ ${t} 기준 · ${wx.name} 실시간 예보\n━━━━━━━━━\n${statusMsg}\n· 강도: ${L.head} (시간당 약 ${wxAmt(L.perH)}${L.unit}${prob})\n${durLine}\n${peakLine}\n${snowLine}\n${dust}\n━━━━━━━━━\n${wxTipFor(ep.peak&&ep.peak.lv>L.lv?ep.peak:L)}\n오늘도 안전운행 하세요! 👍`);
+  return wxTidy(`${head}\n⏱️ ${t} 기준 · ${wx.name} ${src} 예보\n━━━━━━━━━\n${alerts}\n${statusMsg}\n· 강도: ${L.head} (시간당 약 ${wxAmt(L.perH)}${L.unit}${prob})\n${durLine}\n${peakLine}\n${snowLine}\n${dust}\n━━━━━━━━━\n${wxTipFor(ep.peak&&ep.peak.lv>L.lv?ep.peak:L)}\n오늘도 안전운행 하세요! 👍`);
 }
 
 /* ── 상단 경고 스트립 ── */
@@ -2357,14 +2531,17 @@ function checkWxAlert(){
   const strip=document.getElementById('wx-strip');
   if(!strip) return;
   const m=wx.model, ep=m?m.ep:null;
-  if(!ep||ep.level.lv<2||ep.minsToStart>=60){ strip.classList.remove('show'); return; }
-  strip.textContent=ep.ongoing
-    ? `🚨 [${wx.name}] ${ep.level.head} 내리는 중 — 탭하여 확인`
-    : `🚨 [${wx.name}] 약 ${wxDur(ep.minsToStart)} 뒤 ${ep.level.head} 예상 — 탭하여 확인`;
+  const al=(m&&m.alerts&&m.alerts.length)?m.alerts:null;
+  const rain=ep&&ep.level.lv>=2&&ep.minsToStart<60;
+  if(!al&&!rain){ strip.classList.remove('show'); return; }
+  let txt, key;
+  if(al){ txt=`🚨 [${KMA_WRN_AREA}] ${al.map(x=>x.name).join(' · ')} 발효 중 — 탭하여 확인`; key='wrn:'+al.map(x=>x.name).join(','); }
+  else { txt=ep.ongoing?`🚨 [${wx.name}] ${ep.level.head} 내리는 중 — 탭하여 확인`:`🚨 [${wx.name}] 약 ${wxDur(ep.minsToStart)} 뒤 ${ep.level.head} 예상 — 탭하여 확인`; key=ep.start; }
+  strip.textContent=txt;
   strip.classList.add('show');
-  if(wx.alerted!==ep.start){
-    wx.alerted=ep.start;
-    if(tab!=='wx') showToast(`🚨 ${ep.level.head} 접근 — 날씨 탭을 확인하세요`);
+  if(wx.alerted!==key){
+    wx.alerted=key;
+    if(tab!=='wx') showToast(al?`🚨 ${al[0].name} 발효 — 날씨 탭을 확인하세요`:`🚨 ${ep.level.head} 접근 — 날씨 탭을 확인하세요`);
   }
 }
 
@@ -2386,7 +2563,7 @@ function updateWeatherDom(){
   set('wx-m15-wrap',wxM15Html());
   set('wx-hour-wrap',wxHourHtml());
   const t=document.getElementById('wx-loc-time');
-  if(t) t.textContent=wx.updated?`${fmtHM(wx.updated)} 갱신`:(wx.err||'불러오는 중…');
+  if(t) t.textContent=wx.updated?`${fmtHM(wx.updated)} 갱신 · ${wx.model&&wx.model.source==='kma'?'기상청':'Open-Meteo'}`:(wx.err||'불러오는 중…');
   const bub=document.getElementById('wx-bubble');
   if(bub&&wxCustomText===null){ bub.value=wxShareText(); wxAutosize(); }
 }
@@ -2401,7 +2578,7 @@ function renderWeather(){
     <div class="wx-loc">
       <span class="wx-loc-name">📍 ${esc(wx.name)} 배송 구역</span>
       <span style="display:flex;align-items:center;gap:8px;">
-        <span class="wx-loc-time" id="wx-loc-time">${wx.updated?fmtHM(wx.updated)+' 갱신':'불러오는 중…'}</span>
+        <span class="wx-loc-time" id="wx-loc-time">${wx.updated?fmtHM(wx.updated)+' 갱신 · '+(wx.model&&wx.model.source==='kma'?'기상청':'Open-Meteo'):'불러오는 중…'}</span>
         <button class="wx-refresh" onclick="showToast('예보 갱신 중…');fetchWeather()">🔄</button>
       </span>
     </div>
@@ -2425,7 +2602,7 @@ function renderWeather(){
       <button class="wx-act-btn copy" onclick="wxCopy()">📋 복사</button>
     </div>
     <button class="wx-linkbtn" style="margin-top:9px" onclick="wxCustomText=null;render();showToast('🔄 기본 문구로 되돌렸습니다')">🔄 문구 원래대로</button>
-    <div class="wx-note">10분마다 예보를 자동 갱신합니다 · 미세먼지는 유럽 대기질 모델 기준이라 에어코리아 수치와 약간 다를 수 있습니다</div>
+    <div class="wx-note">10분마다 자동 갱신 · 예보·실황·특보는 기상청(공공데이터포털), 체감온도·돌풍·미세먼지는 Open-Meteo 기준입니다 · 기상청 응답이 없으면 Open-Meteo 예보로 대신 표시됩니다</div>
     <div style="height:20px"></div>`;
 }
 function afterWeatherRender(){
@@ -3654,6 +3831,8 @@ function openPriceSheet(){
              :'사용 중인 물품이 없습니다';
   const keyEl=document.getElementById('ps-gemini-key');
   if(keyEl) keyEl.value=estKey();
+  const kEl=document.getElementById('ps-kma-key');
+  if(kEl){ let v=''; try{ v=localStorage.getItem('kma-key')||''; }catch(e){} kEl.value=v; }
   updateKeyState();
   document.getElementById('price-sheet').classList.add('show');
 }
@@ -3688,6 +3867,8 @@ function savePrices(){
   const keyEl=document.getElementById('ps-gemini-key');
   const hadKey=!!estKey();
   if(keyEl) estSaveKey(keyEl.value);
+  const kEl=document.getElementById('ps-kma-key');
+  if(kEl){ const before=kmaKey(); kmaSaveKey(kEl.value); if(kmaKey()!==before) fetchWeather(); }
   const nowKey=!!estKey();
   document.getElementById('price-sheet').classList.remove('show');
   updateSummary(); render();
