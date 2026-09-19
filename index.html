@@ -955,6 +955,7 @@ function switchTab(t){
     if(t===MAIN_TAB&&st.sub){ try{ history.back(); return; }catch(e){} }   /* 항목 소비 → popstate 가 메인을 그림 */
     if(t!==MAIN_TAB){ try{ st.sub?history.replaceState({sub:t},''):history.pushState({sub:t},''); }catch(e){} }
   }
+  if(t==='input'&&tab!=='input') skipAutoLoad=false;
   tab=t;
   ['input','est','wx','code','stats','map','car'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
   render();
@@ -1040,6 +1041,7 @@ function render(){
   const frameKey=(tab==='map'||tab==='code')?tab:null;
   showFrameTab(frameKey);
   if(frameKey) return;
+  if(tab==='input') autoLoadRecord();
   c.innerHTML=tab==='input'?renderInput()
     :tab==='est'?renderEst()
     :tab==='wx'?renderWeather()
@@ -1066,7 +1068,7 @@ function renderInput(){
           <div class="ab-item-sub ${KCLS[k]}" id="sub-${k}">${form['qty'+k]?won((Number(form['qty'+k])||0)*PRICE[k]):''}</div>
         </div>`).join('');
   return `
-    ${editId!==null?`<div class="edit-banner">✏️ 수정 모드 — 기존 기록을 수정하고 있습니다</div>`:''}
+    ${editId!==null?`<div class="edit-banner">✏️ ${fmtDate(form.date)} 저장된 기록 — 고쳐서 저장하면 덮어씁니다</div>`:''}
     <div class="field"><label>📅 날짜</label><input type="date" id="f-date" value="${form.date}"></div>
     <div class="ab-box">
       <div class="ab-title">📦 배송 물품 수량 입력 <span style="color:#555">· ⚙️에서 사용 물품을 켜고 끌 수 있어요</span></div>
@@ -1081,7 +1083,7 @@ function renderInput(){
     <div id="dur-area">${renderDurArea()}</div>
     <div class="field"><label>📝 메모 (선택)</label><textarea id="f-memo" placeholder="특이사항, 날씨, 구역 등..." maxlength="300">${esc(form.memo)}</textarea></div>
     <button class="btn-save" id="btn-save-main" onclick="handleSave()">${editId!==null?'✏️ 수정 완료':'💾 저장하기'}</button>
-    ${editId!==null?`<button class="btn-cancel" onclick="cancelEdit()">취소</button>`:''}
+    ${editId!==null?`<button class="btn-cancel" onclick="cancelEdit()">✕ 새로 작성</button>`:''}
     <div style="height:20px"></div>`;
 }
 function seg2Html(){
@@ -1214,7 +1216,17 @@ function updateSaveBtn(){
   btn.classList.toggle('disabled',!ok);
 }
 function bindInputEvents(){
-  document.getElementById('f-date')?.addEventListener('change',e=>{ form.date=e.target.value; updateSaveBtn(); });
+  document.getElementById('f-date')?.addEventListener('change',e=>{
+    readInputForm(); form.date=e.target.value;
+    if(!formDirty()){
+      /* 아직 아무것도 안 고쳤으면 날짜에 맞는 기록으로 갈아끼움 (있으면 그 기록, 없으면 빈 양식) */
+      const r=records.find(x=>x.date===form.date);
+      if(r) loadRecordIntoForm(r);
+      else { const d=form.date; editId=null; form=defForm(); form.date=d; showSeg2=false; showSeg3=false; markFormClean(); }
+      skipAutoLoad=true; render(); return;
+    }
+    updateSaveBtn();
+  });
   KEYS.forEach(k=>document.getElementById('f-q'+k)?.addEventListener('input',onQtyChange));
    ['f-st','f-et','f-st2','f-et2','f-st3','f-et3'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
@@ -1272,22 +1284,41 @@ function commitSave(){
   records.sort((a,b)=>b.date.localeCompare(a.date));
   saveAll();
   form=defForm();
-  showSeg2=false; showSeg3=false;
+  showSeg2=false; showSeg3=false; markFormClean(); skipAutoLoad=false;
   showToast('✅ 저장 완료!');
   statPeriod='daily'; switchTab('stats');
 }
 
-function startEdit(id){
-  const r=records.find(x=>x.id===id); if(!r) return;
-   form={date:r.date,startTime:r.startTime||'',endTime:r.endTime||'',
+/* 기록 한 건을 입력 양식에 올려 수정 모드로 */
+function loadRecordIntoForm(r){
+  form={date:r.date,startTime:r.startTime||'',endTime:r.endTime||'',
         startTime2:r.startTime2||'',endTime2:r.endTime2||'',
         startTime3:r.startTime3||'',endTime3:r.endTime3||'',memo:r.memo||''};
   KEYS.forEach(k=>form['qty'+k]=r['qty'+k]||'');
   showSeg2=!!(r.startTime2||r.endTime2);
   showSeg3=!!(r.startTime3||r.endTime3);
-  editId=id; switchTab('input'); 
+  editId=r.id;
+  markFormClean();
 }
-function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); showSeg2=false; showSeg3=false; render(); }
+function startEdit(id){
+  const r=records.find(x=>x.id===id); if(!r) return;
+  loadRecordIntoForm(r); switchTab('input');
+}
+/* 취소 = 새로 작성: 양식을 비우고, 이번 방문에서는 자동 불러오기를 하지 않는다 (다른 날짜 새 기록용) */
+function cancelEdit(){ editId=null; pendingDupId=null; form=defForm(); showSeg2=false; showSeg3=false; skipAutoLoad=true; markFormClean(); render(); }
+
+/* ── 양식 변경 감지 — 날짜를 뺀 내용이 마지막으로 불러온/비운 시점과 같은지 ── */
+let formBase='', skipAutoLoad=false;
+markFormClean();
+function formSig(f){ const o=Object.assign({},f); delete o.date; return JSON.stringify(o); }
+function markFormClean(){ formBase=formSig(form); }
+function formDirty(){ return formSig(form)!==formBase; }
+/* 입력 탭을 열 때: 손대지 않은 빈 양식이고 그 날짜(보통 오늘) 기록이 있으면 자동으로 올려서 이어서 수정하게 */
+function autoLoadRecord(){
+  if(skipAutoLoad||editId!==null||formDirty()) return;
+  const r=records.find(x=>x.date===form.date);
+  if(r) loadRecordIntoForm(r);
+}
 /* ── 기록 ───────────────────────────────── */
 function renderHistory(){
   if(!records.length) return `<div class="empty">📭 아직 기록이 없어요<br><span style="font-size:12px">첫 배송을 기록해보세요!</span></div>`;
