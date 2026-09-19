@@ -2505,6 +2505,8 @@ function estDefault(){
 function estSanitize(s){
   const out=estDefault();
   if(!s||typeof s!=='object'||Array.isArray(s)) return out;
+  /* 기준 날짜는 "바꾼 날"에만 유지 — 마지막 저장일이 오늘이 아니면 오늘로 돌아온다 */
+  const keepDate = s.savedOn===today();
   out.set=(s.set==='rabbit'||s.set==='both')?s.set:'cj';
   out.cjRatio=Math.min(100,Math.max(1,Number(s.cjRatio)||75));
   out.k2Ratio=Math.min(100,Math.max(0,isNaN(Number(s.k2Ratio))?50:Number(s.k2Ratio)));
@@ -2517,7 +2519,7 @@ function estSanitize(s){
     const src=s[k];
     if(src&&typeof src==='object'&&Array.isArray(src.rows)&&src.rows.length){
       out[k]={
-        date:/^\d{4}-\d{2}-\d{2}$/.test(src.date)?src.date:today(),
+        date:(keepDate&&/^\d{4}-\d{2}-\d{2}$/.test(src.date))?src.date:today(),
         rows:src.rows.map(r=>{
           const dong=String((r&&r.dong)||''), code=String((r&&r.code)||'');
           const qty=String((r&&r.qty)||'').replace(/[^0-9]/g,'');
@@ -2551,7 +2553,7 @@ let estStore=(function(){
     return s;
   }catch(e){ return estDefault(); }
 })();
-function saveEst(){ lsSet('est-v1',JSON.stringify(estStore)); }
+function saveEst(){ estStore.savedOn=today(); lsSet('est-v1',JSON.stringify(estStore)); }
 function estCur(){ return estStore.set==='rabbit'?estStore.rabbit:estStore.cj; }
 function estKeyOf(type){ return type==='rabbit'?estStore.rbKey:estStore.cjKey; }
 function estLabel(type){ return type==='rabbit'?'🐰 딜리래빗':'🟪 CJ 오네'; }
@@ -3143,8 +3145,15 @@ async function estRunMultiOCR(){
 /* ── 🐰 딜리래빗 입고 조회 (LK2 입고 탭에서 가져옴) ── */
 const RB_INBOUND_URL='https://redash.delivus.co.kr/public/dashboards/nEnlpAHhLMe6r28kykOwZvznXK7CmDAPTg8y0A31';
 const RB_INBOUND_PHONE='1036535848';
-function rbLookupDate(){ return localStorage.getItem('rb-lookup-date')||today(); }
-function rbSetLookupDate(v){ localStorage.setItem('rb-lookup-date', v||today()); }
+/* 조회 날짜는 "바꾼 날"에만 유지 — 날이 바뀌면 오늘로 돌아온다 */
+function rbLookupDate(){
+  try{
+    const o=JSON.parse(localStorage.getItem('rb-lookup-date')||'null');
+    if(o&&o.on===today()&&/^\d{4}-\d{2}-\d{2}$/.test(o.date)) return o.date;
+  }catch(e){}
+  return today();
+}
+function rbSetLookupDate(v){ localStorage.setItem('rb-lookup-date', JSON.stringify({date:v||today(),on:today()})); }
 function openRbInbound(){
   const p=new URLSearchParams();
   p.set('org_slug','default');
