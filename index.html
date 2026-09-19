@@ -961,22 +961,36 @@ function switchTab(t){
   render();
   scrollTop();
 }
+const SHEET_SEL='.bottom-sheet-overlay.show,#overlay.show';
 function closeOpenSheets(){
   let n=0;
-  document.querySelectorAll('.bottom-sheet-overlay.show,#overlay.show').forEach(el=>{ el.classList.remove('show'); n++; });
+  document.querySelectorAll(SHEET_SEL).forEach(el=>{ el.classList.remove('show'); n++; });
   return n;
+}
+/* 시트(카톡 보고서·설정·백업·확인창)가 열리면 기록 항목을 하나 얹고, 닫히면 걷어낸다.
+   여는 곳이 여러 군데라 class 변화를 감시하는 방식으로 한 곳에서 처리 */
+function watchSheets(){
+  const els=document.querySelectorAll('.bottom-sheet-overlay,#overlay');
+  const mo=new MutationObserver(()=>{
+    const anyOpen=!!document.querySelector(SHEET_SEL);
+    const st=history.state||{};
+    try{
+      if(anyOpen&&!st.sheet) history.pushState(Object.assign({},st,{sheet:1}),'');
+      else if(!anyOpen&&st.sheet) history.back();   /* 닫기 버튼으로 닫음 → 항목 소비 (뒤로가기 두 번 안 누르게) */
+    }catch(e){}
+  });
+  els.forEach(el=>mo.observe(el,{attributes:true,attributeFilter:['class']}));
 }
 window.addEventListener('popstate',e=>{
   const st=e.state||{};
-  if(closeOpenSheets()){
-    /* 시트만 닫고 지금 탭에 머문다 — 서브탭이면 소비된 항목을 다시 넣어둠 */
-    if(tab!==MAIN_TAB&&!st.sub){ try{ history.pushState({sub:tab},''); }catch(e){} }
-    return;
-  }
+  if(closeOpenSheets()) return;            /* 뒤로가기로 시트 닫힘 — 이미 시트 항목은 빠진 상태 */
+  const target=st.sub||MAIN_TAB;
+  if(target===tab) return;                 /* 남은 시트 항목 정리 등 — 화면 변화 없음 */
   navSilent=true;
-  try{ switchTab(st.sub||MAIN_TAB); } finally{ navSilent=false; }
+  try{ switchTab(target); } finally{ navSilent=false; }
 });
 try{ history.replaceState({},''); }catch(e){}   /* 새로 열었을 때(새로고침 포함) 기록 상태 초기화 */
+watchSheets();
 function scrollTop(){ const c=document.getElementById('content'); if(c) c.scrollTop=0; }
 
 /* ── 🗺 지도 탭 — 말핀(음성 배송 지도) 앱을 프레임으로 띄움 ──
