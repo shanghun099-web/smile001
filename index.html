@@ -1096,7 +1096,7 @@ function renderInput(){
     <div id="dur-area">${renderDurArea()}</div>
     <div class="field"><label>📝 메모 (선택)</label><textarea id="f-memo" placeholder="특이사항, 날씨, 구역 등..." maxlength="300">${esc(form.memo)}</textarea></div>
     <button class="btn-save" id="btn-save-main" onclick="handleSave()">${editId!==null?'✏️ 수정 완료':'💾 저장하기'}</button>
-    ${editId!==null?`<button class="btn-cancel" onclick="cancelEdit()">✕ 새로 작성</button>`:''}
+    ${editId!==null?`<button class="btn-cancel" onclick="askDelete(editId)">🗑 기록 삭제</button>`:''}
     <div style="height:20px"></div>`;
 }
 function seg2Html(){
@@ -1292,14 +1292,17 @@ function commitSave(){
     : currentRates;
 
   if(pendingDupId!==null){ records=records.filter(r=>r.id!==pendingDupId); pendingDupId=null; }
-  if(editId!==null){ records=records.map(r=>r.id===editId?{...form,id:editId,rates:snapshotRates}:r); editId=null; }
-  else records.unshift({...form,id:Date.now(),rates:snapshotRates});
+  let savedId;
+  if(editId!==null){ savedId=editId; records=records.map(r=>r.id===editId?{...form,id:editId,rates:snapshotRates}:r); }
+  else { savedId=Date.now(); records.unshift({...form,id:savedId,rates:snapshotRates}); }
   records.sort((a,b)=>b.date.localeCompare(a.date));
   saveAll();
-  form=defForm();
-  showSeg2=false; showSeg3=false; markFormClean(); skipAutoLoad=false;
+  /* 저장한 기록을 그대로 띄워 둔다 — 탭을 옮기지 않고 이어서 고칠 수 있게 */
+  const saved=records.find(r=>r.id===savedId);
+  if(saved) loadRecordIntoForm(saved); else { editId=null; form=defForm(); showSeg2=false; showSeg3=false; markFormClean(); }
+  skipAutoLoad=false;
+  updateSummary(); render();
   showToast('✅ 저장 완료!');
-  statPeriod='daily'; switchTab('stats');
 }
 
 /* 기록 한 건을 입력 양식에 올려 수정 모드로 */
@@ -4005,7 +4008,11 @@ function confirmDialog(){
     overlay.classList.remove('show');
     commitSave();return;
   }
-  if(deleteId!==null){records=records.filter(r=>r.id!==deleteId);saveAll();showToast('🗑 삭제되었습니다');deleteId=null;}
+  if(deleteId!==null){
+    records=records.filter(r=>r.id!==deleteId);saveAll();showToast('🗑 삭제되었습니다');
+    if(editId===deleteId){ editId=null; pendingDupId=null; form=defForm(); showSeg2=false; showSeg3=false; markFormClean(); }
+    deleteId=null;
+  }
   else if(carDeleteId!==null){carRecords=carRecords.filter(r=>r.id!==carDeleteId);saveCarAll();showToast('🗑 삭제되었습니다');carDeleteId=null;}
   overlay.classList.remove('show');render();
 }
