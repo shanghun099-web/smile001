@@ -1068,7 +1068,6 @@ function renderInput(){
           <div class="ab-item-sub ${KCLS[k]}" id="sub-${k}">${form['qty'+k]?won((Number(form['qty'+k])||0)*PRICE[k]):''}</div>
         </div>`).join('');
   return `
-    ${editId!==null?`<div class="edit-banner">✏️ ${fmtDate(form.date)} 저장된 기록 — 고쳐서 저장하면 덮어씁니다</div>`:''}
     <div class="field"><label>📅 날짜</label><input type="date" id="f-date" value="${form.date}"></div>
     <div class="ab-box">
       <div class="ab-title">📦 배송 물품 수량 입력 <span style="color:#555">· ⚙️에서 사용 물품을 켜고 끌 수 있어요</span></div>
