@@ -57,14 +57,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch;}
 .content.hide{display:none;}
 
-/* ══ 🗺 지도 탭 (말핀 앱을 프레임으로 띄움 — 탭을 오가도 다시 로드하지 않음) ══ */
-#map-host{flex:1;min-height:0;display:none;position:relative;margin:12px 0 0;background:#0E1116;}
-/* 지도 탭에서는 헤더·요약 카드를 접고 탭 바만 남겨 화면 대부분을 지도에 준다 */
+/* ══ 🗺 지도 · 🔑 출입코드 탭 (독립 앱을 프레임으로 띄움 — 탭을 오가도 다시 로드하지 않음) ══ */
+.frame-host{flex:1;min-height:0;display:none;position:relative;margin:12px 0 0;background:#0E1116;}
+/* 프레임 탭에서는 헤더·요약 카드를 접고 탭 바만 남겨 화면 대부분을 앱에 준다 */
 #app.map-mode .header,#app.map-mode .summary,#app.map-mode .wx-strip{display:none;}
 #app.map-mode .tabs{margin:calc(8px + env(safe-area-inset-top,0px)) 10px 0;}
-#app.map-mode #map-host{margin-top:8px;}
-#map-host.show{display:block;}
-#map-host iframe{width:100%;height:100%;border:0;display:block;}
+#app.map-mode .frame-host{margin-top:8px;}
+.frame-host.show{display:block;}
+.frame-host iframe{width:100%;height:100%;border:0;display:block;}
 .map-fail{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;color:var(--sub);font-size:13px;line-height:1.7;}
 .map-fail b{color:var(--text);font-size:15px;}
 .map-fail code{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2px 7px;color:var(--amber2);font-size:12px;}
@@ -615,14 +615,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <button class="tab active" onclick="switchTab('input')" id="tab-input">✏️ 입력</button>
     <button class="tab" onclick="switchTab('est')" id="tab-est">🔮 예상</button>
     <button class="tab" onclick="switchTab('wx')" id="tab-wx">🌤 날씨</button>
-    <button class="tab" onclick="switchTab('history')" id="tab-history">📋 기록</button>
+    <button class="tab" onclick="switchTab('code')" id="tab-code">🔑 출입코드</button>
     <button class="tab" onclick="switchTab('stats')" id="tab-stats">📊 통계</button>
     <button class="tab" onclick="switchTab('map')" id="tab-map">🗺 지도</button>
     <button class="tab" onclick="switchTab('car')" id="tab-car">🚗 차량</button>
   </div>
   <div class="wx-strip" id="wx-strip" onclick="switchTab('wx')"></div>
   <div class="content" id="content"></div>
-  <div id="map-host"></div>
+  <div id="map-host" class="frame-host"></div>
+  <div id="code-host" class="frame-host"></div>
 </div>
 <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(event)">
 
@@ -944,7 +945,7 @@ function updateSummary(){
 
 function switchTab(t){
   tab=t;
-  ['input','est','wx','history','stats','map','car'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
+  ['input','est','wx','code','stats','map','car'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
   render();
   scrollTop();
 }
@@ -957,54 +958,64 @@ function scrollTop(){ const c=document.getElementById('content'); if(c) c.scroll
 /* 말핀이 올라가 있는 깃허브 페이지 주소. 같은 shanghun099-web.github.io 아래라 카카오 키 도메인·저장소(localStorage)를 공유한다.
    같은 폴더에 파일로 두고 쓰려면 'index.html' 처럼 파일 이름을 적으면 된다. */
 const MAP_APP_URL='https://shanghun099-web.github.io/factory1/';
-let mapFrameMade=false;
-function ensureMapFrame(){
-  if(mapFrameMade) return;
-  mapFrameMade=true;
-  /* 예상 탭용 Gemini 키가 있고 말핀 쪽엔 없으면 넘겨준다 (같은 폴더 = 같은 저장소라 그대로 읽힘) */
-  try{
-    const k=lsGet('gemini-key','');
-    if(k&&!localStorage.getItem('malpin.gemini')) localStorage.setItem('malpin.gemini',k);
-  }catch(e){}
-  const host=document.getElementById('map-host');
+const CODE_APP_URL='https://shanghun099-web.github.io/smile5589/';
+/* 프레임으로 띄우는 앱 목록 — host: 프레임 넣을 요소, check: 로드 뒤 정상 여부를 볼 요소 id (같은 도메인일 때만) */
+const FRAME_APPS={
+  map: {url:MAP_APP_URL,  host:'map-host',  title:'말핀 — 음성 배송 지도', check:'map',         label:'🗺 말핀',   urlVar:'MAP_APP_URL'},
+  code:{url:CODE_APP_URL, host:'code-host', title:'출입코드 노트',        check:'searchInput', label:'🔑 출입코드 노트', urlVar:'CODE_APP_URL'}
+};
+const frameMade={};
+function ensureFrame(key){
+  if(frameMade[key]) return;
+  frameMade[key]=true;
+  const app=FRAME_APPS[key];
+  if(key==='map'){
+    /* 예상 탭용 Gemini 키가 있고 말핀 쪽엔 없으면 넘겨준다 (같은 폴더 = 같은 저장소라 그대로 읽힘) */
+    try{
+      const k=lsGet('gemini-key','');
+      if(k&&!localStorage.getItem('malpin.gemini')) localStorage.setItem('malpin.gemini',k);
+    }catch(e){}
+  }
+  const host=document.getElementById(app.host);
   const f=document.createElement('iframe');
-  f.src=MAP_APP_URL;
-  f.title='말핀 — 음성 배송 지도';
+  f.src=app.url;
+  f.title=app.title;
   f.setAttribute('allow','microphone; geolocation; camera');
   f.setAttribute('allowfullscreen','');
   host.appendChild(f);
-  /* 주소가 틀리면 브라우저가 404 페이지를 띄우고 끝나므로, 로드 뒤 말핀 지도 요소가 있는지 확인.
+  /* 주소가 틀리면 브라우저가 404 페이지를 띄우고 끝나므로, 로드 뒤 앱의 핵심 요소가 있는지 확인.
      같은 도메인(github.io 안, 또는 같은 폴더)일 때만 들여다볼 수 있고, 다른 도메인이면 확인 불가 → 정상으로 간주 */
   let sameOrigin=false;
-  try{ sameOrigin=new URL(MAP_APP_URL,location.href).origin===location.origin; }catch(e){}
+  try{ sameOrigin=new URL(app.url,location.href).origin===location.origin; }catch(e){}
   if(sameOrigin) f.onload=()=>{
     let ok=true;
-    try{ const d=f.contentDocument; ok=!!(d&&d.getElementById('map')); }catch(e){}
-    if(!ok) showMapFail(host);
+    try{ const d=f.contentDocument; ok=!!(d&&d.getElementById(app.check)); }catch(e){}
+    if(!ok) showFrameFail(host,app);
   };
 }
-function showMapFail(host){
+function showFrameFail(host,app){
   host.innerHTML=`<div class="map-fail">
-    <b>🗺 말핀을 열지 못했어요</b>
-    <div><code>${esc(MAP_APP_URL)}</code><br>이 주소에서 말핀이 열리는지 확인해주세요</div>
-    <div style="font-size:11px;color:var(--dim)">주소가 바뀌었으면 코드의 MAP_APP_URL 값을 맞춰주세요</div>
+    <b>${app.label}을 열지 못했어요</b>
+    <div><code>${esc(app.url)}</code><br>이 주소에서 앱이 열리는지 확인해주세요</div>
+    <div style="font-size:11px;color:var(--dim)">주소가 바뀌었으면 코드의 ${app.urlVar} 값을 맞춰주세요</div>
   </div>`;
 }
-function showMapTab(on){
-  document.getElementById('app').classList.toggle('map-mode',on);
-  document.getElementById('content').classList.toggle('hide',on);
-  document.getElementById('map-host').classList.toggle('show',on);
-  if(on) ensureMapFrame();
+/* 프레임 탭 표시 — key 가 null 이면 모두 숨김 */
+function showFrameTab(key){
+  document.getElementById('app').classList.toggle('map-mode',!!key);
+  document.getElementById('content').classList.toggle('hide',!!key);
+  Object.keys(FRAME_APPS).forEach(k=>document.getElementById(FRAME_APPS[k].host).classList.toggle('show',k===key));
+  if(key) ensureFrame(key);
 }
 
 function render(){
   const c=document.getElementById('content');
-  showMapTab(tab==='map');
-  if(tab==='map') return;
+  const frameKey=(tab==='map'||tab==='code')?tab:null;
+  showFrameTab(frameKey);
+  if(frameKey) return;
   c.innerHTML=tab==='input'?renderInput()
     :tab==='est'?renderEst()
     :tab==='wx'?renderWeather()
-    :tab==='history'?renderHistory()
     :tab==='car'?renderCarTab()
     :renderStats();
   if(tab==='input') bindInputEvents();
@@ -1236,7 +1247,7 @@ function commitSave(){
   form=defForm();
   showSeg2=false; showSeg3=false;
   showToast('✅ 저장 완료!');
-  switchTab('history');
+  statPeriod='daily'; switchTab('stats');
 }
 
 function startEdit(id){
@@ -1526,9 +1537,12 @@ function shortWon(n){
 
 function renderStats(){
   const periodBar=`<div class="period-tabs">
+    <button class="period-tab ${statPeriod==='daily'?'active':''}" onclick="statPeriod='daily';render();scrollTop()">📋 일일</button>
     <button class="period-tab ${statPeriod==='week'?'active':''}" onclick="statPeriod='week';jumpToCurrentWeek(false)">📅 주간</button>
     <button class="period-tab ${statPeriod==='month'?'active':''}" onclick="statPeriod='month';render()">🗓 월별</button>
   </div>`;
+  /* 일일 = 예전 기록 탭 — 날짜별 배송 카드 목록 */
+  if(statPeriod==='daily') return periodBar+renderHistory();
 
   let filtered=[],navHtml='',blockTitle='',calHtml='';
 
