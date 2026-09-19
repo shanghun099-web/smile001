@@ -980,7 +980,7 @@ function ensureFrame(key){
   const f=document.createElement('iframe');
   f.src=app.url;
   f.title=app.title;
-  f.setAttribute('allow','microphone; geolocation; camera');
+  f.setAttribute('allow','microphone; geolocation; camera; clipboard-write; web-share');
   f.setAttribute('allowfullscreen','');
   host.appendChild(f);
   /* 주소가 틀리면 브라우저가 404 페이지를 띄우고 끝나므로, 로드 뒤 앱의 핵심 요소가 있는지 확인.
