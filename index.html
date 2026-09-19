@@ -943,12 +943,39 @@ function updateSummary(){
   document.getElementById('s-spd').textContent=avgSpd!==null?avgSpd+'건':'-건';
 }
 
+/* ── 📱 폰 뒤로가기 ──
+   웹앱은 탭 전환이 브라우저 기록에 남지 않아 뒤로가기 = 앱 종료가 된다.
+   메인(입력) 탭이 아닌 탭으로 갈 때 기록 항목을 하나만 넣어두고(여러 탭을 오가도 갈아끼움),
+   뒤로가기가 오면 열린 시트가 있으면 그것부터 닫고, 없으면 메인 탭으로 돌아온다. 메인에서 한 번 더 누르면 원래대로 종료. */
+const MAIN_TAB='input';
+let navSilent=false;   /* popstate 로 인한 전환 중엔 기록을 건드리지 않음 */
 function switchTab(t){
+  if(!navSilent){
+    const st=history.state||{};
+    if(t===MAIN_TAB&&st.sub){ try{ history.back(); return; }catch(e){} }   /* 항목 소비 → popstate 가 메인을 그림 */
+    if(t!==MAIN_TAB){ try{ st.sub?history.replaceState({sub:t},''):history.pushState({sub:t},''); }catch(e){} }
+  }
   tab=t;
   ['input','est','wx','code','stats','map','car'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('active',x===t));
   render();
   scrollTop();
 }
+function closeOpenSheets(){
+  let n=0;
+  document.querySelectorAll('.bottom-sheet-overlay.show,#overlay.show').forEach(el=>{ el.classList.remove('show'); n++; });
+  return n;
+}
+window.addEventListener('popstate',e=>{
+  const st=e.state||{};
+  if(closeOpenSheets()){
+    /* 시트만 닫고 지금 탭에 머문다 — 서브탭이면 소비된 항목을 다시 넣어둠 */
+    if(tab!==MAIN_TAB&&!st.sub){ try{ history.pushState({sub:tab},''); }catch(e){} }
+    return;
+  }
+  navSilent=true;
+  try{ switchTab(st.sub||MAIN_TAB); } finally{ navSilent=false; }
+});
+try{ history.replaceState({},''); }catch(e){}   /* 새로 열었을 때(새로고침 포함) 기록 상태 초기화 */
 function scrollTop(){ const c=document.getElementById('content'); if(c) c.scrollTop=0; }
 
 /* ── 🗺 지도 탭 — 말핀(음성 배송 지도) 앱을 프레임으로 띄움 ──
