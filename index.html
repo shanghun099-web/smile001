@@ -3245,10 +3245,10 @@ function renderEstBoth(){
 
     <button class="est-btn ghost" style="width:100%;margin-bottom:12px;border-color:#5a2020;color:#f08a8a" onclick="estRefreshBoth()">🔄 새로고침 — 사진 · 건수 모두 비우기</button>
 
-          <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
-      <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
-
     ${rbLookupHtml()}
+
+    <div class="field"><label>📅 기준 날짜 (오네 · 딜리 동시 적용)</label>
+      <input type="date" value="${estStore.cj.date}" onchange="estSetBothDate(this.value)"></div>
 
     <div class="est-box">
       <div class="est-box-title">🪄 물량표 이미지 2장을 한 번에 (오네 · 딜리 자동 구분)</div>
@@ -3309,10 +3309,10 @@ function renderEst(){
     ${estTabsHtml()}
     ${estMiniTotalHtml()}
 
+    ${isCJ?'':rbLookupHtml()}
+
     <div class="field"><label>📅 기준 날짜</label>
       <input type="date" value="${cur.date}" onchange="estSetDate(this.value)"></div>
-
-    ${isCJ?'':rbLookupHtml()}
 
     <div class="est-box">
       <div class="est-box-title">🪄 이미지 · 표로 한 번에 채우기</div>
