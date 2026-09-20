@@ -53,6 +53,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .tabs{display:flex;margin:12px 14px 0;border-radius:12px;overflow:hidden;background:var(--card);flex-shrink:0;}
 .tab{flex:1;padding:11px 0;border:none;font-size:10.5px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
 .tab.active{background:var(--orange);color:#fff;}
+/* ── 탭 순서 변경 (꾹 눌러 가로로 끌기) ── */
+.tabs{position:relative;}
+.tab.tab-press{background:rgba(255,140,0,.18);}
+.tab.tab-drag{opacity:.28;}
+body.tab-dragging{user-select:none;-webkit-user-select:none;}
+#tab-ghost{position:fixed;z-index:450;pointer-events:none;display:none;
+  background:var(--card2);border:1.5px solid var(--orange);border-radius:11px;
+  padding:0 12px;font-size:10.5px;font-weight:700;color:var(--text);
+  white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.6);transform:scale(1.08);}
+.tab-slot{flex:0 0 3px;align-self:stretch;background:var(--orange);border-radius:3px;margin:6px 0;}
 .tab:not(.active){background:transparent;color:var(--sub);}
 .content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch;}
 .content.hide{display:none;}
@@ -621,6 +631,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
     <button class="tab" onclick="switchTab('car')" id="tab-car">🚗 차량</button>
   </div>
   <div class="wx-strip" id="wx-strip" onclick="switchTab('wx')"></div>
+  <div id="tab-ghost"></div>
   <div class="content" id="content"></div>
   <div id="map-host" class="frame-host"></div>
   <div id="code-host" class="frame-host"></div>
@@ -949,7 +960,134 @@ function updateSummary(){
    뒤로가기가 오면 열린 시트가 있으면 그것부터 닫고, 없으면 메인 탭으로 돌아온다. 메인에서 한 번 더 누르면 원래대로 종료. */
 const MAIN_TAB='input';
 let navSilent=false;   /* popstate 로 인한 전환 중엔 기록을 건드리지 않음 */
+/* ===== 탭 순서 저장 · 꾹 눌러 가로 이동 ===== */
+const ALL_TABS=['input','est','wx','code','stats','map','car'];
+function getTabOrder(){
+  let saved=[]; try{ saved=JSON.parse(lsGet('tab-order','[]'))||[]; }catch(e){ saved=[]; }
+  const valid=saved.filter(t=>ALL_TABS.indexOf(t)>=0);
+  ALL_TABS.forEach(t=>{ if(valid.indexOf(t)<0) valid.push(t); });
+  return valid;
+}
+function saveTabOrder(arr){ lsSet('tab-order',JSON.stringify(arr)); }
+function applyTabOrder(){
+  const bar=document.querySelector('.tabs'); if(!bar) return;
+  getTabOrder().forEach(t=>{ const el=document.getElementById('tab-'+t); if(el) bar.appendChild(el); });
+}
+function readTabOrderFromDom(){
+  const bar=document.querySelector('.tabs'); if(!bar) return ALL_TABS.slice();
+  return [...bar.children].filter(el=>el.id&&el.id.indexOf('tab-')===0).map(el=>el.id.slice(4)).filter(t=>ALL_TABS.indexOf(t)>=0);
+}
+const TabDND = {
+  active:false, el:null, ghost:null, slot:null,
+  timer:null, sx:0, sy:0, offX:0, moved:false,
+  _mv:null, _up:null, _early:null,
+
+  start(e, el){
+    if(this.active) return;
+    const t = e.touches ? e.touches[0] : e;
+    this.el = el; this.sx = t.clientX; this.sy = t.clientY; this.moved = false;
+    el.classList.add('tab-press');
+
+    this._early = ev => {
+      const p = ev.touches ? ev.touches[0] : ev;
+      if(Math.abs(p.clientX - this.sx) > 8 || Math.abs(p.clientY - this.sy) > 8){
+        clearTimeout(this.timer); this.timer = null;
+        el.classList.remove('tab-press');
+        document.removeEventListener('touchmove', this._early);
+      }
+    };
+    document.addEventListener('touchmove', this._early, {passive:true});
+
+    this.timer = setTimeout(() => {
+      document.removeEventListener('touchmove', this._early);
+      this._activate(t);
+    }, 500);
+  },
+
+  _activate(t){
+    if(!this.el) return;
+    this.active = true; this.moved = true;
+    if(navigator.vibrate) navigator.vibrate(30);
+    this.el.classList.remove('tab-press');
+
+    const r = this.el.getBoundingClientRect();
+    this.offX = t.clientX - r.left;
+
+    const g = document.getElementById('tab-ghost');
+    g.textContent = this.el.textContent.trim();
+    g.style.display = 'block';
+    g.style.left = r.left + 'px';
+    g.style.top  = r.top + 'px';
+    g.style.height = r.height + 'px';
+    g.style.lineHeight = r.height + 'px';
+    this.ghost = g;
+
+    this.el.classList.add('tab-drag');
+    this.slot = document.createElement('div');
+    this.slot.className = 'tab-slot';
+    this.el.parentNode.insertBefore(this.slot, this.el);
+
+    document.body.classList.add('tab-dragging');
+    this._mv = ev => this._move(ev);
+    this._up = () => this._end();
+    document.addEventListener('touchmove', this._mv, {passive:false});
+    document.addEventListener('touchend', this._up, {passive:true});
+    document.addEventListener('touchcancel', this._up, {passive:true});
+  },
+
+  _move(e){
+    if(!this.active) return;
+    if(e.cancelable) e.preventDefault();
+    const t = e.touches ? e.touches[0] : e;
+    this.ghost.style.left = (t.clientX - this.offX) + 'px';
+
+    const bar = this.el.parentNode;
+    const sibs = [...bar.children].filter(c => c !== this.el && c !== this.slot && c.classList.contains('tab'));
+    let before = null;
+    for(const s of sibs){
+      const r = s.getBoundingClientRect();
+      if(t.clientX < r.left + r.width/2){ before = s; break; }
+    }
+    if(before) bar.insertBefore(this.slot, before);
+    else bar.appendChild(this.slot);
+  },
+
+  _end(){
+    if(this.active && this.slot && this.el){
+      this.slot.parentNode.insertBefore(this.el, this.slot);
+      saveTabOrder(readTabOrderFromDom());
+      showToast('✅ 탭 순서를 저장했어요');
+    }
+    this._cleanup();
+  },
+
+  _cleanup(){
+    clearTimeout(this.timer); this.timer = null;
+    if(this._early) document.removeEventListener('touchmove', this._early);
+    if(this._mv) document.removeEventListener('touchmove', this._mv, {passive:false});
+    if(this._up){ document.removeEventListener('touchend', this._up); document.removeEventListener('touchcancel', this._up); }
+    if(this.ghost){ this.ghost.style.display = 'none'; this.ghost.textContent = ''; }
+    if(this.slot && this.slot.parentNode) this.slot.parentNode.removeChild(this.slot);
+    if(this.el){ this.el.classList.remove('tab-press','tab-drag'); }
+    document.body.classList.remove('tab-dragging');
+    const wasActive = this.active;
+    this.active = false; this.el = null; this.ghost = null; this.slot = null;
+    this._mv = this._up = this._early = null;
+    setTimeout(()=>{ TabDND.moved = false; }, wasActive ? 260 : 0);
+  }
+};
+
+function initTabDND(){
+  applyTabOrder();
+  document.querySelectorAll('.tabs .tab').forEach(el=>{
+    el.addEventListener('touchstart',e=>TabDND.start(e,el),{passive:true});
+    el.addEventListener('touchend',()=>{ if(!TabDND.active){ clearTimeout(TabDND.timer); el.classList.remove('tab-press'); } },{passive:true});
+    el.addEventListener('contextmenu',e=>e.preventDefault());
+  });
+}
+
 function switchTab(t){
+  if(TabDND.active||TabDND.moved) return;   /* 끌어서 옮기는 중엔 탭 전환 안 함 */
   if(!navSilent){
     const st=history.state||{};
     if(t===MAIN_TAB&&st.sub){ try{ history.back(); return; }catch(e){} }   /* 항목 소비 → popstate 가 메인을 그림 */
@@ -4298,6 +4436,7 @@ function refreshTodayLabel(){
 refreshTodayLabel();
 updateSummary();
 render();
+initTabDND();
 
 /* 날씨 자동 갱신 — 화면이 보일 때만 */
 fetchWeather();
