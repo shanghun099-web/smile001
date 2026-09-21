@@ -100,6 +100,8 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .ab-item-label.d,.ab-item-sub.d{color:var(--pink2);}
 .ab-item-label.e,.ab-item-sub.e{color:var(--teal2);}
 .ab-item-label.f,.ab-item-sub.f{color:var(--amber2);}
+.ab-item-label.g,.ab-item-sub.g{color:var(--purple2);}
+.ab-item-label.h,.ab-item-sub.h{color:var(--red2);}
 .ab-item input{width:100%;background:var(--card);border:2px solid var(--border);border-radius:10px;padding:12px 5px;font-size:20px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;letter-spacing:1px;}
 .ab-item input:focus{border-color:var(--orange);background:var(--card);}
 .ab-item-price{font-size:9px;color:var(--sub);margin-top:7px;text-align:center;white-space:nowrap;}
@@ -151,6 +153,8 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .rec-item.d{background:#20101a;border:1px solid #400f2d;}
 .rec-item.e{background:#0d1a1a;border:1px solid #0f3030;}
 .rec-item.f{background:#1a1608;border:1px solid #3a3010;}
+.rec-item.g{background:#17132a;border:1px solid #2e2650;}
+.rec-item.h{background:#1f1010;border:1px solid #402020;}
 .rec-item-lbl{font-size:10px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .rec-item-lbl.a,.rec-item-qty.a{color:var(--orange2);}
 .rec-item-lbl.b,.rec-item-qty.b{color:var(--blue2);}
@@ -158,6 +162,8 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .rec-item-lbl.d,.rec-item-qty.d{color:var(--pink2);}
 .rec-item-lbl.e,.rec-item-qty.e{color:var(--teal2);}
 .rec-item-lbl.f,.rec-item-qty.f{color:var(--amber2);}
+.rec-item-lbl.g,.rec-item-qty.g{color:var(--purple2);}
+.rec-item-lbl.h,.rec-item-qty.h{color:var(--red2);}
 .rec-item-qty{font-size:16px;font-weight:900;}
 .rec-item-amt{font-size:10px;color:var(--sub);margin-top:2px;white-space:nowrap;}
 .rec-pay{background:var(--card2);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
@@ -780,13 +786,13 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 const TAX=0.033;
 const DAYS=['일','월','화','수','목','금','토'];
 
-/* ── 물품 6종 정의 ─────────────────────── */
-const KEYS=['A','B','C','D','E','F'];
-const KEMO={A:'🅰',B:'🅱',C:'🅲',D:'🅳',E:'🅴',F:'🅵'};
-const KCLS={A:'a',B:'b',C:'c',D:'d',E:'e',F:'f'};
-const KCOL={A:'var(--orange2)',B:'var(--blue2)',C:'var(--green2)',D:'var(--pink2)',E:'var(--teal2)',F:'var(--amber2)'};
-const DEF_NAME={A:'오네',B:'오네 책',C:'딜리',D:'물품 D',E:'물품 E',F:'물품 F'};
-const DEF_PRICE={A:1400,B:1200,C:1200,D:1000,E:1000,F:1000};
+/* ── 물품 8종 정의 ─────────────────────── */
+const KEYS=['A','B','C','D','E','F','G','H'];
+const KEMO={A:'🅰',B:'🅱',C:'🅲',D:'🅳',E:'🅴',F:'🅵',G:'🅶',H:'🅷'};
+const KCLS={A:'a',B:'b',C:'c',D:'d',E:'e',F:'f',G:'g',H:'h'};
+const KCOL={A:'var(--orange2)',B:'var(--blue2)',C:'var(--green2)',D:'var(--pink2)',E:'var(--teal2)',F:'var(--amber2)',G:'var(--purple2)',H:'var(--red2)'};
+const DEF_NAME={A:'오네',B:'오네 책',C:'딜리',D:'물품 D',E:'물품 E',F:'물품 F',G:'물품 G',H:'물품 H'};
+const DEF_PRICE={A:1400,B:1200,C:1200,D:1000,E:1000,F:1000,G:1000,H:1000};
 
 /* ── 유틸 ───────────────────────────────── */
 function today(){
@@ -1277,7 +1283,7 @@ function removeSeg2(){ readInputForm(); form.startTime2=''; form.endTime2=''; fo
 function addSeg3(){ readInputForm(); showSeg3=true; render(); }
 function removeSeg3(){ readInputForm(); form.startTime3=''; form.endTime3=''; showSeg3=false; render(); }
 function renderCalcArea(){
-  const p=calcPay(form,{A:PRICE.A,B:PRICE.B,C:PRICE.C,D:PRICE.D,E:PRICE.E,F:PRICE.F});
+  const p=calcPay(form,PRICE);
   if(p.qty===0) return '';
   const rows=KEYS.filter(k=>p.q[k]>0).map(k=>
     `<div class="calc-row"><span class="calc-label">${KEMO[k]} ${esc(NAME[k])} ${p.q[k].toLocaleString()}건</span><span class="calc-val" style="color:${KCOL[k]}">${won(p.amt[k])}</span></div>`
@@ -3896,16 +3902,16 @@ function generateDailyReportText() {
     if (activeItems.length === 0) return `📦 [${areaVal}] ${shortDate} 배송\n⚠️ 기록된 배송 물량이 없습니다.`;
     if (dailyStyle === 'style3') {          // 간결1: 출발/완료 각 한 줄, 물품은 · 로
       const items = activeItems.map(it => `${it.name} ${it.qty}`).join(' · ');
-      text = `📦 [${areaVal}] ${shortDate} 배송\n` + stages.map(st => st==='start' ? `🚚 출발: ${items}` : `✅ 완료: ${items}`).join('\n');
+      text = `📦 [${areaVal}] ${shortDate} 배송\n` + stages.map(st => st==='start' ? `🚚 출발: ${items}` : `🏁 완료: ${items}`).join('\n');
     } else if (dailyStyle === 'style4') {   // 간결2: 첫 줄에 총 개수
       const items = activeItems.map(it => `${it.name} ${it.qty}`).join(' / ');
-      text = `📦 [${areaVal}] ${shortDate} · 총 ${totalQty}개\n` + stages.map(st => st==='start' ? `🚚 출발 | ${items}` : `✅ 완료 | ${items}`).join('\n');
+      text = `🗓 [${areaVal}] ${shortDate} · 총 ${totalQty}개\n` + stages.map(st => st==='start' ? `🚛 출발 | ${items}` : `✔️ 완료 | ${items}`).join('\n');
     } else if (dailyStyle === 'style5') {   // 간결3: 이모지 없이 글자만
       const items = activeItems.map(it => `${it.name} ${it.qty}`).join(', ');
       text = `[${areaVal}] ${shortDate} 배송\n` + stages.map(st => st==='start' ? `출발 - ${items}` : `완료 - ${items}`).join('\n');
     } else {                                // 한줄: 전부 한 줄
       const items = activeItems.map(it => `${it.name}${it.qty}`).join('·');
-      const parts = stages.map(st => st==='start' ? `🚚출발 ${items}` : `✅완료 ${items}`);
+      const parts = stages.map(st => st==='start' ? `🚀출발 ${items}` : `🎯완료 ${items}`);
       text = `📦 [${areaVal}] ${shortDate} ${parts.join(' → ')}`;
     }
   } else if (dailyStyle === 'style1') {
