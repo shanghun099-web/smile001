@@ -672,6 +672,10 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
       <div style="font-size:10px;color:var(--sub);margin-bottom:6px;letter-spacing:0.5px;">🎨 이모지 스타일 선택</div>
       <div class="report-format-tabs" style="margin-bottom:12px;">
         <div class="report-format-tab active" onclick="setDailyStyle('style1')" id="d-style-style1">기본형</div>
+        <div class="report-format-tab" onclick="setDailyStyle('style3')" id="d-style-style3">간결1</div>
+        <div class="report-format-tab" onclick="setDailyStyle('style4')" id="d-style-style4">간결2</div>
+        <div class="report-format-tab" onclick="setDailyStyle('style5')" id="d-style-style5">간결3</div>
+        <div class="report-format-tab" onclick="setDailyStyle('style6')" id="d-style-style6">한줄</div>
         <div class="report-format-tab" onclick="setDailyStyle('style2')" id="d-style-style2">카드형</div>
       </div>
 
@@ -3822,7 +3826,7 @@ function setDailyType(type) {
 function setDailyStyle(st) {
   dailyStyle = st;
   lsSet('dlv-daily-style', st);
-  ['style1','style2'].forEach(s=>{
+  ['style1','style3','style4','style5','style6','style2'].forEach(s=>{
     const btn=document.getElementById('d-style-'+s);
     if(btn) btn.classList.toggle('active', s===st);
   });
@@ -3884,7 +3888,27 @@ function generateDailyReportText() {
   const activeItems = KEYS.map(k=>({name:NAME[k],qty:rec?(Number(rec['qty'+k])||0):0})).filter(it=>it.qty>0);
 
   let text = '';
-  if (dailyStyle === 'style1') {
+  /* 간결형 4종 — 기본형처럼 카톡 줄 수를 최소로. 날짜는 짧게(9/21(월)) */
+  const shortDate = `${d.getMonth()+1}/${d.getDate()}(${DAYS[d.getDay()]})`;
+  const totalQty = activeItems.reduce((a,it)=>a+it.qty,0);
+  const stages = dailyType==='both' ? ['start','end'] : [dailyType];
+  if (['style3','style4','style5','style6'].includes(dailyStyle)) {
+    if (activeItems.length === 0) return `📦 [${areaVal}] ${shortDate} 배송\n⚠️ 기록된 배송 물량이 없습니다.`;
+    if (dailyStyle === 'style3') {          // 간결1: 출발/완료 각 한 줄, 물품은 · 로
+      const items = activeItems.map(it => `${it.name} ${it.qty}`).join(' · ');
+      text = `📦 [${areaVal}] ${shortDate} 배송\n` + stages.map(st => st==='start' ? `🚚 출발: ${items}` : `✅ 완료: ${items}`).join('\n');
+    } else if (dailyStyle === 'style4') {   // 간결2: 첫 줄에 총 개수
+      const items = activeItems.map(it => `${it.name} ${it.qty}`).join(' / ');
+      text = `📦 [${areaVal}] ${shortDate} · 총 ${totalQty}개\n` + stages.map(st => st==='start' ? `🚚 출발 | ${items}` : `✅ 완료 | ${items}`).join('\n');
+    } else if (dailyStyle === 'style5') {   // 간결3: 이모지 없이 글자만
+      const items = activeItems.map(it => `${it.name} ${it.qty}`).join(', ');
+      text = `[${areaVal}] ${shortDate} 배송\n` + stages.map(st => st==='start' ? `출발 - ${items}` : `완료 - ${items}`).join('\n');
+    } else {                                // 한줄: 전부 한 줄
+      const items = activeItems.map(it => `${it.name}${it.qty}`).join('·');
+      const parts = stages.map(st => st==='start' ? `🚚출발 ${items}` : `✅완료 ${items}`);
+      text = `📦 [${areaVal}] ${shortDate} ${parts.join(' → ')}`;
+    }
+  } else if (dailyStyle === 'style1') {
     if (activeItems.length === 0) {
       text = `📦 [${areaVal}] ${titleDate} 배송\n\n⚠️ 기록된 배송 물량이 없습니다.`;
     } else {
