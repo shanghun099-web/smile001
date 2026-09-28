@@ -65,6 +65,15 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .tab-slot{flex:0 0 3px;align-self:stretch;background:var(--orange);border-radius:3px;margin:6px 0;}
 .tab:not(.active){background:transparent;color:var(--sub);}
 .content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch;}
+
+/* ── 🔒 입력 탭 자동 잠금 ── */
+#lock-ov{position:fixed;z-index:150;display:none;align-items:center;justify-content:center;
+  background:rgba(10,12,18,0.52);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);}
+#lock-ov.show{display:flex;}
+.lock-pill{background:rgba(24,27,36,0.96);border:1.5px solid var(--orange);border-radius:30px;
+  padding:13px 22px;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,0.55);}
+.lock-pill b{display:block;font-size:14.5px;font-weight:900;color:var(--orange2);}
+.lock-pill small{display:block;font-size:10.5px;font-weight:700;color:var(--sub);margin-top:4px;}
 .content.hide{display:none;}
 
 /* ══ 🗺 지도 · 🔑 출입코드 탭 (독립 앱을 프레임으로 띄움 — 탭을 오가도 다시 로드하지 않음) ══ */
@@ -641,6 +650,7 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
   <div class="content" id="content"></div>
   <div id="map-host" class="frame-host"></div>
   <div id="code-host" class="frame-host"></div>
+  <div id="lock-ov"><div class="lock-pill"><b>🔒 화면 잠금</b><small>화면을 한 번 탭하면 풀려요</small></div></div>
 </div>
 <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(event)">
 
@@ -1212,6 +1222,59 @@ function render(){
   if(tab==='input') bindInputEvents();
   if(tab==='car'&&carSubTab==='input') bindCarEvents();
   if(tab==='wx') afterWeatherRender();
+  if(tab==='input') lockArm(); else lockOff();
+}
+
+/* ── 🔒 입력 탭 자동 잠금 ─────────────────
+   입력 탭을 띄워둔 채 모르는 사이에 화면이 눌려 수량·시간이 바뀌거나
+   저장·삭제가 눌리는 걸 막는다. 10초간 손을 안 대면 잠그고, 한 번 탭하면 바로 풀린다. */
+const LOCK_MS=10000;
+let lockTimer=null, inputLocked=false;
+
+function lockPlace(){
+  const c=document.getElementById('content'), ov=document.getElementById('lock-ov');
+  if(!c||!ov) return;
+  const r=c.getBoundingClientRect();
+  ov.style.top=r.top+'px'; ov.style.left=r.left+'px';
+  ov.style.width=r.width+'px'; ov.style.height=r.height+'px';
+}
+function lockNow(){
+  if(inputLocked||tab!=='input') return;
+  clearTimeout(lockTimer); lockTimer=null;
+  inputLocked=true;
+  try{ document.activeElement&&document.activeElement.blur&&document.activeElement.blur(); }catch(e){}
+  lockPlace();
+  document.getElementById('lock-ov')?.classList.add('show');
+}
+function lockArm(){                    /* 무언가 조작했으니 10초 다시 시작 */
+  clearTimeout(lockTimer); lockTimer=null;
+  if(tab!=='input'||inputLocked) return;
+  lockTimer=setTimeout(lockNow,LOCK_MS);
+}
+function lockRelease(){                /* 탭해서 잠금 해제 */
+  inputLocked=false;
+  document.getElementById('lock-ov')?.classList.remove('show');
+  lockArm();
+}
+function lockOff(){                    /* 입력 탭을 벗어남 — 잠금·타이머 모두 끔 */
+  clearTimeout(lockTimer); lockTimer=null;
+  inputLocked=false;
+  document.getElementById('lock-ov')?.classList.remove('show');
+}
+function initLock(){
+  const ov=document.getElementById('lock-ov');
+  if(ov){
+    /* touchstart 에서 막아야 해제하는 그 터치가 아래 입력칸까지 전달되지 않는다 */
+    ov.addEventListener('touchstart',e=>{ e.preventDefault(); lockRelease(); },{passive:false});
+    ov.addEventListener('click',e=>{ e.preventDefault(); lockRelease(); });
+  }
+  const c=document.getElementById('content');
+  if(c) ['touchstart','mousedown','keydown','input','change','focusin','scroll']
+    .forEach(ev=>c.addEventListener(ev,()=>{ if(!inputLocked) lockArm(); },{passive:true}));
+  window.addEventListener('resize',()=>{ if(inputLocked) lockPlace(); });
+  if(window.visualViewport) visualViewport.addEventListener('resize',()=>{ if(inputLocked) lockPlace(); });
+  /* 다른 앱에 갔다 오거나 화면이 꺼졌다 켜지면 바로 잠근다 */
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState!=='visible') lockNow(); });
 }
 
 /* ── 배송 입력 ──────────────────────────── */
@@ -4468,6 +4531,7 @@ refreshTodayLabel();
 updateSummary();
 render();
 initTabDND();
+initLock();
 
 /* 날씨 자동 갱신 — 화면이 보일 때만 */
 fetchWeather();
