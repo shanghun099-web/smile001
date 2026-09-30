@@ -39,7 +39,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .header-title{font-size:24px;font-weight:900;}
 .header-date{font-size:11px;opacity:0.75;margin-top:2px;}
 .header-actions{position:relative;z-index:1;display:flex;gap:8px;align-items:flex-end;}
-.header-icon-btn{background:rgba(0,0,0,0.2);border:1.5px solid rgba(255,255,255,0.3);border-radius:14px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(4px);transition:all 0.15s;}
+.header-icon-btn{position:relative;background:rgba(0,0,0,0.2);border:1.5px solid rgba(255,255,255,0.3);border-radius:14px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(4px);transition:all 0.15s;}
 .header-icon-btn:active{background:rgba(0,0,0,0.4);transform:scale(0.91);}
 .header-icon-btn.kakao { background: #FEE500; border-color: #FEE500; color: #191919; font-size: 22px; }
 .header-icon-btn.kakao:active { background: #E6CF00; }
@@ -571,6 +571,15 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .btn-bk-excel{background:linear-gradient(135deg,#0f2a1a,#0c2015);color:#6ee7a5;border:1.5px solid #1d5a3a;}
 .btn-bk-reset{background:linear-gradient(135deg,#3a1414,#2a0f0f);color:#f06060;border:1.5px solid #5a2020;}
 .backup-hint{font-size:10px;color:#777;text-align:center;margin-bottom:14px;}
+/* ── 💾 백업 알림 ── */
+.bk-badge{display:none;position:absolute;top:-6px;right:-7px;min-width:19px;height:19px;padding:0 5px;
+  border-radius:99px;background:#dc2626;color:#fff;font-size:10px;font-weight:900;line-height:19px;
+  text-align:center;box-shadow:0 0 0 2px var(--orange);font-family:inherit;}
+.bk-badge.on{display:block;}
+.bk-status{font-size:11.5px;font-weight:700;line-height:1.55;padding:10px 12px;border-radius:10px;margin-bottom:12px;}
+.bk-status.warn{background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.35);color:#f08a8a;}
+.bk-status.ok{background:rgba(92,184,92,0.10);border:1px solid rgba(92,184,92,0.30);color:var(--green2);}
+.bk-status.info{background:var(--card2);border:1px solid var(--border);color:var(--sub);}
 .btn-sheet-close{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;color:var(--sub);background:transparent;cursor:pointer;font-family:inherit;}
 
 .report-mode-tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
@@ -621,7 +630,7 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
         </svg>
       </div>
       <div class="header-icon-btn" onclick="openPriceSheet()" title="설정">⚙️</div>
-      <div class="header-icon-btn" onclick="openBackupSheet()" title="백업">💾</div>
+      <div class="header-icon-btn" onclick="openBackupSheet()" title="백업">💾<span class="bk-badge" id="bk-badge"></span></div>
     </div>
   </div>
   <div class="summary">
@@ -772,6 +781,7 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
   <div class="bottom-sheet">
     <div class="sheet-title">💾 데이터 백업 / 복원</div>
     <div class="sheet-sub" id="backup-sheet-sub">배송 0건 · 차량 0건 저장됨</div>
+    <div class="bk-status info" id="bk-status"></div>
     <div class="backup-btns">
       <button class="btn-bk btn-bk-export" onclick="exportData()">📤 내보내기<br><span style="font-size:10px;font-weight:400;opacity:0.8">JSON 파일 저장</span></button>
       <button class="btn-bk btn-bk-import" onclick="document.getElementById('import-file').click()">📥 불러오기<br><span style="font-size:10px;font-weight:400;opacity:0.8">JSON 파일 복원</span></button>
@@ -977,6 +987,7 @@ function updateSummary(){
   document.getElementById('s-mNet').textContent=mn>=10000?Math.round(mn/1000)/10+'만원':won(mn);
   document.getElementById('s-mGross').textContent='총액 '+(mg>=10000?Math.round(mg/1000)/10+'만원':won(mg));
   document.getElementById('s-spd').textContent=avgSpd!==null?avgSpd+'건':'-건';
+  updateBackupBadge();
 }
 
 /* ── 📱 폰 뒤로가기 ──
@@ -1927,7 +1938,7 @@ function defCarForm(){
   const last=carRecords.slice().sort((a,b)=>b.date.localeCompare(a.date)).find(r=>parseNum(r.kmEnd)>0);
   return{date:today(),kmStart:last?String(parseNum(last.kmEnd)||''):'',kmEnd:'',fuelLiters:'',fuelPrice:'',fuelCost:'',tollCost:'',memo:''};
 }
-function saveCarAll(){ lsSet('car-v1',JSON.stringify(carRecords)); }
+function saveCarAll(){ lsSet('car-v1',JSON.stringify(carRecords)); updateBackupBadge(); }
 function parseNum(v){ const n=Number(String(v==null?'':v).replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; }
 function fmtComma(n){ const x=Number(n); return x>0?x.toLocaleString():''; }
 
@@ -4295,14 +4306,66 @@ function fallbackCopy(text,done){
   try{document.execCommand('copy');done();}catch(e){showToast('❌ 복사 실패 — 브라우저 제한');}
   document.body.removeChild(ta);
 }
+/* ── 💾 백업 알림 ─────────────────────────
+   기록이 이 폰에만 있으므로, 마지막 백업 뒤로 기록이 바뀐 채 7일이 지나면 💾 에 일수를 띄운다.
+   쉬는 기간에 괜히 뜨지 않도록 '기록이 바뀌었을 때'만 센다. 엑셀은 앱으로 되돌릴 수 없어 백업으로 치지 않는다. */
+const LAST_BACKUP_KEY='dlv-last-backup';
+const LAST_BACKUP_SIG='dlv-last-backup-sig';
+const BACKUP_WARN_DAYS=7;
+
+function hash32(str){ let h=5381; for(let i=0;i<str.length;i++) h=((h*33)^str.charCodeAt(i))>>>0; return h.toString(36); }
+function backupSig(){            /* 지금 기록 상태를 짧은 문자열로 — 추가·수정·삭제 모두 잡힌다 */
+  try{ return records.length+'.'+carRecords.length+'.'+hash32(JSON.stringify(records)+JSON.stringify(carRecords)); }
+  catch(e){ return records.length+'.'+carRecords.length; }
+}
+function backupTime(){ return Number(lsGet(LAST_BACKUP_KEY,0))||0; }
+function backupDaysAgo(){ const t=backupTime(); return t?Math.floor((Date.now()-t)/86400000):-1; }   /* -1 = 한 번도 안 함 */
+function backupChanged(){ return lsGet(LAST_BACKUP_SIG,'')!==backupSig(); }
+function markBackupDone(){
+  lsSet(LAST_BACKUP_KEY,String(Date.now()));
+  lsSet(LAST_BACKUP_SIG,backupSig());
+  updateBackupBadge();
+}
+function updateBackupBadge(){
+  const b=document.getElementById('bk-badge'); if(!b) return;
+  const hasData=records.length||carRecords.length;
+  const d=backupDaysAgo();
+  let txt='';
+  if(hasData&&backupChanged()){
+    if(d<0) txt='!';
+    else if(d>=BACKUP_WARN_DAYS) txt=(d>99?'99+':d+'일');
+  }
+  b.textContent=txt;
+  b.classList.toggle('on',!!txt);
+}
+function backupStatusHTML(){
+  const el=document.getElementById('bk-status'); if(!el) return;
+  const hasData=records.length||carRecords.length;
+  const d=backupDaysAgo(), changed=backupChanged();
+  let cls='info', txt='';
+  if(!hasData){ txt='저장된 기록이 없습니다'; }
+  else if(d<0){ cls='warn'; txt='⚠ 아직 한 번도 백업하지 않았어요 — 모든 기록이 이 폰에만 있습니다'; }
+  else{
+    const bt=new Date(backupTime()), when=`${bt.getMonth()+1}월 ${bt.getDate()}일`;
+    const ago=d?` (${d}일 전)`:' (오늘)';
+    if(!changed){ cls='ok'; txt=`✓ 마지막 백업 ${when}${ago} — 그 뒤로 바뀐 기록이 없어요`; }
+    else if(d>=BACKUP_WARN_DAYS){ cls='warn'; txt=`⚠ 마지막 백업 ${when}${ago} — 그 뒤로 기록이 바뀌었어요. 새로 저장해 두세요`; }
+    else{ cls='info'; txt=`마지막 백업 ${when}${ago} · 그 뒤로 바뀐 기록이 있어요`; }
+  }
+  el.className='bk-status '+cls;
+  el.textContent=txt;
+}
+
 function openBackupSheet(){
   document.getElementById('backup-sheet-sub').textContent=`배송 ${records.length}건 · 차량 ${carRecords.length}건 저장됨`;
+  backupStatusHTML();
   document.getElementById('backup-sheet').classList.add('show');
 }
 function exportData(){
   const data={version:'dlv-v10',exportDate:new Date().toISOString(),prices:PRICE,names:NAME,itemOn:ON,records,carRecords,estStore};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   downloadBlob(blob,`배송기록_백업_${today()}.json`);
+  markBackupDone();
   document.getElementById('backup-sheet').classList.remove('show');
   showToast('📤 백업 완료!');
 }
