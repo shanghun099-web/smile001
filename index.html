@@ -591,7 +591,11 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .btn-report-action { width: 100%; padding: 15px; border: none; border-radius: 14px; font-size: 15px; font-weight: 900; cursor: pointer; margin-bottom: 10px; transition: transform 0.1s; font-family: inherit; }
 .btn-report-action:active { transform: scale(0.97); }
 .btn-kakao-share { background: #FEE500; color: #191919; }
-.btn-clipboard { background: var(--card2); color: var(--text); border: 1.5px solid var(--border); }
+.r-img-row { display:flex; gap:8px; margin-top:12px; }
+.r-img-row .btn-report-action { margin-bottom:0; }
+.btn-img-share { flex:1; background:linear-gradient(135deg,var(--orange),var(--orange2)); color:#fff; }
+.btn-img-preview { flex:none; width:auto; padding:15px 16px; background:var(--card2); color:var(--text); border:1.5px solid var(--border); }
+.r-img-hint { font-size:10.5px; color:var(--sub); text-align:center; margin:8px 0 16px; }
 .daily-preview-box { display:block; width:100%; background: var(--card2); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 8px; font-size: 14px; line-height: 1.6; color: var(--text); font-family: inherit; white-space: pre-wrap; word-break: break-word; outline: none; resize: vertical; min-height: 120px; -webkit-appearance: none; transition: border 0.2s; }
 .daily-preview-box:focus { border-color: #FEE500; border-style: solid; }
 .btn-preview-reset { background: var(--card2); border: 1.5px solid var(--border); border-radius: 9px; color: var(--sub); font-size: 11px; font-weight: 700; padding: 6px 10px; cursor: pointer; font-family: inherit; }
@@ -738,6 +742,11 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
         <div class="report-format-tab" onclick="setReportFormat('summary')" id="r-fmt-summary">요약형</div>
         <div class="report-format-tab" onclick="setReportFormat('table')" id="r-fmt-table">표형식</div>
       </div>
+      <div class="r-img-row">
+        <button class="btn-report-action btn-img-share" onclick="shareMonthlyImage()">🖼 정산서 이미지 보내기</button>
+        <button class="btn-report-action btn-img-preview" onclick="previewMonthlyImage()">👁 미리보기</button>
+      </div>
+      <div class="r-img-hint">고른 형식 그대로 이미지로 만들어요 · 아래 카톡 공유는 글로 보내기</div>
     </div>
 
     <div id="report-car-section" style="display:none;">
@@ -751,7 +760,6 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
     </div>
 
     <button class="btn-report-action btn-kakao-share" onclick="shareReport()">💬 카톡 / 공유하기</button>
-    <button class="btn-report-action btn-clipboard" onclick="copyReport()">📋 클립보드 복사</button>
     <button class="btn-sheet-close" onclick="document.getElementById('report-sheet').classList.remove('show')">닫기</button>
   </div>
 </div>
@@ -4191,6 +4199,187 @@ function copyReport() {
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
   } else fallbackCopy(text,done);
+}
+
+/* ── 🖼 월간 정산서 이미지 ─────────────────
+   선택한 형식(상세형·요약형·표형식) 그대로 캔버스에 그려 카톡으로 보낸다.
+   같은 그리기 함수를 두 번 돈다: 처음엔 높이만 재고(ctx 없음), 두 번째에 실제로 그린다 */
+const IMG_KCOL={A:'#EA580C',B:'#2563EB',C:'#16A34A',D:'#DB2777',E:'#0D9488',F:'#D97706',G:'#7C3AED',H:'#DC2626'};
+const IMG_FMT_NAME={detail:'상세형',summary:'요약형',table:'표형식'};
+function monthlyImageData(){
+  const ym=`${reportYear}-${String(reportMonth+1).padStart(2,'0')}`;
+  const mr=records.filter(r=>r.date.startsWith(ym)).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!mr.length) return null;
+  const s=statsFor(mr);
+  const keys=KEYS.filter(k=>s.q[k]>0);
+  const rate={};   // 한 달 내내 단가가 같으면 그 단가, 바뀌었으면 null
+  keys.forEach(k=>{
+    const set=new Set(mr.filter(r=>Number(r['qty'+k])>0).map(r=>calcPay(r).rates[k]));
+    rate[k]=set.size===1?[...set][0]:null;
+  });
+  const rows=mr.map(r=>({r,p:calcPay(r)}));
+  return {ym,mr,s,keys,rate,rows};
+}
+function drawMonthlyImage(x,fmt,d,H){
+  const W=760,P=34,IN=W-P*2,F="'Noto Sans KR',sans-serif";
+  const mc=drawMonthlyImage._mc||(drawMonthlyImage._mc=document.createElement('canvas').getContext('2d'));
+  const T=(t,X,Y,o)=>{ if(!x) return; o=o||{}; x.font=(o.w||500)+' '+(o.s||15)+'px '+F; x.fillStyle=o.c||'#1f2937'; x.textAlign=o.a||'left'; x.textBaseline='middle'; x.fillText(t,X,Y); };
+  const rr=(X,Y,w,h,rad,fill)=>{ if(!x) return; x.beginPath(); x.moveTo(X+rad,Y); x.arcTo(X+w,Y,X+w,Y+h,rad); x.arcTo(X+w,Y+h,X,Y+h,rad); x.arcTo(X,Y+h,X,Y,rad); x.arcTo(X,Y,X+w,Y,rad); x.closePath(); x.fillStyle=fill; x.fill(); };
+  const hr=(X,Y,w,c)=>{ if(!x) return; x.fillStyle=c||'#eef0f3'; x.fillRect(X,Y,w,1); };
+  const fit=(t,maxW,o)=>{ mc.font=(o.w||500)+' '+(o.s||15)+'px '+F; if(mc.measureText(t).width<=maxW) return t;
+    while(t.length>1&&mc.measureText(t+'…').width>maxW) t=t.slice(0,-1); return t+'…'; };
+  const {s,keys,rate,rows}=d;
+  const dl=r=>r.date.slice(5).replace('-','/')+' '+DAYS[toDate(r.date).getDay()];
+  const dc=r=>{ const w=toDate(r.date).getDay(); return w===0?'#DC2626':w===6?'#2563EB':'#374151'; };
+  const tax=s.G-s.N;
+  if(x){
+    x.fillStyle='#f3f4f6'; x.fillRect(0,0,W,H);
+    rr(14,14,W-28,H-28,22,'#ffffff');
+    const g=x.createLinearGradient(14,14,W-14,14); g.addColorStop(0,'#FF6B00'); g.addColorStop(1,'#FF9A3C');
+    x.save(); x.beginPath(); x.moveTo(36,14); x.lineTo(W-36,14); x.arcTo(W-14,14,W-14,36,22); x.lineTo(W-14,114); x.lineTo(14,114); x.lineTo(14,36); x.arcTo(14,14,36,14,22); x.closePath(); x.fillStyle=g; x.fill(); x.restore();
+  }
+  T(reportYear+'년 · '+areaName+' 배송',P,46,{s:14,w:700,c:'rgba(255,255,255,.88)'});
+  T((reportMonth+1)+'월 정산서',P,82,{s:28,w:900,c:'#fff'});
+  T('실수령',W-P,44,{s:12,w:700,c:'rgba(255,255,255,.85)',a:'right'});
+  T(won(s.N),W-P,80,{s:29,w:900,c:'#fff',a:'right'});
+  let y=142;
+  // 총액 · 공제 · 실수령 상자 (상세형·요약형 공통)
+  const moneyBox=()=>{
+    rr(P,y,IN,112,12,'#f9fafb'); y+=8;
+    T('총액',P+16,y+16,{s:14,w:600,c:'#4b5563'}); T(won(s.G),W-P-16,y+16,{s:15,w:700,c:'#111827',a:'right'}); y+=32;
+    T('3.3% 공제',P+16,y+16,{s:14,w:600,c:'#4b5563'}); T('−'+won(tax),W-P-16,y+16,{s:15,w:700,c:'#b45309',a:'right'}); y+=32;
+    hr(P+16,y+2,IN-32,'#e5e7eb');
+    T('실수령',P+16,y+22,{s:17,w:900,c:'#111827'}); T(won(s.N),W-P-16,y+22,{s:22,w:900,c:'#EA580C',a:'right'}); y+=48;
+  };
+  const section=t=>{ T(t,P,y+12,{s:14,w:900,c:'#374151'}); y+=32; };
+
+  if(fmt==='detail'){
+    T(s.days+'일 배송 · 총 '+s.Q.toLocaleString()+'건 · 하루 평균 '+s.avg.toLocaleString()+'건'+(s.avgSpd?' · 시간당 '+s.avgSpd+'건':''),P,y,{s:13,c:'#6b7280'}); y+=26;
+    section('📊 물품별 정산');
+    keys.forEach(k=>{
+      rr(P+4,y+9,10,10,5,IMG_KCOL[k]);
+      T(NAME[k],P+22,y+14,{s:15,w:700,c:'#111827'});
+      T(s.q[k].toLocaleString()+'건'+(rate[k]!=null?' × '+won(rate[k]):' (단가 변동)'),W/2+60,y+14,{s:13,c:'#6b7280',a:'right'});
+      T(won(s.amt[k]),W-P-8,y+14,{s:15,w:700,c:'#111827',a:'right'});
+      hr(P+4,y+30,IN-8); y+=34;
+    });
+    y+=10; moneyBox(); y+=18;
+    section('📅 날짜별 내역');
+    const dW=86,sumW=58,tW=150,nW=96; const cw=Math.max(40,(IN-dW-sumW-tW-nW)/Math.max(keys.length,1));
+    const cx=[]; let cxx=P+dW; keys.forEach(()=>{ cxx+=cw; cx.push(cxx-6); });
+    const sumX=cxx+sumW-6, tX=sumX+tW-4, nX=W-P-8;
+    rr(P,y,IN,30,8,'#e5e7eb');
+    T('날짜',P+10,y+15,{s:12,w:800,c:'#4b5563'});
+    keys.forEach((k,i)=>T(fit(NAME[k],cw-8,{s:12,w:800}),cx[i],y+15,{s:12,w:800,c:'#4b5563',a:'right'}));
+    T('합계',sumX,y+15,{s:12,w:800,c:'#4b5563',a:'right'}); T('근무 시간',tX,y+15,{s:12,w:800,c:'#4b5563',a:'right'}); T('실수령',nX,y+15,{s:12,w:800,c:'#4b5563',a:'right'}); y+=32;
+    rows.forEach(({r,p},i)=>{
+      const memo=r.memo?String(r.memo).replace(/\s+/g,' ').trim():'';
+      const h=30+(memo?22:0);
+      if(i%2&&x){ x.fillStyle='#f9fafb'; x.fillRect(P,y,IN,h); }
+      T(dl(r),P+10,y+15,{s:13,w:700,c:dc(r)});
+      keys.forEach((k,j)=>T(p.q[k]?p.q[k].toLocaleString():'·',cx[j],y+15,{s:13,w:p.q[k]?600:400,c:p.q[k]?'#111827':'#d1d5db',a:'right'}));
+      T(p.qty.toLocaleString(),sumX,y+15,{s:13,w:800,c:'#111827',a:'right'});
+      const sg=segsOf(r);
+      T(sg.length?sg[0][0]+'~'+sg[sg.length-1][1]+(sg.length>1?' 외 '+(sg.length-1):''):'-',tX,y+15,{s:12,c:'#6b7280',a:'right'});
+      T(p.net.toLocaleString(),nX,y+15,{s:13,w:700,c:'#111827',a:'right'});
+      if(memo) T('📝 '+fit(memo,IN-40,{s:12}),P+10,y+40,{s:12,c:'#9ca3af'});
+      y+=h;
+    });
+    hr(P,y+2,IN,'#d1d5db'); y+=8;
+    T('합계',P+10,y+15,{s:13,w:900,c:'#111827'});
+    keys.forEach((k,j)=>T(s.q[k].toLocaleString(),cx[j],y+15,{s:13,w:800,c:'#111827',a:'right'}));
+    T(s.Q.toLocaleString(),sumX,y+15,{s:13,w:900,c:'#111827',a:'right'});
+    T(s.N.toLocaleString(),nX,y+15,{s:13,w:900,c:'#EA580C',a:'right'}); y+=34;
+  }
+  else if(fmt==='summary'){
+    const tiles=[['근무',s.days+'일'],['총 건수',s.Q.toLocaleString()+'건'],['하루 평균',s.avg.toLocaleString()+'건'],['시간당',s.avgSpd?s.avgSpd+'건':'-']];
+    const tw=(IN-30)/4;
+    tiles.forEach((t,i)=>{ const X=P+i*(tw+10); rr(X,y,tw,66,12,'#f9fafb');
+      T(t[0],X+tw/2,y+21,{s:12,w:600,c:'#6b7280',a:'center'}); T(t[1],X+tw/2,y+45,{s:19,w:900,c:'#111827',a:'center'}); });
+    y+=86;
+    section('📊 물품별');
+    keys.forEach(k=>{
+      const pct=s.Q?Math.round(s.q[k]/s.Q*100):0;
+      T(NAME[k],P+4,y+10,{s:14,w:700,c:'#111827'});
+      T(s.q[k].toLocaleString()+'건 · '+pct+'%',P+IN/2,y+10,{s:13,c:'#6b7280',a:'center'});
+      T(won(s.amt[k]),W-P-4,y+10,{s:14,w:700,c:'#111827',a:'right'});
+      rr(P+4,y+24,IN-8,10,5,'#f1f2f4'); if(pct) rr(P+4,y+24,Math.max(10,(IN-8)*pct/100),10,5,IMG_KCOL[k]);
+      y+=50;
+    });
+    y+=6; moneyBox(); y+=18;
+    section('📋 일자별 요약');
+    const colW=(IN-16)/2, half=Math.ceil(rows.length/2);
+    rows.forEach(({r,p},i)=>{
+      const col=i<half?0:1, row=col?i-half:i; const X=P+col*(colW+16), Y=y+row*28;
+      if(row%2===0&&x){ x.fillStyle='#f9fafb'; x.fillRect(X,Y,colW,28); }
+      T(dl(r),X+8,Y+14,{s:13,w:700,c:dc(r)});
+      T(p.qty.toLocaleString()+'건',X+colW*0.55,Y+14,{s:13,w:600,c:'#111827',a:'right'});
+      T(won(p.net),X+colW-8,Y+14,{s:13,w:600,c:'#374151',a:'right'});
+    });
+    y+=half*28+10;
+  }
+  else {
+    const dW=92,sumW=70,nW=112; const cw=Math.max(44,(IN-dW-sumW-nW)/Math.max(keys.length,1));
+    const cx=[]; let cxx=P+dW; keys.forEach(()=>{ cxx+=cw; cx.push(cxx-8); });
+    const sumX=cxx+sumW-8, nX=W-P-10;
+    T(s.days+'일 배송 · 총 '+s.Q.toLocaleString()+'건',P,y,{s:13,c:'#6b7280'}); y+=24;
+    rr(P,y,IN,34,8,'#374151');
+    T('날짜',P+12,y+17,{s:13,w:800,c:'#fff'});
+    keys.forEach((k,i)=>T(fit(NAME[k],cw-8,{s:13,w:800}),cx[i],y+17,{s:13,w:800,c:'#fff',a:'right'}));
+    T('합계',sumX,y+17,{s:13,w:800,c:'#fff',a:'right'}); T('실수령',nX,y+17,{s:13,w:800,c:'#fff',a:'right'}); y+=36;
+    rows.forEach(({r,p},i)=>{
+      if(i%2&&x){ x.fillStyle='#f9fafb'; x.fillRect(P,y,IN,30); }
+      T(dl(r),P+12,y+15,{s:13,w:700,c:dc(r)});
+      keys.forEach((k,j)=>T(p.q[k]?p.q[k].toLocaleString():'·',cx[j],y+15,{s:13,w:p.q[k]?600:400,c:p.q[k]?'#111827':'#d1d5db',a:'right'}));
+      T(p.qty.toLocaleString(),sumX,y+15,{s:13,w:800,c:'#111827',a:'right'});
+      T(p.net.toLocaleString(),nX,y+15,{s:13,w:700,c:'#111827',a:'right'});
+      hr(P,y+29,IN,'#f1f2f4'); y+=30;
+    });
+    rr(P,y+4,IN,34,8,'#FFF1E6'); y+=4;
+    T('합계',P+12,y+17,{s:13,w:900,c:'#9A3412'});
+    keys.forEach((k,j)=>T(s.q[k].toLocaleString(),cx[j],y+17,{s:13,w:900,c:'#9A3412',a:'right'}));
+    T(s.Q.toLocaleString(),sumX,y+17,{s:13,w:900,c:'#9A3412',a:'right'});
+    T(s.N.toLocaleString(),nX,y+17,{s:13,w:900,c:'#9A3412',a:'right'}); y+=50;
+    const bw=(IN-20)/3;
+    [['총액',won(s.G),'#111827'],['3.3% 공제','−'+won(tax),'#b45309'],['실수령',won(s.N),'#EA580C']].forEach((b,i)=>{
+      const X=P+i*(bw+10); rr(X,y,bw,60,12,'#f9fafb');
+      T(b[0],X+bw/2,y+19,{s:12,w:600,c:'#6b7280',a:'center'}); T(b[1],X+bw/2,y+42,{s:16,w:900,c:b[2],a:'center'}); });
+    y+=76;
+  }
+  T(IMG_FMT_NAME[fmt]+' · '+today().replace(/-/g,'.')+' 작성',W/2,y+14,{s:12,c:'#9ca3af',a:'center'});
+  return y+60;
+}
+async function monthlyImageBlob(){
+  const d=monthlyImageData();
+  if(!d){ showToast(`📭 ${reportYear}년 ${reportMonth+1}월 배송 기록이 없어요`); return null; }
+  try{ if(document.fonts&&document.fonts.load) await Promise.all([document.fonts.load("900 20px 'Noto Sans KR'"),document.fonts.load("500 14px 'Noto Sans KR'")]); }catch(e){}
+  const W=760, H=Math.ceil(drawMonthlyImage(null,reportFormat,d,0));
+  const c=document.createElement('canvas'); const dpr=2; c.width=W*dpr; c.height=H*dpr;
+  const x=c.getContext('2d'); x.scale(dpr,dpr);
+  drawMonthlyImage(x,reportFormat,d,H);
+  return new Promise(res=>c.toBlob(res,'image/png'));
+}
+async function previewMonthlyImage(){
+  const blob=await monthlyImageBlob(); if(!blob) return;
+  const url=URL.createObjectURL(blob);
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px;';
+  ov.innerHTML='<div style="overflow:auto;max-height:84vh;border-radius:14px"><img src="'+url+'" style="display:block;max-width:100%;border-radius:14px"></div><div style="color:#cbd5e1;font-size:12.5px">화면을 누르면 닫힙니다</div>';
+  ov.onclick=()=>{ ov.remove(); URL.revokeObjectURL(url); };
+  document.body.appendChild(ov);
+}
+async function shareMonthlyImage(){
+  const blob=await monthlyImageBlob(); if(!blob) return;
+  const ym=`${reportYear}-${String(reportMonth+1).padStart(2,'0')}`;
+  const fname=`${ym}_${areaName}_정산서_${IMG_FMT_NAME[reportFormat]}.png`;
+  const file=new File([blob],fname,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file],title:`${reportYear}년 ${reportMonth+1}월 정산서`}); showToast('💬 공유 메뉴를 열었어요'); return; }
+    catch(e){ if(e&&e.name==='AbortError') return; }
+  }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  showToast('🖼 정산서 이미지를 내려받았어요 — 카톡에 첨부해 보내세요');
 }
 
 /* ── ⚙️ 설정 시트 (물품 · 단가 · API 키) ─── */
