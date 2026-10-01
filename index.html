@@ -20,7 +20,7 @@
   --green:#5cb85c;--green2:#7fd67f;
   --pink:#ec4899;--pink2:#f472b6;
   --bg:#0f1117;--card:#1a1d27;--card2:#12141c;--card3:#262c38;
-  --border:#2a2d3a;--border2:#3a4150;--text:#f0f0f0;--sub:#777;--dim:#5a6270;
+  --border:#2a2d3a;--border2:#3a4150;--text:#f0f0f0;--sub:#8f98a8;--dim:#5a6270;
   --red:#e05555;--red2:#ef4444;
   --teal:#2dd4bf;--teal2:#5eead4;--teal3:#5eead4;
   --purple:#a78bfa;--purple2:#c4b5fd;
@@ -31,13 +31,13 @@
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow:hidden;}
 #app{display:flex;flex-direction:column;height:100vh;height:-webkit-fill-available;}
 
-.header{background:linear-gradient(135deg,var(--orange) 0%,var(--orange2) 100%);padding:calc(30px + env(safe-area-inset-top,20px)) 20px 16px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;}
+.header{background:linear-gradient(135deg,var(--orange) 0%,var(--orange2) 100%);padding:calc(18px + env(safe-area-inset-top,20px)) 18px 16px;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;}
 .header::before{content:'';position:absolute;top:-30px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.1);}
 .header::after{content:'';position:absolute;bottom:-40px;left:40px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.07);}
 .header-left{position:relative;z-index:1;flex:1;}
-.header-label{font-size:11px;opacity:0.8;letter-spacing:2px;margin-bottom:2px;}
+.header-label{font-size:11px;font-weight:700;opacity:0.85;letter-spacing:2px;margin-bottom:2px;}
 .header-title{font-size:24px;font-weight:900;}
-.header-date{font-size:11px;opacity:0.75;margin-top:2px;}
+.header-date{font-size:12.5px;font-weight:600;opacity:0.9;margin-top:3px;}
 .header-actions{position:relative;z-index:1;display:flex;gap:8px;align-items:flex-end;}
 .header-icon-btn{position:relative;background:rgba(0,0,0,0.2);border:1.5px solid rgba(255,255,255,0.3);border-radius:14px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(4px);transition:all 0.15s;}
 .header-icon-btn:active{background:rgba(0,0,0,0.4);transform:scale(0.91);}
@@ -45,14 +45,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto S
 .header-icon-btn.kakao:active { background: #E6CF00; }
 
 .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 14px 0;flex-shrink:0;}
-.sum-card{background:var(--card);border-radius:12px;padding:11px 10px;border-top:3px solid var(--orange);}
-.sum-label{font-size:9px;color:var(--lbl);margin-bottom:3px;font-weight:700;}
-.sum-val{font-size:16px;font-weight:900;color:var(--orange2);line-height:1.2;}
-.sum-sub{font-size:9px;color:#777;margin-top:2px;}
+.sum-card{background:var(--card);border-radius:14px;padding:12px 11px 11px;border:1px solid var(--border);border-top:3px solid var(--orange);min-width:0;}
+.sum-label{font-size:11.5px;color:var(--lbl);margin-bottom:5px;font-weight:700;white-space:nowrap;}
+.sum-val{font-size:19px;font-weight:900;color:var(--orange2);line-height:1.15;letter-spacing:-0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sum-sub{font-size:11px;color:var(--sub);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-.tabs{display:flex;margin:12px 14px 0;border-radius:12px;overflow:hidden;background:var(--card);flex-shrink:0;}
-.tab{flex:1;padding:11px 0;border:none;font-size:10.5px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
-.tab.active{background:var(--orange);color:#fff;}
+.tabs{display:flex;gap:2px;margin:12px 14px 0;padding:4px;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--border);flex-shrink:0;}
+.tab{flex:1;min-width:0;min-height:52px;padding:6px 0 5px;border:none;border-radius:12px;font-size:11.5px;font-weight:700;cursor:pointer;transition:background 0.2s,color 0.2s;font-family:inherit;white-space:nowrap;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+.tab .ti{font-size:18px;line-height:1;}
+.tab .tl{line-height:1;letter-spacing:-0.4px;}
+.tab:not(.active) .ti{opacity:0.75;}
+.tab:focus-visible{outline:2px solid var(--orange2);outline-offset:-2px;}
+.tab.active{background:var(--orange);color:#fff;box-shadow:0 2px 10px rgba(255,107,0,0.35);}
 /* ── 탭 순서 변경 (꾹 눌러 가로로 끌기) ── */
 .tabs{position:relative;}
 .tab.tab-press{background:rgba(255,140,0,.18);}
@@ -63,7 +67,7 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
   padding:0 12px;font-size:10.5px;font-weight:700;color:var(--text);
   white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.6);transform:scale(1.08);}
 .tab-slot{flex:0 0 3px;align-self:stretch;background:var(--orange);border-radius:3px;margin:6px 0;}
-.tab:not(.active){background:transparent;color:var(--sub);}
+.tab:not(.active){background:transparent;color:#a3abba;}
 .content{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch;}
 
 /* ── 🔒 입력 탭 자동 잠금 ── */
@@ -93,7 +97,7 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .map-fail b{color:var(--text);font-size:15px;}
 .map-fail code{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2px 7px;color:var(--amber2);font-size:12px;}
 .field{margin-bottom:13px;}
-.field label{display:block;font-size:11px;color:var(--sub);font-weight:700;letter-spacing:0.5px;margin-bottom:6px;}
+.field label{display:block;font-size:12.5px;color:var(--lbl);font-weight:700;letter-spacing:0.2px;margin-bottom:7px;}
 .field input,.field textarea{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:16px;color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;}
 .field input:focus,.field textarea:focus{border-color:var(--orange);}
 .field textarea{height:72px;resize:none;}
@@ -102,12 +106,14 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .wx-strip{display:none;background:linear-gradient(135deg,#3b0d0d,#4a1010);border:1px solid #6b1d1d;border-radius:12px;color:#ffb4b4;font-size:12px;font-weight:800;padding:10px 12px;cursor:pointer;text-align:center;margin:10px 14px 0;flex-shrink:0;}
 .wx-strip.show{display:block;animation:stripPulse 2s ease-in-out infinite;}
 @keyframes stripPulse{50%{opacity:0.72;}}
+@media (prefers-reduced-motion:reduce){.wx-strip.show{animation:none;}}
 
-.ab-box{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);}
-.ab-title{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:12px;letter-spacing:0.5px;}
-.ab-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(74px, 1fr));gap:6px;}
+.ab-box{background:var(--card);border-radius:16px;padding:16px 14px;margin-bottom:14px;border:1.5px solid var(--border);}
+.ab-title{font-size:13px;color:var(--text);font-weight:800;margin-bottom:12px;letter-spacing:0.2px;}
+.ab-hint{display:block;font-size:11px;font-weight:600;color:var(--sub);margin-top:3px;}
+.ab-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(74px, 1fr));gap:8px;}
 .ab-item{background:var(--card2);border-radius:12px;padding:10px 5px;}
-.ab-item-label{font-size:10px;font-weight:700;margin-bottom:8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ab-item-label{font-size:12px;font-weight:800;margin-bottom:8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ab-item-label.a,.ab-item-sub.a{color:var(--orange2);}
 .ab-item-label.b,.ab-item-sub.b{color:var(--blue2);}
 .ab-item-label.c,.ab-item-sub.c{color:var(--green2);}
@@ -116,10 +122,10 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .ab-item-label.f,.ab-item-sub.f{color:var(--amber2);}
 .ab-item-label.g,.ab-item-sub.g{color:var(--purple2);}
 .ab-item-label.h,.ab-item-sub.h{color:var(--red2);}
-.ab-item input{width:100%;background:var(--card);border:2px solid var(--border);border-radius:10px;padding:12px 5px;font-size:20px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;letter-spacing:1px;}
+.ab-item input{width:100%;background:var(--card);border:2px solid var(--border);border-radius:12px;padding:12px 5px;min-height:54px;font-size:22px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;letter-spacing:1px;}
 .ab-item input:focus{border-color:var(--orange);background:var(--card);}
-.ab-item-price{font-size:9px;color:var(--sub);margin-top:7px;text-align:center;white-space:nowrap;}
-.ab-item-sub{font-size:11px;font-weight:700;margin-top:5px;text-align:center;min-height:18px;transition:all 0.2s;}
+.ab-item-price{font-size:11px;color:var(--sub);margin-top:7px;text-align:center;white-space:nowrap;}
+.ab-item-sub{font-size:12px;font-weight:800;margin-top:5px;text-align:center;min-height:18px;transition:all 0.2s;}
 
 .calc-box{background:linear-gradient(135deg,#151f15,#111a11);border:1.5px solid #254025;border-radius:14px;padding:16px;margin-bottom:14px;}
 .calc-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
@@ -143,7 +149,7 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .btn-save{width:100%;padding:16px;border:none;border-radius:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;margin-bottom:10px;box-shadow:0 4px 20px rgba(255,107,0,0.3);transition:transform 0.1s;}
 .btn-save:active{transform:scale(0.97);}
 .btn-save.disabled{background:#2a2a2a!important;color:#444!important;box-shadow:none!important;}
-.btn-cancel{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;color:var(--sub);background:transparent;cursor:pointer;font-family:inherit;}
+.btn-cancel{width:100%;min-height:48px;padding:13px;border:1.5px dashed var(--border2);border-radius:14px;font-size:14px;font-weight:700;color:var(--lbl);background:transparent;cursor:pointer;font-family:inherit;}
 
 .rec-card{background:var(--card);border-radius:14px;padding:14px;border-left:4px solid var(--orange);margin-bottom:10px;}
 .rec-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
@@ -661,13 +667,13 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
     </div>
   </div>
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('input')" id="tab-input">✏️ 입력</button>
-    <button class="tab" onclick="switchTab('est')" id="tab-est">🔮 예상</button>
-    <button class="tab" onclick="switchTab('wx')" id="tab-wx">🌤 날씨</button>
-    <button class="tab" onclick="switchTab('code')" id="tab-code">🔑 출입코드</button>
-    <button class="tab" onclick="switchTab('stats')" id="tab-stats">📊 통계</button>
-    <button class="tab" onclick="switchTab('map')" id="tab-map">🗺 지도</button>
-    <button class="tab" onclick="switchTab('car')" id="tab-car">🚗 차량</button>
+    <button class="tab active" onclick="switchTab('input')" id="tab-input"><span class="ti" aria-hidden="true">✏️</span><span class="tl">입력</span></button>
+    <button class="tab" onclick="switchTab('est')" id="tab-est"><span class="ti" aria-hidden="true">🔮</span><span class="tl">예상</span></button>
+    <button class="tab" onclick="switchTab('wx')" id="tab-wx"><span class="ti" aria-hidden="true">🌤</span><span class="tl">날씨</span></button>
+    <button class="tab" onclick="switchTab('code')" id="tab-code"><span class="ti" aria-hidden="true">🔑</span><span class="tl">출입코드</span></button>
+    <button class="tab" onclick="switchTab('stats')" id="tab-stats"><span class="ti" aria-hidden="true">📊</span><span class="tl">통계</span></button>
+    <button class="tab" onclick="switchTab('map')" id="tab-map"><span class="ti" aria-hidden="true">🗺</span><span class="tl">지도</span></button>
+    <button class="tab" onclick="switchTab('car')" id="tab-car"><span class="ti" aria-hidden="true">🚗</span><span class="tl">차량</span></button>
   </div>
   <div class="wx-strip" id="wx-strip" onclick="switchTab('wx')"></div>
   <div id="tab-ghost"></div>
@@ -1065,7 +1071,7 @@ const TabDND = {
     this.offX = t.clientX - r.left;
 
     const g = document.getElementById('tab-ghost');
-    g.textContent = this.el.textContent.trim();
+    g.textContent = [...this.el.children].map(c=>c.textContent).join(' ').trim() || this.el.textContent.trim();
     g.style.display = 'block';
     g.style.left = r.left + 'px';
     g.style.top  = r.top + 'px';
@@ -1366,7 +1372,7 @@ function renderInput(){
   return `
     <div class="field"><label>📅 날짜</label><input type="date" id="f-date" value="${form.date}"></div>
     <div class="ab-box">
-      <div class="ab-title">📦 배송 물품 수량 입력 <span style="color:#555">· ⚙️에서 사용 물품을 켜고 끌 수 있어요</span></div>
+      <div class="ab-title">📦 배송 물품 수량 입력 <span class="ab-hint">⚙️ 설정에서 사용 물품을 켜고 끌 수 있어요</span></div>
       <div class="ab-row">${itemsHtml}</div>
     </div>
    <div id="calc-area">${renderCalcArea()}</div>
