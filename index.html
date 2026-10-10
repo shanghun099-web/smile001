@@ -124,6 +124,9 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .ab-item-label.h,.ab-item-sub.h{color:var(--red2);}
 .ab-item input{width:100%;background:var(--card);border:2px solid var(--border);border-radius:12px;padding:12px 5px;min-height:54px;font-size:22px;font-weight:900;color:var(--text);text-align:center;outline:none;font-family:inherit;-webkit-appearance:none;transition:border 0.2s;letter-spacing:1px;}
 .ab-item input:focus{border-color:var(--orange);background:var(--card);}
+.ab-item.wk-off{opacity:.42;}
+.ab-item.wk-off input{border-style:dashed;background:transparent;}
+.ab-item.wk-off .ab-item-sub{color:var(--sub);font-size:10px;}
 .ab-item-price{font-size:11px;color:var(--sub);margin-top:7px;text-align:center;white-space:nowrap;}
 .ab-item-sub{font-size:12px;font-weight:800;margin-top:5px;text-align:center;min-height:18px;transition:all 0.2s;}
 
@@ -1355,6 +1358,36 @@ function initLock(){
 }
 
 /* ── 배송 입력 ──────────────────────────── */
+/* 🔧 주말(토·일)엔 '주말딜리'만, 평일엔 '딜리'만 입력되게
+   짝은 이름으로 찾음: '주말' 이 들어간 물품 ↔ 거기서 '주말' 을 뺀 이름의 물품 ('주말딜리' ↔ '딜리') */
+function isWeekend(d){ const w=toDate(d).getDay(); return w===0||w===6; }
+function wkPairs(){
+  const nm=k=>String(NAME[k]||'').replace(/\s+/g,'');
+  const out=[];
+  KEYS.forEach(w=>{
+    if(!nm(w).includes('주말')) return;
+    const base=nm(w).replace('주말','');
+    const d=KEYS.find(k=>k!==w&&nm(k)===base);
+    if(d) out.push([d,w]);          /* [평일 물품, 주말 물품] */
+  });
+  return out;
+}
+function wkBlocked(date){
+  if(!date) return {};
+  const we=isWeekend(date), b={};
+  wkPairs().forEach(([d,w])=>{ if(we) b[d]=w; else b[w]=d; });   /* 막힌 칸 → 대신 넣을 칸 */
+  return b;
+}
+/* 막힌 칸에 들어 있는 수량을 짝 칸으로 옮김 — 옮긴 내용을 글로 돌려줌 */
+function wkFix(f){
+  const b=wkBlocked(f.date), moved=[];
+  Object.keys(b).forEach(from=>{
+    const to=b[from], q=Number(f['qty'+from])||0;
+    if(q>0){ f['qty'+to]=String((Number(f['qty'+to])||0)+q); moved.push(`${NAME[from]} ${q}건 → ${NAME[to]}`); }
+    f['qty'+from]='';
+  });
+  return moved;
+}
 function formKeys(){
   const s=new Set(actKeys());
   KEYS.forEach(k=>{ if(String(form['qty'+k]||'').trim()!=='') s.add(k); });
@@ -1363,7 +1396,13 @@ function formKeys(){
 
 function renderInput(){
   const keys=formKeys();
-  const itemsHtml=keys.map(k=>`
+  const blk=wkBlocked(form.date);
+  const itemsHtml=keys.map(k=>blk[k]?`
+        <div class="ab-item wk-off">
+          <div class="ab-item-label ${KCLS[k]}">${KEMO[k]} ${esc(NAME[k])}</div>
+          <input type="number" value="${esc(form['qty'+k])}" placeholder="—" disabled>
+          <div class="ab-item-sub">${isWeekend(form.date)?'주말엔':'평일엔'} ${esc(NAME[blk[k]])}에</div>
+        </div>`:`
         <div class="ab-item">
           <div class="ab-item-label ${KCLS[k]}">${KEMO[k]} ${esc(NAME[k])}</div>
           <input type="number" id="f-q${k}" value="${esc(form['qty'+k])}" placeholder="0" inputmode="numeric" pattern="[0-9]*" min="0" max="9999">
@@ -1526,7 +1565,10 @@ function bindInputEvents(){
       else { const d=form.date; editId=null; form=defForm(); form.date=d; showSeg2=false; showSeg3=false; markFormClean(); }
       skipAutoLoad=true; render(); return;
     }
-    updateSaveBtn();
+    /* 고치던 중에 평일↔주말로 바뀌면 막힌 칸 수량을 짝 칸으로 옮기고 다시 그림 */
+    const mv=wkFix(form);
+    render();
+    if(mv.length) showToast('🔁 '+mv.join(' · '));
   });
   KEYS.forEach(k=>document.getElementById('f-q'+k)?.addEventListener('input',onQtyChange));
    ['f-st','f-et','f-st2','f-et2','f-st3','f-et3'].forEach(id=>{
@@ -1552,6 +1594,7 @@ function readInputForm(){
 
 function handleSave(){
   readInputForm();
+  wkMoved=wkFix(form);
   const miss=[];
   if(!form.date) miss.push('날짜');
   if(!KEYS.some(k=>Number(form['qty'+k])>0)) miss.push('수량');
@@ -1590,8 +1633,10 @@ function commitSave(){
   if(saved) loadRecordIntoForm(saved); else { editId=null; form=defForm(); showSeg2=false; showSeg3=false; markFormClean(); }
   skipAutoLoad=false;
   updateSummary(); render();
-  showToast('✅ 저장 완료!');
+  showToast('✅ 저장 완료!'+(wkMoved.length?' ('+wkMoved.join(' · ')+')':''));
+  wkMoved=[];
 }
+let wkMoved=[];
 
 /* 기록 한 건을 입력 양식에 올려 수정 모드로 */
 function loadRecordIntoForm(r){
