@@ -1899,8 +1899,14 @@ function statsFor(list){
     const spds=vr.map(r=>perHourRec(qtyOf(r),r)).filter(v=>v!==null); 
     if(spds.length){maxSpd=Math.max(...spds);minSpd=Math.min(...spds);}
   }
-  return {q,amt,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length};
+  // 오네 정산 / 딜리 정산 — 이름에 '딜'이 들어가면 전부 딜리, 나머지는 오네 (가계부 gabu 와 같은 규칙)
+  const grp={one:{q:0,g:0},dl:{q:0,g:0}};
+  list.forEach(r=>{ const p=calcPay(r); KEYS.forEach(k=>{ if(!p.q[k]) return; const g=grp[dlvGroup(NAME[k])]; g.q+=p.q[k]; g.g+=p.amt[k]; }); });
+  KEYS.forEach(k=>{ const g=grp[dlvGroup(NAME[k])]; (g.names=g.names||[]); if(q[k]>0) g.names.push(NAME[k]); });
+  grp.one.n=Math.round(grp.one.g*(1-TAX)); grp.dl.n=Math.round(grp.dl.g*(1-TAX));
+  return {q,amt,G,N,Q,avg,avgSpd,maxSpd,minSpd,vr,totalMin,days:list.length,grp};
 }
+function dlvGroup(name){ return /딜/.test(String(name).replace(/\s/g,''))?'dl':'one'; }
 
 function renderStatBlock(s,title){
   const hourNet=s.totalMin>0?Math.round(s.N/(s.totalMin/60)):null;
@@ -1916,6 +1922,10 @@ function renderStatBlock(s,title){
       <div class="month-total">${won(s.G)}</div>
       <div class="month-net">💰 실수령: ${won(s.N)}</div>
       <div class="month-tax">세금(3.3%) 공제: -${won(s.G-s.N)}</div>
+      ${s.grp.one.q||s.grp.dl.q?`<hr class="month-sep">
+      ${[['one','🚚 오네 정산','var(--orange2)'],['dl','🛵 딜리 정산','var(--green2)']].filter(([k])=>s.grp[k].q>0).map(([k,lbl,c])=>`
+      <div class="month-row"><span class="month-lbl"><b style="color:${c}">${lbl}</b> ${s.grp[k].q.toLocaleString()}건</span><span class="month-val" style="color:${c}">${won(s.grp[k].g)}</span></div>
+      <div class="month-row" style="margin-top:-4px"><span class="month-lbl" style="font-size:11px;color:var(--lbl)">${s.grp[k].names.map(esc).join(' · ')}</span><span class="month-val" style="font-size:12px;color:var(--green)">실수령 ${won(s.grp[k].n)}</span></div>`).join('')}`:''}
     </div>
     ${s.avgSpd!==null?`<div class="stat-card c-spd" style="background:linear-gradient(135deg,#16141f,#12101c)">
       <div class="stat-icon">⚡</div>
