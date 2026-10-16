@@ -222,7 +222,18 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .month-lbl{font-size:12px;color:#9aa3b2;}
 .month-val{font-size:13px;font-weight:800;}
 .month-sep{border:none;border-top:1px solid #2b4531;margin:8px 0;}
-.month-total{font-size:22px;font-weight:900;color:var(--green2);margin-top:4px;}
+.month-total{font-size:22px;font-weight:900;color:#f3f4f6;margin-top:4px;}
+/* 오네 정산 / 딜리 정산 — 초록(총액·실수령)과 겹치지 않게 오네=주황, 딜리=하늘색 카드 (2026-10-17 사용자 요청: 색이 비슷해 눈에 안 들어옴) */
+.grp-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:4px;}
+.grp-card{border-radius:12px;padding:10px 11px;border:1.5px solid;}
+.grp-card.one{background:rgba(255,154,60,.12);border-color:rgba(255,154,60,.55);--gc:#FFB066;}
+.grp-card.dl{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.55);--gc:#67D3FF;}
+.grp-h{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:12px;color:#c3cad6;}
+.grp-h b{color:var(--gc);font-weight:900;}
+.grp-amt{font-size:19px;font-weight:900;color:var(--gc);margin-top:6px;letter-spacing:-.3px;}
+.grp-net{font-size:11.5px;color:#9aa3b2;margin-top:3px;}
+.grp-net b{color:#f3f4f6;font-weight:800;}
+.grp-names{font-size:10.5px;color:var(--lbl);margin-top:5px;}
 .month-net{font-size:17px;font-weight:900;color:var(--green);margin-top:4px;}
 .month-tax{font-size:10.5px;color:#f08a8a;margin-top:3px;}
 .period-tabs{display:flex;gap:6px;margin-bottom:12px;}
@@ -1923,9 +1934,13 @@ function renderStatBlock(s,title){
       <div class="month-net">💰 실수령: ${won(s.N)}</div>
       <div class="month-tax">세금(3.3%) 공제: -${won(s.G-s.N)}</div>
       ${s.grp.one.q||s.grp.dl.q?`<hr class="month-sep">
-      ${[['one','🚚 오네 정산','var(--orange2)'],['dl','🛵 딜리 정산','var(--green2)']].filter(([k])=>s.grp[k].q>0).map(([k,lbl,c])=>`
-      <div class="month-row"><span class="month-lbl"><b style="color:${c}">${lbl}</b> ${s.grp[k].q.toLocaleString()}건</span><span class="month-val" style="color:${c}">${won(s.grp[k].g)}</span></div>
-      <div class="month-row" style="margin-top:-4px"><span class="month-lbl" style="font-size:11px;color:var(--lbl)">${s.grp[k].names.map(esc).join(' · ')}</span><span class="month-val" style="font-size:12px;color:var(--green)">실수령 ${won(s.grp[k].n)}</span></div>`).join('')}`:''}
+      <div class="grp-cards">${[['one','🚚 오네 정산'],['dl','🛵 딜리 정산']].filter(([k])=>s.grp[k].q>0).map(([k,lbl])=>`
+        <div class="grp-card ${k}">
+          <div class="grp-h"><b>${lbl}</b><span>${s.grp[k].q.toLocaleString()}건</span></div>
+          <div class="grp-amt">${won(s.grp[k].g)}</div>
+          <div class="grp-net">실수령 <b>${won(s.grp[k].n)}</b></div>
+          <div class="grp-names">${s.grp[k].names.map(esc).join(' · ')}</div>
+        </div>`).join('')}</div>`:''}
     </div>
     ${s.avgSpd!==null?`<div class="stat-card c-spd" style="background:linear-gradient(135deg,#16141f,#12101c)">
       <div class="stat-icon">⚡</div>
