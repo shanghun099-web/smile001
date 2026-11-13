@@ -424,6 +424,32 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 .est-status{font-size:11.5px;text-align:center;margin-top:8px;min-height:16px;color:var(--sub);}
 .est-status.ok{color:var(--green2);}
 .est-status.err{color:#f06060;}
+/* 🐰 딜리래빗 강남가 자동 조회 */
+.rb-box{border-color:#1f4a47;background:linear-gradient(135deg,#10242a,#0f1a20);}
+.rb-box .est-box-title{font-size:12px;color:#8fb8b3;}
+.rb-total{font-size:34px;font-weight:900;color:var(--teal2);line-height:1.15;margin:2px 0 8px;}
+.rb-total.wait{font-size:19px;color:#f0b070;}
+.rb-part{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13.5px;color:#c4cad6;border-top:1px solid rgba(94,234,212,.1);}
+.rb-part b{color:var(--text);font-size:14.5px;font-weight:800;white-space:nowrap;}
+.rb-part.rb-empty{color:#f0b070;border-top:none;}
+.rb-sub{font-size:12px;color:#8fb8b3;margin-top:6px;}
+.rb-status{font-size:12.5px;color:#9aa3b2;margin:10px 0;min-height:18px;}
+.rb-status.err{color:#f0a060;font-weight:700;}
+.rb-retry{width:100%;min-height:48px;}
+.rb-retry:disabled{opacity:.6;}
+.rb-areas summary{display:flex;align-items:center;justify-content:space-between;min-height:44px;font-size:15px;font-weight:800;cursor:pointer;}
+.rb-count{font-size:12.5px;color:var(--teal2);font-weight:800;}
+.rb-area{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px;padding:0 4px 0 10px;margin-top:6px;border-radius:11px;background:rgba(0,0,0,.22);border:1.5px solid transparent;}
+.rb-area.on{background:rgba(45,212,191,.1);border-color:rgba(94,234,212,.35);}
+.rb-area-chk{flex:1;display:flex;align-items:center;gap:12px;min-height:48px;font-size:15px;font-weight:700;color:#c4cad6;cursor:pointer;}
+.rb-area.on .rb-area-chk{color:var(--text);}
+.rb-area-chk input{width:22px;height:22px;accent-color:var(--teal);flex-shrink:0;}
+.rb-area-pct{display:flex;align-items:center;gap:5px;font-size:14px;color:#9aa3b2;}
+.rb-area-pct input{width:68px;height:40px;padding:0 8px;border-radius:9px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-size:16px;font-weight:800;text-align:center;font-family:inherit;}
+.rb-area:not(.on) .rb-area-pct input{opacity:.55;}
+.rb-mode{width:100%;margin:4px 0 12px;}
+[data-rabbit-total].wait{font-size:.62em;color:#f0b070;}
+.est-split-val.wait{font-size:17px;color:#f0b070;}
 .est-ta{width:100%;height:100px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-size:13px;color:var(--text);outline:none;font-family:inherit;resize:vertical;-webkit-appearance:none;}
 .est-ta:focus{border-color:var(--purple);}
 .est-mini{display:flex;gap:8px;margin-top:9px;}
@@ -3166,8 +3192,8 @@ function estSanitize(s){
       };
     }
   });
-out.rabbit.sheetMode=s.rabbit?.sheetMode!==false;
-out.hist=estTrimList(Array.isArray(s.hist)?s.hist.filter(h=>h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)):[]);
+  out.rabbit.sheetMode=s.rabbit?.sheetMode!==false;   /* 딜리 강남가 자동 조회 (기본 켬) */
+  out.hist=estTrimList(Array.isArray(s.hist)?s.hist.filter(h=>h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)):[]);
   return out;
 }
 let estStore=(function(){
@@ -3272,7 +3298,7 @@ function estCombined(){
   const cj=estCalcFor('cj'), rb=estCalcFor('rabbit');
   if(rabbitAuto()){
     const r=rabbitResult();
-    Object.assign(rb,{parts:r.parts,raw:r.value??0,est:r.value??0});
+    Object.assign(rb,{parts:r.parts,raw:r.raw??0,est:r.value??0});
   }
   return{cj,rb,total:cj.est+rb.est,lo:cj.lo+rb.est,hi:cj.hi+rb.est};
 }
@@ -3815,7 +3841,9 @@ function estTabsHtml(){
   </div>`;
 }
 function estMiniInner(){
-  if(rabbitAuto())return `<span>오네 ${estCalcFor('cj').est}건</span><span>딜리 <b data-rabbit-amount>${rabbitAmount()}</b></span><b data-rabbit-total></b>`;
+  if(rabbitAuto())return `<span class="est-minibar-seg">🟪 오네 <b style="color:var(--purple2)">${estCalcFor('cj').est.toLocaleString()}</b>건</span>
+    <span class="est-minibar-seg">🐰 딜리 <b style="color:var(--teal2)" data-rabbit-amount>${esc(rabbitAmount())}</b></span>
+    <span class="est-minibar-total">총 <b data-rabbit-total></b> ›</span>`;
   const c=estCombined();
   return `<span class="est-minibar-seg">🟪 오네 <b style="color:var(--purple2)">${c.cj.est.toLocaleString()}</b>건</span>
     <span class="est-minibar-seg">🐰 딜리 <b style="color:var(--teal2)">${c.rb.est.toLocaleString()}</b>건</span>
@@ -3953,7 +3981,7 @@ function renderEst(){
     ${estTabsHtml()}
     ${estMiniTotalHtml()}
 
-    ${isCJ?'':'<button class="est-btn blue" onclick="rabbitMode(true)">강남가 자동 조회 사용</button>'+rbLookupHtml()}
+    ${isCJ?'':'<button class="est-btn blue rb-mode" onclick="rabbitMode(true)">🔄 강남가 자동 조회로 바꾸기</button>'+rbLookupHtml()}
 
     <div class="field"><label>📅 기준 날짜</label>
       <input type="date" value="${cur.date}" onchange="estSetDate(this.value)"></div>
