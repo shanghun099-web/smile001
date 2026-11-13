@@ -841,6 +841,7 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
   </div>
 </div>
 
+<script src="rabbit-sheet.js"></script>
 <script>
 'use strict';
 const TAX=0.033;
@@ -1263,13 +1264,14 @@ function render(){
   const c=document.getElementById('content');
   const frameKey=(tab==='map'||tab==='code')?tab:null;
   showFrameTab(frameKey);
-  if(frameKey) return;
+  if(frameKey){ rabbitTrackView(); return; }
   if(tab==='input') autoLoadRecord();
   c.innerHTML=tab==='input'?renderInput()
     :tab==='est'?renderEst()
     :tab==='wx'?renderWeather()
     :tab==='car'?renderCarTab()
     :renderStats();
+  rabbitTrackView(); rabbitUpdate();
   if(tab==='input') bindInputEvents();
   if(tab==='car'&&carSubTab==='input') bindCarEvents();
   if(tab==='wx') afterWeatherRender();
@@ -3164,12 +3166,15 @@ function estSanitize(s){
       };
     }
   });
+out.rabbit.sheetMode=s.rabbit?.sheetMode!==false;
 out.hist=estTrimList(Array.isArray(s.hist)?s.hist.filter(h=>h&&/^\d{4}-\d{2}-\d{2}$/.test(h.date)):[]);
   return out;
 }
 let estStore=(function(){
   try{
-    const s = estSanitize(JSON.parse(lsGet('est-v1','null')));
+    const saved=JSON.parse(lsGet('est-v1','null'));
+    const s=estSanitize(saved);
+    if(!saved)s.rabbit.rows.forEach(row=>row.on=false);
     // 👇 앱을 처음 켤 때 오네와 딜리의 날짜를 무조건 오늘로 맞춥니다.
     s.cj.date = today();
     s.rabbit.date = today();
@@ -3265,6 +3270,10 @@ function estPartsLines(c,sep){
 function estCalc(){ return estCalcFor(estStore.set==='rabbit'?'rabbit':'cj'); }
 function estCombined(){
   const cj=estCalcFor('cj'), rb=estCalcFor('rabbit');
+  if(rabbitAuto()){
+    const r=rabbitResult();
+    Object.assign(rb,{parts:r.parts,raw:r.value??0,est:r.value??0});
+  }
   return{cj,rb,total:cj.est+rb.est,lo:cj.lo+rb.est,hi:cj.hi+rb.est};
 }
 
@@ -3373,6 +3382,7 @@ function estSetQty(i,el){
 function estRefresh(){
   const el=document.getElementById('est-result'); if(el) el.innerHTML=estResultHtml();
   const mb=document.getElementById('est-minibar'); if(mb) mb.innerHTML=estMiniInner();
+  rabbitUpdate();
 }
 
 /* ⭐ 담당 지정 토글 */
@@ -3624,6 +3634,7 @@ function estCombinedShareText(){
   const sub=p=>`   └ ${p.dong} ${p.qty.toLocaleString()}건 × ${p.pct}%\n`;
   t+=`🟪 CJ 오네 ${c.cj.est.toLocaleString()}건\n`;
   t+=c.cj.parts.length?c.cj.parts.map(sub).join(''):`   └ ⭐ 지정된 동 없음\n`;
+  if(rabbitAuto()&&(rabbitResult().value===null||estStore.cj.date!==rabbitDate()))return t+'🐰 딜리래빗 '+rabbitAmount()+' · 합계 대기';
   t+=`🐰 딜리래빗 ${c.rb.est.toLocaleString()}건\n`;
   t+=c.rb.parts.length?c.rb.parts.map(sub).join(''):`   └ ⭐ 지정된 동 없음\n`;
   t+=`━━━━━━━━━━\n📦 총 예상 ${c.total.toLocaleString()}건`;
@@ -3804,6 +3815,7 @@ function estTabsHtml(){
   </div>`;
 }
 function estMiniInner(){
+  if(rabbitAuto())return `<span>오네 ${estCalcFor('cj').est}건</span><span>딜리 <b data-rabbit-amount>${rabbitAmount()}</b></span><b data-rabbit-total></b>`;
   const c=estCombined();
   return `<span class="est-minibar-seg">🟪 오네 <b style="color:var(--purple2)">${c.cj.est.toLocaleString()}</b>건</span>
     <span class="est-minibar-seg">🐰 딜리 <b style="color:var(--teal2)">${c.rb.est.toLocaleString()}</b>건</span>
@@ -3865,14 +3877,14 @@ function renderEstBoth(){
         </div>
         <div class="est-split-item">
           <div class="est-split-lbl">🐰 딜리래빗</div>
-          <div class="est-split-val" style="color:var(--teal2)">${c.rb.est.toLocaleString()}<span class="est-split-unit">건</span></div>
-          <div class="est-split-sub">${c.rb.parts.length?c.rb.parts.map(p=>`${esc(p.dong)} ${p.qty.toLocaleString()}×${p.pct}%`).join('<br>'):'⭐ 지정된 동 없음'}</div>
+          ${rabbitAuto()?`<div class="est-split-val" style="color:var(--teal2)" data-rabbit-amount></div><div class="est-split-sub" data-rabbit-status></div>`:`<div class="est-split-val" style="color:var(--teal2)">${c.rb.est.toLocaleString()}<span class="est-split-unit">건</span></div>
+          <div class="est-split-sub">${c.rb.parts.length?c.rb.parts.map(p=>`${esc(p.dong)} ${p.qty.toLocaleString()}×${p.pct}%`).join('<br>'):'⭐ 지정된 동 없음'}</div>`}
         </div>
       </div>
       <div class="est-grand">
         <div class="est-grand-lbl">📦 총 예상 물량</div>
-        <div class="est-grand-val">${c.total.toLocaleString()}<span style="font-size:16px;color:var(--sub);font-weight:400"> 건</span></div>
-        <div class="est-grand-sub">오네 ${c.cj.est.toLocaleString()} + 딜리 ${c.rb.est.toLocaleString()}${c.lo!==c.hi?` · 오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건`:''}</div>
+        ${rabbitAuto()?'<div class="est-grand-val" data-rabbit-total></div>':`<div class="est-grand-val">${c.total.toLocaleString()}<span style="font-size:16px;color:var(--sub);font-weight:400"> 건</span></div>
+        <div class="est-grand-sub">오네 ${c.cj.est.toLocaleString()} + 딜리 ${c.rb.est.toLocaleString()}${c.lo!==c.hi?` · 오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건`:''}</div>`}
       </div>
     </div>
 
@@ -3915,6 +3927,7 @@ function renderEstBoth(){
 /* ── 렌더 ── */
 function renderEst(){
   if(estStore.set==='both') return renderEstBoth();
+  if(estStore.set==='rabbit' && rabbitAuto())return rabbitPanel();
   const isCJ=estStore.set!=='rabbit';
   const type=isCJ?'cj':'rabbit';
   const cur=estCur();
@@ -3940,7 +3953,7 @@ function renderEst(){
     ${estTabsHtml()}
     ${estMiniTotalHtml()}
 
-    ${isCJ?'':rbLookupHtml()}
+    ${isCJ?'':'<button class="est-btn blue" onclick="rabbitMode(true)">강남가 자동 조회 사용</button>'+rbLookupHtml()}
 
     <div class="field"><label>📅 기준 날짜</label>
       <input type="date" value="${cur.date}" onchange="estSetDate(this.value)"></div>
@@ -4934,6 +4947,7 @@ function showToast(msg){
 function refreshTodayLabel(){
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 }
+rabbitRestoreCache();
 refreshTodayLabel();
 updateSummary();
 render();
