@@ -66,9 +66,14 @@ async function rabbitLoad(){
       counts[code]=qty??null;
     }
     if(!Object.keys(counts).length)throw Error();
+    /* 강남가 전체 물량 — 시트 맨 아래 TOTAL 줄(E칸), 없으면 22개 동을 더함(다 확정됐을 때만) */
+    const totalRow=rows.find(cells=>String(cells[0]?.v??'').trim().toUpperCase()==='TOTAL');
+    const vals=Object.values(counts);
+    const total=Number.isSafeInteger(totalRow?.[2]?.v)?totalRow[2].v
+      :vals.every(Number.isInteger)?vals.reduce((s,v)=>s+v,0):null;
     if(seq!==rabbitRequest)return;
     if(date===sourceDate){
-      rabbitSnapshot={date,counts,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false})};
+      rabbitSnapshot={date,counts,total,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false})};
       lsSet('rabbit-sheet-last',JSON.stringify(rabbitSnapshot));
       rabbitNotice='조회 완료';
     }else{ rabbitNotice='날짜 다름 · 시트는 '+sourceDate.slice(5).replace('-','/')+' 물량'; rabbitFailed=true; }
@@ -97,6 +102,11 @@ function rabbitStatus(){
   const notice=rabbitNotice&&rabbitNotice!==r.message?rabbitNotice:'';
   return [notice,time].filter(Boolean).join(' · ');
 }
+/* 오늘 날짜의 강남가 전체 물량 (없으면 null) */
+function rabbitAllTotal(){
+  const s=rabbitSnapshot;
+  return s&&s.date===rabbitDate()&&Number.isInteger(s.total)?s.total:null;
+}
 function rabbitAmount(){
   const r=rabbitResult();
   return r.value===null?r.message:r.value.toLocaleString()+'건';
@@ -109,7 +119,7 @@ function rabbitPanel(){
   const nOn=sel.filter(a=>a.row?.on).length;
   return `${estTabsHtml()}${estMiniTotalHtml()}<div class="field"><label>📅 기준 날짜</label><input type="date" value="${rabbitDate()}" onchange="estSetDate(this.value)"></div>
     <div class="est-result-box rb-box">
-      <div class="est-box-title">🐰 강남가 · 14:30 확정 물량 기준</div>
+      <div class="rb-head"><div class="est-box-title">🐰 강남가 · 14:30 확정 물량 기준</div><div class="rb-all" data-rabbit-all hidden></div></div>
       <div class="rb-total" data-rabbit-amount role="status" aria-live="polite"></div>
       <div data-rabbit-parts></div>
       <p class="rb-status" data-rabbit-status></p>
@@ -133,6 +143,8 @@ function rabbitUpdate(){
   each('[data-rabbit-amount]',el=>{ el.textContent=rabbitAmount(); el.classList.toggle('wait',!ok); });
   each('[data-rabbit-status]',el=>{ el.textContent=rabbitStatus(); el.classList.toggle('err',rabbitFailed&&!rabbitBusy); });
   each('[data-rabbit-parts]',el=>{ el.innerHTML=rabbitPartsHtml(r); });
+  const all=rabbitAllTotal();
+  each('[data-rabbit-all]',el=>{ el.hidden=all===null; el.innerHTML=all===null?'':`<span>강남가 전체</span><b>${all.toLocaleString()}건</b>`; });
   each('[data-rabbit-count]',el=>{ el.textContent=r.parts.length+'개 선택'; });
   each('[data-rabbit-retry]',el=>{ el.disabled=rabbitBusy; el.textContent=rabbitBusy?'⏳ 조회 중…':'🔄 다시 조회'; });
   each('[data-rabbit-total]',el=>{

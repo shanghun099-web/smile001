@@ -427,6 +427,14 @@ body.tab-dragging{user-select:none;-webkit-user-select:none;}
 /* 🐰 딜리래빗 강남가 자동 조회 */
 .rb-box{border-color:#1f4a47;background:linear-gradient(135deg,#10242a,#0f1a20);}
 .rb-box .est-box-title{font-size:12px;color:#8fb8b3;}
+.rb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.rb-head .est-box-title{margin-bottom:6px;}
+.rb-all{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.3);border:1px solid rgba(94,234,212,.25);line-height:1.2;}
+.rb-all span{font-size:11px;color:#8fb8b3;font-weight:700;}
+.rb-all b{font-size:17px;color:var(--text);font-weight:900;}
+.rb-all[hidden]{display:none;}
+.rb-all-sm{flex-direction:row;align-items:baseline;justify-content:center;gap:5px;margin:8px auto 0;padding:4px 9px;width:max-content;}
+.rb-all-sm b{font-size:13px;}
 .rb-total{font-size:34px;font-weight:900;color:var(--teal2);line-height:1.15;margin:2px 0 8px;}
 .rb-total.wait{font-size:19px;color:#f0b070;}
 .rb-part{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13.5px;color:#c4cad6;border-top:1px solid rgba(94,234,212,.1);}
@@ -3663,6 +3671,7 @@ function estCombinedShareText(){
   if(rabbitAuto()&&(rabbitResult().value===null||estStore.cj.date!==rabbitDate()))return t+'🐰 딜리래빗 '+rabbitAmount()+' · 합계 대기';
   t+=`🐰 딜리래빗 ${c.rb.est.toLocaleString()}건\n`;
   t+=c.rb.parts.length?c.rb.parts.map(sub).join(''):`   └ ⭐ 지정된 동 없음\n`;
+  if(rabbitAuto()&&rabbitAllTotal()!==null) t+=`   (강남가 전체 ${rabbitAllTotal().toLocaleString()}건)\n`;
   t+=`━━━━━━━━━━\n📦 총 예상 ${c.total.toLocaleString()}건`;
   if(c.lo!==c.hi) t+=`\n(오네 70~80% 기준 ${c.lo.toLocaleString()}~${c.hi.toLocaleString()}건)`;
   return t;
@@ -3905,7 +3914,7 @@ function renderEstBoth(){
         </div>
         <div class="est-split-item">
           <div class="est-split-lbl">🐰 딜리래빗</div>
-          ${rabbitAuto()?`<div class="est-split-val" style="color:var(--teal2)" data-rabbit-amount></div><div class="est-split-sub" data-rabbit-status></div>`:`<div class="est-split-val" style="color:var(--teal2)">${c.rb.est.toLocaleString()}<span class="est-split-unit">건</span></div>
+          ${rabbitAuto()?`<div class="est-split-val" style="color:var(--teal2)" data-rabbit-amount></div><div class="est-split-sub" data-rabbit-status></div><div class="rb-all rb-all-sm" data-rabbit-all hidden></div>`:`<div class="est-split-val" style="color:var(--teal2)">${c.rb.est.toLocaleString()}<span class="est-split-unit">건</span></div>
           <div class="est-split-sub">${c.rb.parts.length?c.rb.parts.map(p=>`${esc(p.dong)} ${p.qty.toLocaleString()}×${p.pct}%`).join('<br>'):'⭐ 지정된 동 없음'}</div>`}
         </div>
       </div>
